@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>三麻精算</title>
+
+<style>
+
+body{
+font-family:-apple-system;
+max-width:420px;
+margin:auto;
+padding:15px;
+background:#f2f2f2;
+}
+
+.card{
+background:white;
+padding:15px;
+margin-bottom:15px;
+border-radius:12px;
+}
+
+input{
+width:100%;
+font-size:20px;
+padding:10px;
+margin-bottom:10px;
+text-align:center;
+}
+
+select{
+width:100%;
+font-size:18px;
+padding:8px;
+margin-bottom:10px;
+}
+
+button{
+width:100%;
+font-size:22px;
+padding:14px;
+background:#007aff;
+color:white;
+border:none;
+border-radius:10px;
+}
+
+.warn{
+background:#ffeaea;
+color:red;
+text-align:center;
+padding:8px;
+border-radius:6px;
+min-height:25px;
+margin-top:5px;
+}
+
+.result{
+font-size:22px;
+text-align:center;
+padding:10px;
+min-height:80px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>三麻精算</h2>
+
+<div class="card">
+
+<h3>持ち点</h3>
+
+<input id="A" type="tel" placeholder="A 点数">
+<input id="B" type="tel" placeholder="B 点数">
+<input id="C" type="tel" placeholder="C 点数">
+
+<div id="warn" class="warn"></div>
+
+</div>
+
+<div class="card">
+
+<h3>ウマ</h3>
+
+<select id="uma">
+<option value="10,5,-15">5-10</option>
+<option value="15,0,-15">15-0</option>
+<option value="20,10,-30">10-20</option>
+</select>
+
+</div>
+
+<div class="card">
+
+<h3>焼き鳥</h3>
+
+<select id="yak">
+<option value="0">なし</option>
+<option value="10000">10000</option>
+</select>
+
+<label><input type="checkbox" id="yakA">A</label>
+<label><input type="checkbox" id="yakB">B</label>
+<label><input type="checkbox" id="yakC">C</label>
+
+</div>
+
+<div class="card">
+
+<label>
+<input type="checkbox" id="shizumi" checked>
+沈みボーナス
+</label>
+
+</div>
+
+<button onclick="calc()">計算</button>
+
+<div class="card result" id="result"></div>
+
+<script>
+
+function num(id){
+
+let v=document.getElementById(id).value
+let n=parseInt(v)
+if(isNaN(n))n=0
+return n
+
+}
+
+function calc(){
+
+let A=num("A")
+let B=num("B")
+let C=num("C")
+
+let sum=A+B+C
+
+let warn=document.getElementById("warn")
+
+if(sum!==105000){
+
+warn.innerText="合計 "+sum+" 点（105000点ではありません）"
+
+}else{
+
+warn.innerText=""
+
+}
+
+let base=35000
+
+let p={
+A:(A-base)/1000,
+B:(B-base)/1000,
+C:(C-base)/1000
+}
+
+let players=[
+{n:"A",s:A},
+{n:"B",s:B},
+{n:"C",s:C}
+]
+
+players.sort((a,b)=>b.s-a.s)
+
+let uma=document.getElementById("uma").value.split(",")
+
+p[players[0].n]+=Number(uma[0])
+p[players[1].n]+=Number(uma[1])
+p[players[2].n]+=Number(uma[2])
+
+let yak=Number(document.getElementById("yak").value)/1000
+
+let yakTotal=0
+
+if(document.getElementById("yakA").checked){p.A-=yak;yakTotal+=yak}
+if(document.getElementById("yakB").checked){p.B-=yak;yakTotal+=yak}
+if(document.getElementById("yakC").checked){p.C-=yak;yakTotal+=yak}
+
+p[players[0].n]+=yakTotal
+
+if(document.getElementById("shizumi").checked){
+
+let minus=0
+
+if(A<base){p.A-=10;minus++}
+if(B<base){p.B-=10;minus++}
+if(C<base){p.C-=10;minus++}
+
+p[players[0].n]+=minus*10
+
+}
+
+let total=p.A+p.B+p.C
+
+p.A-=total/3
+p.B-=total/3
+p.C-=total/3
+
+p.A=Math.round(p.A)
+p.B=Math.round(p.B)
+p.C=Math.round(p.C)
+
+let text=
+"A "+p.A+"<br>"+
+"B "+p.B+"<br>"+
+"C "+p.C
+
+document.getElementById("result").innerHTML=text
+
+}
+
+</script>
+
+</body>
+</html>
