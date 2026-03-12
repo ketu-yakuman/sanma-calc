@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>三麻精算</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>三麻精算（最終版）</title>
 
 <style>
 
@@ -15,11 +18,16 @@ padding:15px;
 background:#f2f2f2;
 }
 
+h2{
+text-align:center;
+}
+
 .card{
 background:white;
 padding:15px;
 margin-bottom:15px;
 border-radius:12px;
+box-shadow:0 2px 4px rgba(0,0,0,0.1);
 }
 
 input{
@@ -28,6 +36,8 @@ font-size:20px;
 padding:10px;
 margin-bottom:10px;
 text-align:center;
+border-radius:8px;
+border:1px solid #ccc;
 }
 
 select{
@@ -45,6 +55,7 @@ background:#007aff;
 color:white;
 border:none;
 border-radius:10px;
+margin-bottom:10px;
 }
 
 .warn{
@@ -53,23 +64,36 @@ color:red;
 text-align:center;
 padding:8px;
 border-radius:6px;
-min-height:25px;
-margin-top:5px;
+min-height:26px;
 }
 
 .result{
 font-size:22px;
 text-align:center;
 padding:10px;
-min-height:80px;
+}
+
+.history{
+font-size:18px;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <h2>三麻精算</h2>
+
+<div class="card">
+
+<h3>プレイヤー</h3>
+
+<input id="nameA" placeholder="A 名前">
+<input id="nameB" placeholder="B 名前">
+<input id="nameC" placeholder="C 名前">
+
+</div>
 
 <div class="card">
 
@@ -88,9 +112,11 @@ min-height:80px;
 <h3>ウマ</h3>
 
 <select id="uma">
+
 <option value="10,5,-15">5-10</option>
 <option value="15,0,-15">15-0</option>
 <option value="20,10,-30">10-20</option>
+
 </select>
 
 </div>
@@ -100,8 +126,10 @@ min-height:80px;
 <h3>焼き鳥</h3>
 
 <select id="yak">
+
 <option value="0">なし</option>
 <option value="10000">10000</option>
+
 </select>
 
 <label><input type="checkbox" id="yakA">A</label>
@@ -113,21 +141,39 @@ min-height:80px;
 <div class="card">
 
 <label>
+
 <input type="checkbox" id="shizumi" checked>
+
 沈みボーナス
+
 </label>
 
 </div>
 
-<button onclick="calc()">計算</button>
+<button onclick="calc()">精算</button>
+
+<button onclick="saveHistory()">履歴追加</button>
 
 <div class="card result" id="result"></div>
 
+<div class="card result" id="pay"></div>
+
+<div class="card history">
+
+<h3>履歴</h3>
+
+<div id="history"></div>
+
+</div>
+
 <script>
+
+let totalScore={A:0,B:0,C:0}
 
 function num(id){
 
 let v=document.getElementById(id).value
+v=v.replace(/[０-９]/g,s=>String.fromCharCode(s.charCodeAt(0)-65248))
 let n=parseInt(v)
 if(isNaN(n))n=0
 return n
@@ -156,17 +202,9 @@ warn.innerText=""
 
 let base=35000
 
-let p={
-A:(A-base)/1000,
-B:(B-base)/1000,
-C:(C-base)/1000
-}
+let p={A:(A-base)/1000,B:(B-base)/1000,C:(C-base)/1000}
 
-let players=[
-{n:"A",s:A},
-{n:"B",s:B},
-{n:"C",s:C}
-]
+let players=[{n:"A",s:A},{n:"B",s:B},{n:"C",s:C}]
 
 players.sort((a,b)=>b.s-a.s)
 
@@ -180,13 +218,13 @@ let yak=Number(document.getElementById("yak").value)/1000
 
 let yakTotal=0
 
-if(document.getElementById("yakA").checked){p.A-=yak;yakTotal+=yak}
-if(document.getElementById("yakB").checked){p.B-=yak;yakTotal+=yak}
-if(document.getElementById("yakC").checked){p.C-=yak;yakTotal+=yak}
+if(yakA.checked){p.A-=yak;yakTotal+=yak}
+if(yakB.checked){p.B-=yak;yakTotal+=yak}
+if(yakC.checked){p.C-=yak;yakTotal+=yak}
 
 p[players[0].n]+=yakTotal
 
-if(document.getElementById("shizumi").checked){
+if(shizumi.checked){
 
 let minus=0
 
@@ -208,16 +246,68 @@ p.A=Math.round(p.A)
 p.B=Math.round(p.B)
 p.C=Math.round(p.C)
 
-let text=
-"A "+p.A+"<br>"+
-"B "+p.B+"<br>"+
-"C "+p.C
+let nameA=nameA_input()
+let nameB=nameB_input()
+let nameC=nameC_input()
 
-document.getElementById("result").innerHTML=text
+result.innerHTML=
+
+nameA+" "+p.A+"<br>"+
+nameB+" "+p.B+"<br>"+
+nameC+" "+p.C
+
+calcPay(nameA,nameB,nameC,p)
+
+}
+
+function nameA_input(){return document.getElementById("nameA").value||"A"}
+function nameB_input(){return document.getElementById("nameB").value||"B"}
+function nameC_input(){return document.getElementById("nameC").value||"C"}
+
+function calcPay(a,b,c,p){
+
+let arr=[
+{name:a,val:p.A},
+{name:b,val:p.B},
+{name:c,val:p.C}
+]
+
+let plus=arr.filter(x=>x.val>0)
+let minus=arr.filter(x=>x.val<0)
+
+let text="支払い<br>"
+
+minus.forEach(m=>{
+
+plus.forEach(p1=>{
+
+let pay=Math.min(-m.val,p1.val)
+
+if(pay>0){
+
+text+=m.name+" → "+p1.name+" "+pay*1000+"<br>"
+
+m.val+=pay
+p1.val-=pay
+
+}
+
+})
+
+})
+
+pay.innerHTML=text
+
+}
+
+function saveHistory(){
+
+history.innerHTML+=result.innerHTML+"<hr>"
 
 }
 
 </script>
 
 </body>
+
 </html>
