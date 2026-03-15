@@ -149,7 +149,7 @@ padding:10px;
 
 <div class="card">
 <h3>半荘結果</h3>
-<div id="history"></div>
+<div id="roundHistory"></div>
 </div>
 
 <script>
@@ -291,6 +291,11 @@ pay.innerHTML=text
 
 function saveResult(){
 
+if(result.innerHTML===""){
+alert("先に精算してください")
+return
+}
+
 let data={
 A:resultA,
 B:resultB,
@@ -331,7 +336,7 @@ nameA+" "+total.A+"<br>"+
 nameB+" "+total.B+"<br>"+
 nameC+" "+total.C
 
-history.innerHTML=html
+document.getElementById("roundHistory").innerHTML=html
 
 }
 
@@ -349,7 +354,7 @@ pay.innerHTML=""
 function resetAll(){
 
 rounds=[]
-history.innerHTML=""
+document.getElementById("roundHistory").innerHTML=""
 
 }
 
