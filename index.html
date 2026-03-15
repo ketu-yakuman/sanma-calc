@@ -18,7 +18,9 @@ padding:15px;
 background:#f2f2f2;
 }
 
-h2{text-align:center;}
+h2{
+text-align:center;
+}
 
 .card{
 background:white;
@@ -146,9 +148,9 @@ font-size:18px;
 </select>
 
 <div class="yaki">
-<label><input type="checkbox" id="yakA"> A</label>
-<label><input type="checkbox" id="yakB"> B</label>
-<label><input type="checkbox" id="yakC"> C</label>
+<label><input type="checkbox" id="yakA">A</label>
+<label><input type="checkbox" id="yakB">B</label>
+<label><input type="checkbox" id="yakC">C</label>
 </div>
 
 </div>
@@ -260,7 +262,7 @@ let A=num("A")
 let B=num("B")
 let C=num("C")
 
-let base=35000
+let base=40000
 
 let p={
 A:(A-base)/1000,
@@ -268,20 +270,26 @@ B:(B-base)/1000,
 C:(C-base)/1000
 }
 
-let players=[{n:"A",s:A},{n:"B",s:B},{n:"C",s:C}]
+let players=[
+{n:"A",s:A},
+{n:"B",s:B},
+{n:"C",s:C}
+]
+
 players.sort((a,b)=>b.s-a.s)
 
+// オカ
+p[players[0].n]+=15
+
+// ウマ
 let uma=document.getElementById("uma").value.split(",")
 
 p[players[0].n]+=Number(uma[0])
 p[players[1].n]+=Number(uma[1])
 p[players[2].n]+=Number(uma[2])
 
-// 返し40000
-p[players[0].n]+=5
-
+// 焼き鳥
 let yak=Number(document.getElementById("yak").value)/1000
-
 let yakTotal=0
 
 if(yakA.checked){p.A-=yak;yakTotal+=yak}
@@ -290,23 +298,18 @@ if(yakC.checked){p.C-=yak;yakTotal+=yak}
 
 p[players[0].n]+=yakTotal
 
+// 沈み
 if(shizumi.checked){
 
 let minus=0
 
-if(A<base){p.A-=10;minus++}
-if(B<base){p.B-=10;minus++}
-if(C<base){p.C-=10;minus++}
+if(A<35000){p.A-=10;minus++}
+if(B<35000){p.B-=10;minus++}
+if(C<35000){p.C-=10;minus++}
 
 p[players[0].n]+=minus*10
 
 }
-
-let total=p.A+p.B+p.C
-
-p.A-=total/3
-p.B-=total/3
-p.C-=total/3
 
 p.A=Math.round(p.A)
 p.B=Math.round(p.B)
@@ -318,15 +321,15 @@ resultC=p.C
 
 document.getElementById("result").innerHTML=
 
-"A "+nameA_input()+" "+p.A+"<br>"+
-"B "+nameB_input()+" "+p.B+"<br>"+
-"C "+nameC_input()+" "+p.C
+"A "+nameA()+" "+p.A+"<br>"+
+"B "+nameB()+" "+p.B+"<br>"+
+"C "+nameC()+" "+p.C
 
 }
 
-function nameA_input(){return document.getElementById("nameA").value||""}
-function nameB_input(){return document.getElementById("nameB").value||""}
-function nameC_input(){return document.getElementById("nameC").value||""}
+function nameA(){return document.getElementById("nameA").value||""}
+function nameB(){return document.getElementById("nameB").value||""}
+function nameC(){return document.getElementById("nameC").value||""}
 
 function saveResult(){
 
@@ -355,9 +358,9 @@ rounds.forEach((r,i)=>{
 tbody.innerHTML+=
 "<tr>"+
 "<td>"+(i+1)+"</td>"+
-"<td>A "+nameA_input()+" "+r.A+"</td>"+
-"<td>B "+nameB_input()+" "+r.B+"</td>"+
-"<td>C "+nameC_input()+" "+r.C+"</td>"+
+"<td>A "+nameA()+" "+r.A+"</td>"+
+"<td>B "+nameB()+" "+r.B+"</td>"+
+"<td>C "+nameC()+" "+r.C+"</td>"+
 "</tr>"
 
 totalA+=r.A
