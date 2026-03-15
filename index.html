@@ -1,43 +1,33 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<title>三麻精算</title>
+<html>
 
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>三麻精算</title>
 
 <style>
 
 body{
-font-family: "Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif;
+font-family:-apple-system;
 max-width:420px;
 margin:auto;
 padding:15px;
-background:linear-gradient(180deg,#0f5132,#083222);
-color:white;
+background:#f2f2f2;
 }
 
 h2{
 text-align:center;
-font-size:26px;
-letter-spacing:3px;
-font-weight:bold;
-color:#f5d76e;
-margin-bottom:20px;
 }
 
 .card{
-background:#f9f9f9;
+background:white;
 padding:15px;
 margin-bottom:15px;
-border-radius:10px;
-box-shadow:0 6px 12px rgba(0,0,0,0.4);
-border:2px solid #ddd;
-color:#222;
-}
-
-label{
-font-weight:bold;
+border-radius:12px;
+box-shadow:0 2px 4px rgba(0,0,0,0.1);
 }
 
 input{
@@ -46,10 +36,8 @@ font-size:20px;
 padding:10px;
 margin-bottom:10px;
 text-align:center;
-border-radius:6px;
-border:2px solid #bbb;
-background:white;
-font-weight:bold;
+border-radius:8px;
+border:1px solid #ccc;
 }
 
 select{
@@ -63,61 +51,51 @@ button{
 width:100%;
 font-size:20px;
 padding:12px;
-background:linear-gradient(#d4af37,#b8962e);
-color:#222;
+background:#007aff;
+color:white;
 border:none;
-border-radius:8px;
+border-radius:10px;
 margin-bottom:10px;
-font-weight:bold;
 }
 
-button:hover{
-opacity:0.9;
-}
-
-.checkRow{
-display:flex;
-justify-content:space-around;
-margin-top:5px;
-}
-
-.totalCheck{
+.warn{
+background:#ffeaea;
+color:#c00;
 text-align:center;
-padding:6px;
+padding:8px;
 border-radius:6px;
-font-weight:bold;
+min-height:26px;
 }
 
 .ok{
-background:#c8e6c9;
-}
-
-.ng{
-background:#ffcdd2;
-}
-
-.resultBox{
-background:#eee;
-color:#222;
-padding:10px;
-border-radius:8px;
-margin-top:10px;
+background:#eaffea;
+color:#090;
 }
 
 table{
 width:100%;
 border-collapse:collapse;
-background:white;
-color:black;
+text-align:center;
+font-size:16px;
 }
 
 th,td{
-border:1px solid #aaa;
+border:1px solid #ccc;
 padding:6px;
-text-align:center;
+}
+
+th{
+background:#eee;
+}
+
+.yaki{
+display:flex;
+justify-content:space-around;
+font-size:18px;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -126,53 +104,53 @@ text-align:center;
 
 <div class="card">
 
-<label>プレイヤー</label>
-<input id="nameA" value="A">
-<input id="nameB" value="B">
-<input id="nameC" value="C">
+<h3>プレイヤー</h3>
+
+<input id="nameA" placeholder="A 名前">
+<input id="nameB" placeholder="B 名前">
+<input id="nameC" placeholder="C 名前">
 
 </div>
 
 <div class="card">
 
-<label>持ち点</label>
-<input id="scoreA" type="text" value="35000">
-<input id="scoreB" type="text" value="35000">
-<input id="scoreC" type="text" value="35000">
+<h3>持ち点</h3>
 
-<div id="sumCheck" class="totalCheck"></div>
+<input id="A" type="text" placeholder="A 点数" oninput="checkTotal()">
+<input id="B" type="text" placeholder="B 点数" oninput="checkTotal()">
+<input id="C" type="text" placeholder="C 点数" oninput="checkTotal()">
+
+<div id="warn" class="warn"></div>
 
 </div>
 
 <div class="card">
 
-<label>ウマ</label>
+<h3>ウマ</h3>
 
 <select id="uma">
-
-<option value="5,10">5-10</option>
-<option value="10,20">10-20</option>
-
+<option value="10,5,-15">5-10</option>
+<option value="15,0,-15">15-0</option>
+<option value="20,10,-30">10-20</option>
 </select>
 
 </div>
 
 <div class="card">
 
-<label>焼き鳥</label>
+<h3>焼き鳥</h3>
 
-<select id="yakiPoint">
+<select id="yak">
 <option value="0">なし</option>
 <option value="10000">10000</option>
 <option value="20000">20000</option>
+<option value="30000">30000</option>
 </select>
 
-<div class="checkRow">
-
-<label>A<input type="checkbox" id="yakiA"></label>
-<label>B<input type="checkbox" id="yakiB"></label>
-<label>C<input type="checkbox" id="yakiC"></label>
-
+<div class="yaki">
+<label><input type="checkbox" id="yakA">A</label>
+<label><input type="checkbox" id="yakB">B</label>
+<label><input type="checkbox" id="yakC">C</label>
 </div>
 
 </div>
@@ -180,141 +158,169 @@ text-align:center;
 <div class="card">
 
 <label>
-<input type="checkbox" id="tobi"> 沈みボーナス
+<input type="checkbox" id="shizumi" checked>
+沈みボーナス
 </label>
 
 </div>
 
 <button onclick="calc()">精算</button>
-<button onclick="save()">結果保存</button>
-<button onclick="next()">次の半荘</button>
+<button onclick="saveResult()">結果保存</button>
+<button onclick="nextRound()">次の半荘</button>
 <button onclick="resetAll()">合計リセット</button>
 
-<div class="resultBox" id="result"></div>
+<div class="card" id="result"></div>
+
+<div class="card">
 
 <h3>半荘結果</h3>
 
-<table id="history">
+<table id="resultTable">
 
+<thead>
 <tr>
-<th>#</th>
-<th id="hA">A</th>
-<th id="hB">B</th>
-<th id="hC">C</th>
+<th>回</th>
+<th>A</th>
+<th>B</th>
+<th>C</th>
 </tr>
+</thead>
+
+<tbody></tbody>
+
+<tfoot>
+<tr>
+<th>合計</th>
+<th id="sumA">0</th>
+<th id="sumB">0</th>
+<th id="sumC">0</th>
+</tr>
+</tfoot>
 
 </table>
 
+</div>
+
 <script>
 
-let history=[]
-let totals={A:0,B:0,C:0}
+let resultA=0
+let resultB=0
+let resultC=0
 
-function getScore(id){
-return parseInt(document.getElementById(id).value)||0
+let rounds=[]
+
+function format(n){
+return n.toLocaleString()
 }
 
-function updateSum(){
+function num(id){
 
-let a=getScore("scoreA")
-let b=getScore("scoreB")
-let c=getScore("scoreC")
+let v=document.getElementById(id).value
+v=v.replace(/[^0-9\-]/g,"")
 
-let sum=a+b+c
+let n=parseInt(v)
 
-let remain=105000-sum
+if(isNaN(n))n=0
 
-let el=document.getElementById("sumCheck")
+return n
+
+}
+
+function checkTotal(){
+
+let A=num("A")
+let B=num("B")
+let C=num("C")
+
+let sum=A+B+C
+
+let warn=document.getElementById("warn")
+
+if(sum===0){
+warn.innerText=""
+return
+}
 
 if(sum===105000){
 
-el.className="totalCheck ok"
-el.innerText="合計 105,000 点（OK）"
+warn.className="warn ok"
+warn.innerText="合計 "+format(sum)+" 点（OK）"
 
 }else{
 
-el.className="totalCheck ng"
-el.innerText="合計 "+sum.toLocaleString()+" 点（残り "+remain.toLocaleString()+"点）"
+warn.className="warn"
+warn.innerText="合計 "+format(sum)+" 点（残り "+format(105000-sum)+" 点）"
 
 }
 
 }
-
-setInterval(updateSum,500)
 
 function calc(){
 
-let scores={
-A:getScore("scoreA"),
-B:getScore("scoreB"),
-C:getScore("scoreC")
+let A=num("A")
+let B=num("B")
+let C=num("C")
+
+let base=40000
+
+let p={
+A:(A-base)/1000,
+B:(B-base)/1000,
+C:(C-base)/1000
 }
 
-let names={
-A:document.getElementById("nameA").value,
-B:document.getElementById("nameB").value,
-C:document.getElementById("nameC").value
-}
+let players=[
+{name:"A",score:A},
+{name:"B",score:B},
+{name:"C",score:C}
+]
+
+players.sort((a,b)=>b.score-a.score)
+
+p[players[0].name]+=15
 
 let uma=document.getElementById("uma").value.split(",")
-let uma2=parseInt(uma[0])
-let uma1=parseInt(uma[1])
 
-let order=Object.keys(scores).sort((a,b)=>scores[b]-scores[a])
+p[players[0].name]+=Number(uma[0])
+p[players[1].name]+=Number(uma[1])
+p[players[2].name]+=Number(uma[2])
 
-let p={A:0,B:0,C:0}
+let yak=Number(document.getElementById("yak").value)/1000
 
-for(let k in scores){
-p[k]=(scores[k]-40000)/1000
-}
+let yakPlayers=[]
+let notYakPlayers=[]
 
-p[order[0]]+=15
+if(yakA.checked) yakPlayers.push({name:"A",score:A})
+else notYakPlayers.push({name:"A",score:A})
 
-p[order[0]]+=uma1
-p[order[1]]+=uma2
-p[order[2]]-=uma1+uma2
+if(yakB.checked) yakPlayers.push({name:"B",score:B})
+else notYakPlayers.push({name:"B",score:B})
 
-let yakiPoint=parseInt(document.getElementById("yakiPoint").value)/1000
+if(yakC.checked) yakPlayers.push({name:"C",score:C})
+else notYakPlayers.push({name:"C",score:C})
 
-let yaki={
-A:document.getElementById("yakiA").checked,
-B:document.getElementById("yakiB").checked,
-C:document.getElementById("yakiC").checked
-}
+if(yakPlayers.length>0 && notYakPlayers.length>0){
 
-let payers=[]
-let receivers=[]
+notYakPlayers.sort((a,b)=>b.score-a.score)
 
-for(let k in yaki){
+let receiver=notYakPlayers[0].name
 
-if(yaki[k]) payers.push(k)
-else receivers.push(k)
-
-}
-
-if(yakiPoint>0 && payers.length>0 && receivers.length>0){
-
-let best=receivers.sort((a,b)=>scores[b]-scores[a])[0]
-
-payers.forEach(k=>{
-p[k]-=yakiPoint
-p[best]+=yakiPoint
+yakPlayers.forEach(ply=>{
+p[ply.name]-=yak
+p[receiver]+=yak
 })
 
 }
 
-if(document.getElementById("tobi").checked){
+if(shizumi.checked){
 
-for(let k in scores){
+let minus=0
 
-if(scores[k]<0){
+if(A<35000){p.A-=10;minus++}
+if(B<35000){p.B-=10;minus++}
+if(C<35000){p.C-=10;minus++}
 
-p[k]-=20
-p[order[0]]+=20
-
-}
-
-}
+p[players[0].name]+=minus*10
 
 }
 
@@ -322,58 +328,87 @@ p.A=Math.round(p.A)
 p.B=Math.round(p.B)
 p.C=Math.round(p.C)
 
-let diff=-(p.A+p.B+p.C)
-
-p[order[0]]+=diff
+resultA=p.A
+resultB=p.B
+resultC=p.C
 
 document.getElementById("result").innerHTML=
-names.A+" "+p.A+"<br>"+
-names.B+" "+p.B+"<br>"+
-names.C+" "+p.C
 
-window.last=p
-window.lastNames=names
+nameA()+" "+p.A+"<br>"+
+nameB()+" "+p.B+"<br>"+
+nameC()+" "+p.C
 
 }
 
-function save(){
+function nameA(){return document.getElementById("nameA").value||"A"}
+function nameB(){return document.getElementById("nameB").value||"B"}
+function nameC(){return document.getElementById("nameC").value||"C"}
 
-if(!window.last)return
+function saveResult(){
 
-history.push(window.last)
+if(document.getElementById("result").innerHTML===""){
+alert("先に精算してください")
+return
+}
 
-totals.A+=window.last.A
-totals.B+=window.last.B
-totals.C+=window.last.C
+rounds.push({A:resultA,B:resultB,C:resultC})
 
-let table=document.getElementById("history")
-
-let row=table.insertRow()
-
-row.insertCell().innerText=history.length
-row.insertCell().innerText=window.last.A
-row.insertCell().innerText=window.last.B
-row.insertCell().innerText=window.last.C
+updateTable()
 
 }
 
-function next(){
+function updateTable(){
 
-document.getElementById("scoreA").value=35000
-document.getElementById("scoreB").value=35000
-document.getElementById("scoreC").value=35000
+let tbody=document.querySelector("#resultTable tbody")
+tbody.innerHTML=""
+
+let totalA=0
+let totalB=0
+let totalC=0
+
+rounds.forEach((r,i)=>{
+
+tbody.innerHTML+=
+"<tr>"+
+"<td>"+(i+1)+"</td>"+
+"<td>"+r.A+"</td>"+
+"<td>"+r.B+"</td>"+
+"<td>"+r.C+"</td>"+
+"</tr>"
+
+totalA+=r.A
+totalB+=r.B
+totalC+=r.C
+
+})
+
+sumA.innerText=totalA
+sumB.innerText=totalB
+sumC.innerText=totalC
+
+}
+
+function nextRound(){
+
+A.value=""
+B.value=""
+C.value=""
+
+result.innerHTML=""
+
+checkTotal()
 
 }
 
 function resetAll(){
 
-history=[]
-totals={A:0,B:0,C:0}
+rounds=[]
 
-let table=document.getElementById("history")
+document.querySelector("#resultTable tbody").innerHTML=""
 
-table.innerHTML=
-"<tr><th>#</th><th>A</th><th>B</th><th>C</th></tr>"
+sumA.innerText=0
+sumB.innerText=0
+sumC.innerText=0
 
 }
 
