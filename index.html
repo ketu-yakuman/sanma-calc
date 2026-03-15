@@ -65,11 +65,16 @@ border-radius:6px;
 min-height:26px;
 }
 
+.ok{
+background:#eaffea;
+color:#090;
+}
+
 table{
 width:100%;
 border-collapse:collapse;
 text-align:center;
-font-size:18px;
+font-size:16px;
 }
 
 th,td{
@@ -81,9 +86,10 @@ th{
 background:#eee;
 }
 
-.ok{
-background:#eaffea;
-color:#0a0;
+.yaki{
+display:flex;
+justify-content:space-around;
+font-size:18px;
 }
 
 </style>
@@ -139,9 +145,11 @@ color:#0a0;
 <option value="30000">30000</option>
 </select>
 
-<label><input type="checkbox" id="yakA">A</label>
-<label><input type="checkbox" id="yakB">B</label>
-<label><input type="checkbox" id="yakC">C</label>
+<div class="yaki">
+<label><input type="checkbox" id="yakA"> A</label>
+<label><input type="checkbox" id="yakB"> B</label>
+<label><input type="checkbox" id="yakC"> C</label>
+</div>
 
 </div>
 
@@ -227,7 +235,7 @@ let sum=A+B+C
 
 let warn=document.getElementById("warn")
 
-if(A==0 && B==0 && C==0){
+if(sum===0){
 warn.innerText=""
 return
 }
@@ -235,16 +243,12 @@ return
 if(sum===105000){
 
 warn.className="warn ok"
-
 warn.innerText="合計 "+format(sum)+" 点（OK）"
 
 }else{
 
 warn.className="warn"
-
-let remain=105000-sum
-
-warn.innerText="合計 "+format(sum)+" 点（残り "+format(remain)+" 点）"
+warn.innerText="合計 "+format(sum)+" 点（残り "+format(105000-sum)+" 点）"
 
 }
 
@@ -265,7 +269,6 @@ C:(C-base)/1000
 }
 
 let players=[{n:"A",s:A},{n:"B",s:B},{n:"C",s:C}]
-
 players.sort((a,b)=>b.s-a.s)
 
 let uma=document.getElementById("uma").value.split(",")
@@ -273,6 +276,9 @@ let uma=document.getElementById("uma").value.split(",")
 p[players[0].n]+=Number(uma[0])
 p[players[1].n]+=Number(uma[1])
 p[players[2].n]+=Number(uma[2])
+
+// 返し40000
+p[players[0].n]+=5
 
 let yak=Number(document.getElementById("yak").value)/1000
 
@@ -310,21 +316,17 @@ resultA=p.A
 resultB=p.B
 resultC=p.C
 
-let nameA=nameA_input()
-let nameB=nameB_input()
-let nameC=nameC_input()
-
 document.getElementById("result").innerHTML=
 
-nameA+" "+p.A+"<br>"+
-nameB+" "+p.B+"<br>"+
-nameC+" "+p.C
+"A "+nameA_input()+" "+p.A+"<br>"+
+"B "+nameB_input()+" "+p.B+"<br>"+
+"C "+nameC_input()+" "+p.C
 
 }
 
-function nameA_input(){return document.getElementById("nameA").value||"A"}
-function nameB_input(){return document.getElementById("nameB").value||"B"}
-function nameC_input(){return document.getElementById("nameC").value||"C"}
+function nameA_input(){return document.getElementById("nameA").value||""}
+function nameB_input(){return document.getElementById("nameB").value||""}
+function nameC_input(){return document.getElementById("nameC").value||""}
 
 function saveResult(){
 
@@ -342,7 +344,6 @@ updateTable()
 function updateTable(){
 
 let tbody=document.querySelector("#resultTable tbody")
-
 tbody.innerHTML=""
 
 let totalA=0
@@ -352,12 +353,11 @@ let totalC=0
 rounds.forEach((r,i)=>{
 
 tbody.innerHTML+=
-
 "<tr>"+
 "<td>"+(i+1)+"</td>"+
-"<td>"+r.A+"</td>"+
-"<td>"+r.B+"</td>"+
-"<td>"+r.C+"</td>"+
+"<td>A "+nameA_input()+" "+r.A+"</td>"+
+"<td>B "+nameB_input()+" "+r.B+"</td>"+
+"<td>C "+nameC_input()+" "+r.C+"</td>"+
 "</tr>"
 
 totalA+=r.A
@@ -366,19 +366,19 @@ totalC+=r.C
 
 })
 
-document.getElementById("sumA").innerText=totalA
-document.getElementById("sumB").innerText=totalB
-document.getElementById("sumC").innerText=totalC
+sumA.innerText=totalA
+sumB.innerText=totalB
+sumC.innerText=totalC
 
 }
 
 function nextRound(){
 
-document.getElementById("A").value=""
-document.getElementById("B").value=""
-document.getElementById("C").value=""
+A.value=""
+B.value=""
+C.value=""
 
-document.getElementById("result").innerHTML=""
+result.innerHTML=""
 
 checkTotal()
 
@@ -390,9 +390,9 @@ rounds=[]
 
 document.querySelector("#resultTable tbody").innerHTML=""
 
-document.getElementById("sumA").innerText=0
-document.getElementById("sumB").innerText=0
-document.getElementById("sumC").innerText=0
+sumA.innerText=0
+sumB.innerText=0
+sumC.innerText=0
 
 }
 
