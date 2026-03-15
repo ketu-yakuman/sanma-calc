@@ -116,9 +116,9 @@ font-size:18px;
 
 <h3>持ち点</h3>
 
-<input id="A" inputmode="numeric" type="text" placeholder="A 点数" oninput="checkTotal()">
-<input id="B" inputmode="numeric" type="text" placeholder="B 点数" oninput="checkTotal()">
-<input id="C" inputmode="numeric" type="text" placeholder="C 点数" oninput="checkTotal()">
+<input id="A" type="text" inputmode="decimal" pattern="-?[0-9]*" placeholder="A 点数" oninput="checkTotal()">
+<input id="B" type="text" inputmode="decimal" pattern="-?[0-9]*" placeholder="B 点数" oninput="checkTotal()">
+<input id="C" type="text" inputmode="decimal" pattern="-?[0-9]*" placeholder="C 点数" oninput="checkTotal()">
 
 <div id="warn" class="warn"></div>
 
