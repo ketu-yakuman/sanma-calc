@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 
 <meta charset="UTF-8">
@@ -11,7 +10,7 @@
 <style>
 
 body{
-font-family:-apple-system;
+font-family:-apple-system,BlinkMacSystemFont;
 max-width:420px;
 margin:auto;
 padding:15px;
@@ -116,9 +115,9 @@ font-size:18px;
 
 <h3>持ち点</h3>
 
-<input id="A" type="text" inputmode="decimal" pattern="-?[0-9]*" placeholder="A 点数" oninput="checkTotal()">
-<input id="B" type="text" inputmode="decimal" pattern="-?[0-9]*" placeholder="B 点数" oninput="checkTotal()">
-<input id="C" type="text" inputmode="decimal" pattern="-?[0-9]*" placeholder="C 点数" oninput="checkTotal()">
+<input id="A" type="tel" placeholder="A 点数" oninput="checkTotal()">
+<input id="B" type="tel" placeholder="B 点数" oninput="checkTotal()">
+<input id="C" type="tel" placeholder="C 点数" oninput="checkTotal()">
 
 <div id="warn" class="warn"></div>
 
@@ -217,7 +216,7 @@ function num(id){
 
 let v=document.getElementById(id).value
 
-v=v.replace(/[０-９]/g,s=>String.fromCharCode(s.charCodeAt(0)-65248))
+v=v.replace(/,/g,"")
 
 let n=parseInt(v)
 
@@ -398,5 +397,4 @@ sumC.innerText=0
 </script>
 
 </body>
-
 </html>
