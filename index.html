@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>三麻精算（最終版）</title>
+<title>三麻精算</title>
 
 <style>
 
@@ -18,9 +18,7 @@ padding:15px;
 background:#f2f2f2;
 }
 
-h2{
-text-align:center;
-}
+h2{text-align:center;}
 
 .card{
 background:white;
@@ -73,10 +71,6 @@ text-align:center;
 padding:10px;
 }
 
-.history{
-font-size:18px;
-}
-
 </style>
 
 </head>
@@ -112,11 +106,9 @@ font-size:18px;
 <h3>ウマ</h3>
 
 <select id="uma">
-
 <option value="10,5,-15">5-10</option>
 <option value="15,0,-15">15-0</option>
 <option value="20,10,-30">10-20</option>
-
 </select>
 
 </div>
@@ -126,12 +118,10 @@ font-size:18px;
 <h3>焼き鳥</h3>
 
 <select id="yak">
-
 <option value="0">なし</option>
 <option value="10000">10000</option>
 <option value="20000">20000</option>
 <option value="30000">30000</option>
-  
 </select>
 
 <label><input type="checkbox" id="yakA">A</label>
@@ -143,34 +133,32 @@ font-size:18px;
 <div class="card">
 
 <label>
-
 <input type="checkbox" id="shizumi" checked>
-
 沈みボーナス
-
 </label>
 
 </div>
 
 <button onclick="calc()">精算</button>
-
-<button onclick="saveHistory()">履歴追加</button>
+<button onclick="saveResult()">結果保存</button>
+<button onclick="nextRound()">次の半荘</button>
+<button onclick="resetAll()">合計リセット</button>
 
 <div class="card result" id="result"></div>
-
 <div class="card result" id="pay"></div>
 
-<div class="card history">
-
-<h3>履歴</h3>
-
+<div class="card">
+<h3>半荘結果</h3>
 <div id="history"></div>
-
 </div>
 
 <script>
 
-let totalScore={A:0,B:0,C:0}
+let resultA=0
+let resultB=0
+let resultC=0
+
+let rounds=[]
 
 function num(id){
 
@@ -193,13 +181,9 @@ let sum=A+B+C
 let warn=document.getElementById("warn")
 
 if(sum!==105000){
-
 warn.innerText="合計 "+sum+" 点（105000点ではありません）"
-
 }else{
-
 warn.innerText=""
-
 }
 
 let base=35000
@@ -248,12 +232,15 @@ p.A=Math.round(p.A)
 p.B=Math.round(p.B)
 p.C=Math.round(p.C)
 
+resultA=p.A
+resultB=p.B
+resultC=p.C
+
 let nameA=nameA_input()
 let nameB=nameB_input()
 let nameC=nameC_input()
 
 result.innerHTML=
-
 nameA+" "+p.A+"<br>"+
 nameB+" "+p.B+"<br>"+
 nameC+" "+p.C
@@ -302,9 +289,67 @@ pay.innerHTML=text
 
 }
 
-function saveHistory(){
+function saveResult(){
 
-history.innerHTML+=result.innerHTML+"<hr>"
+let data={
+A:resultA,
+B:resultB,
+C:resultC
+}
+
+rounds.push(data)
+
+updateHistory()
+
+}
+
+function updateHistory(){
+
+let nameA=nameA_input()
+let nameB=nameB_input()
+let nameC=nameC_input()
+
+let html=""
+let total={A:0,B:0,C:0}
+
+rounds.forEach((r,i)=>{
+
+html+=
+(i+1)+"回目<br>"+
+nameA+" "+r.A+"<br>"+
+nameB+" "+r.B+"<br>"+
+nameC+" "+r.C+"<br><br>"
+
+total.A+=r.A
+total.B+=r.B
+total.C+=r.C
+
+})
+
+html+="<hr>合計<br>"+
+nameA+" "+total.A+"<br>"+
+nameB+" "+total.B+"<br>"+
+nameC+" "+total.C
+
+history.innerHTML=html
+
+}
+
+function nextRound(){
+
+document.getElementById("A").value=""
+document.getElementById("B").value=""
+document.getElementById("C").value=""
+
+result.innerHTML=""
+pay.innerHTML=""
+
+}
+
+function resetAll(){
+
+rounds=[]
+history.innerHTML=""
 
 }
 
@@ -313,4 +358,3 @@ history.innerHTML+=result.innerHTML+"<hr>"
 </body>
 
 </html>
-
