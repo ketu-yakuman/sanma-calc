@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <meta charset="UTF-8">
@@ -10,7 +11,7 @@
 <style>
 
 body{
-font-family:-apple-system,BlinkMacSystemFont;
+font-family:-apple-system;
 max-width:420px;
 margin:auto;
 padding:15px;
@@ -215,8 +216,7 @@ return n.toLocaleString()
 function num(id){
 
 let v=document.getElementById(id).value
-
-v=v.replace(/,/g,"")
+v=v.replace(/[^0-9\-]/g,"")
 
 let n=parseInt(v)
 
@@ -270,29 +270,47 @@ C:(C-base)/1000
 }
 
 let players=[
-{n:"A",s:A},
-{n:"B",s:B},
-{n:"C",s:C}
+{name:"A",score:A},
+{name:"B",score:B},
+{name:"C",score:C}
 ]
 
-players.sort((a,b)=>b.s-a.s)
+players.sort((a,b)=>b.score-a.score)
 
-p[players[0].n]+=15
+p[players[0].name]+=15
 
 let uma=document.getElementById("uma").value.split(",")
 
-p[players[0].n]+=Number(uma[0])
-p[players[1].n]+=Number(uma[1])
-p[players[2].n]+=Number(uma[2])
+p[players[0].name]+=Number(uma[0])
+p[players[1].name]+=Number(uma[1])
+p[players[2].name]+=Number(uma[2])
 
 let yak=Number(document.getElementById("yak").value)/1000
-let yakTotal=0
 
-if(yakA.checked){p.A-=yak;yakTotal+=yak}
-if(yakB.checked){p.B-=yak;yakTotal+=yak}
-if(yakC.checked){p.C-=yak;yakTotal+=yak}
+let yakPlayers=[]
+let notYakPlayers=[]
 
-p[players[0].n]+=yakTotal
+if(yakA.checked) yakPlayers.push({name:"A",score:A})
+else notYakPlayers.push({name:"A",score:A})
+
+if(yakB.checked) yakPlayers.push({name:"B",score:B})
+else notYakPlayers.push({name:"B",score:B})
+
+if(yakC.checked) yakPlayers.push({name:"C",score:C})
+else notYakPlayers.push({name:"C",score:C})
+
+if(yakPlayers.length>0 && notYakPlayers.length>0){
+
+notYakPlayers.sort((a,b)=>b.score-a.score)
+
+let receiver=notYakPlayers[0].name
+
+yakPlayers.forEach(ply=>{
+p[ply.name]-=yak
+p[receiver]+=yak
+})
+
+}
 
 if(shizumi.checked){
 
@@ -302,7 +320,7 @@ if(A<35000){p.A-=10;minus++}
 if(B<35000){p.B-=10;minus++}
 if(C<35000){p.C-=10;minus++}
 
-p[players[0].n]+=minus*10
+p[players[0].name]+=minus*10
 
 }
 
