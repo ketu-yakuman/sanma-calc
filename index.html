@@ -412,7 +412,7 @@ function renderRanking() {
     const rank = i + 1;
     const prizeHtml = rank <= 3 ? `<span class="prize-badge prize-${rank}">${prizes[rank-1]}</span>` : '';
     const countriesHtml = p.countries.length
-      ? p.countries.map(c => `${c}<span style="color:var(--accent);margin-left:2px">(${p.breakdown[c]||0})</span>`).join(' · ')
+      ? p.countries.map(c => `${c}${getRankLabel(c)}<span style="color:var(--accent);margin-left:2px">(${p.breakdown[c]||0}pt)</span>`).join(' · ')
       : '<span style="color:var(--muted)">未登録</span>';
     return `
       <div class="rank-card rank-${rank}">
@@ -438,7 +438,7 @@ function renderPicks() {
     const countries = p.countries.length
       ? p.countries.map(c => {
           const pts = p.breakdown[c] || 0;
-          return `<span class="country-chip ${pts > 0 ? 'has-points' : ''}">${c}${pts > 0 ? ' +'+pts : ''}</span>`;
+          return `<span class="country-chip ${pts > 0 ? 'has-points' : ''}">${c}${getRankLabel(c)}${pts > 0 ? '<span style="color:var(--green);margin-left:3px;font-size:0.72rem"> +'+pts+'pt</span>' : ''}</span>`;
         }).join('')
       : '<span class="country-chip">未登録</span>';
     return `<div class="picks-card"><h3>${p.name}</h3><div class="picks-countries">${countries}</div></div>`;
@@ -474,14 +474,23 @@ function renderMatches() {
         return `<div class="match-row" style="${isNext ? 'border-left:3px solid var(--accent)' : m.played ? 'border-left:3px solid rgba(34,197,94,0.5)' : ''}">
           <div style="display:flex;flex-direction:column;flex:1">
             ${dtLabel ? `<span style="font-size:0.68rem;color:var(--gold);margin-bottom:0.15rem">${dtLabel}</span>` : ''}
-            <span class="match-team">${m.home}</span>
+            <span class="match-team">${m.home}${getRankLabel(m.home)}</span>
           </div>
           <span class="match-score ${scored ? '' : 'pending'}">${scored ? m.homeScore + ' - ' + m.awayScore : 'vs'}</span>
-          <span class="match-team away">${m.away}</span>
+          <span class="match-team away">${m.away}${getRankLabel(m.away)}</span>
         </div>`;
       }).join('')}
     </div>`;
   }).join('');
+}
+
+const FIFA_RANKINGS = {"アルゼンチン": 1, "スペイン": 2, "フランス": 3, "イングランド": 4, "ポルトガル": 5, "ブラジル": 6, "モロッコ": 7, "オランダ": 8, "ベルギー": 9, "ドイツ": 10, "クロアチア": 11, "コロンビア": 13, "メキシコ": 14, "セネガル": 15, "アメリカ": 16, "ウルグアイ": 17, "日本": 18, "スイス": 19, "イラン": 20, "トルコ": 22, "オーストリア": 23, "エクアドル": 24, "韓国": 25, "オーストラリア": 27, "アルジェリア": 28, "エジプト": 29, "カナダ": 30, "ノルウェー": 31, "コートジボワール": 33, "パナマ": 34, "スウェーデン": 38, "チェコ": 39, "パラグアイ": 40, "スコットランド": 43, "コンゴDR": 45, "チュニジア": 46, "ウズベキスタン": 50, "カタール": 55, "イラク": 56, "南アフリカ": 60, "サウジアラビア": 61, "ヨルダン": 63, "ボスニア・ヘルツェゴビナ": 64, "カーボベルデ": 68, "ガーナ": 73, "ハイチ": 81, "キュラソー": 83, "ニュージーランド": 85};
+
+function getRankLabel(country) {
+  const r = FIFA_RANKINGS[country];
+  if (!r) return '';
+  let color = r <= 10 ? 'var(--gold)' : r <= 30 ? 'var(--accent)' : 'var(--muted)';
+  return `<span style="font-size:0.65rem;color:${color};margin-left:3px">FIFA ${r}位</span>`;
 }
 
 function formatDatetimeView(dt) {
