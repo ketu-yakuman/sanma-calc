@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理者画面 | WC2026 予想大会</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #1a1f2e;
+    --bg3: #252b3b;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --gold: #FFD700;
+    --green: #22c55e;
+    --red: #ef4444;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; }
+
+  .header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .header-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  .header-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+  .btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-primary { background: var(--accent); color: #0f1117; }
+  .btn-success { background: var(--green); color: #fff; }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+  .btn-gold { background: var(--gold); color: #0f1117; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0.4rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 0.5rem 1.2rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #0f1117; font-weight: 700; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* CARD */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .card-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent);
+  }
+
+  /* FORM */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .form-row.full { grid-template-columns: 1fr; }
+  label { font-size: 0.78rem; color: var(--muted); display: block; margin-bottom: 0.25rem; }
+  input, select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+  /* PARTICIPANT EDITOR */
+  .participant-row {
+    display: grid;
+    grid-template-columns: 1.5rem 160px 1fr auto;
+    gap: 0.75rem;
+    align-items: start;
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .p-num { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--muted); margin-top: 0.25rem; }
+  .countries-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
+
+  /* MATCH ROW */
+  .match-edit-row {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr 0.8fr 1fr auto;
+    gap: 0.6rem;
+    align-items: center;
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+  }
+  .match-idx { font-size: 0.75rem; color: var(--muted); }
+  .score-inputs { display: flex; align-items: center; gap: 0.3rem; }
+  .score-inputs input { width: 3rem; text-align: center; }
+  .score-sep { color: var(--muted); }
+
+  .played-toggle {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+    accent-color: var(--green);
+  }
+
+  /* KO SECTION */
+  .ko-teams-input { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+
+  /* ADD MATCH */
+  .add-match-form {
+    display: grid;
+    grid-template-columns: 1fr 0.5rem 1fr 1fr 1fr auto;
+    gap: 0.5rem;
+    align-items: end;
+    flex-wrap: wrap;
+  }
+
+  /* STATUS */
+  .status-bar {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background: var(--green);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 999;
+  }
+  .status-bar.show { opacity: 1; }
+
+  /* LOAD */
+  .load-section {
+    background: rgba(0,212,255,0.05);
+    border: 1px dashed rgba(0,212,255,0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .load-section p { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.75rem; }
+
+  .countries-list-input { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
+
+  @media (max-width: 640px) {
+    .form-row { grid-template-columns: 1fr; }
+    .form-row.triple { grid-template-columns: 1fr 1fr; }
+    .participant-row { grid-template-columns: 1fr; }
+    .countries-grid { grid-template-columns: repeat(2, 1fr); }
+    .match-edit-row { grid-template-columns: 1fr; }
+    .ko-teams-input { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">⚙️ 管理者画面 | WC2026 予想大会</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📂 JSONを読み込む</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+    <button class="btn btn-gold" onclick="downloadJSON()">💾 JSONをダウンロード</button>
+    <a href="index.html" target="_blank"><button class="btn btn-secondary">👁️ 公開ページを確認</button></a>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="load-section">
+    <p>既存の <code>data/data.json</code> を読み込んでから編集を始めてください。初回は「初期データを生成」してください。</p>
+    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="document.getElementById('importFile').click()">📂 data.json を読み込む</button>
+      <button class="btn btn-secondary" onclick="initDefaultData()">🆕 初期データを生成</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('participants')">👥 参加者・選択国</button>
+    <button class="tab-btn" onclick="switchTab('matches')">⚽ グループ試合</button>
+    <button class="tab-btn" onclick="switchTab('knockout')">🎯 決勝トーナメント</button>
+    <button class="tab-btn" onclick="switchTab('bonus')">🌟 ボーナス</button>
+  </div>
+
+  <!-- PARTICIPANTS -->
+  <div class="tab-content active" id="tab-participants">
+    <div class="card">
+      <div class="card-title">👥 参加者と選択国（各6か国）</div>
+      <div id="participantsEditor"></div>
+    </div>
+  </div>
+
+  <!-- MATCHES -->
+  <div class="tab-content" id="tab-matches">
+    <div class="card">
+      <div class="card-title">➕ 試合を追加</div>
+      <div class="form-row triple">
+        <div>
+          <label>ホームチーム</label>
+          <input id="newHome" placeholder="例：日本">
+        </div>
+        <div>
+          <label>アウェイチーム</label>
+          <input id="newAway" placeholder="例：ドイツ">
+        </div>
+        <div>
+          <label>グループ</label>
+          <select id="newGroup">
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+            <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="addMatch()">試合を追加</button>
+    </div>
+    <div class="card">
+      <div class="card-title">⚽ 試合結果入力（✓=試合済）</div>
+      <div id="matchesEditor"></div>
+    </div>
+  </div>
+
+  <!-- KNOCKOUT -->
+  <div class="tab-content" id="tab-knockout">
+    <div id="knockoutEditor"></div>
+  </div>
+
+  <!-- BONUS -->
+  <div class="tab-content" id="tab-bonus">
+    <div class="card">
+      <div class="card-title">🌟 ボーナス設定</div>
+      <div class="form-row">
+        <div>
+          <label>⚽ 大会得点王の所属国</label>
+          <select id="bonusTopScorer" onchange="data.bonuses.topScorer=this.value"></select>
+        </div>
+        <div>
+          <label>🌟 大会MVPの所属国</label>
+          <select id="bonusMvp" onchange="data.bonuses.mvp=this.value"></select>
+        </div>
+      </div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem">※ 選択すると即時反映されます。JSONダウンロード → pushで公開ページに反映。</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="status-bar" id="statusBar">✅ 保存しました</div>
+
+<script src="js/scoring.js"></script>
+<script>
+// ===== STATE =====
+let data = null;
+
+// FIFA ワールドカップ2026 出場48か国（グループ順）
+const ALL_TEAMS_WC2026 = [
+  // Group A
+  "メキシコ","南アフリカ","韓国","チェコ",
+  // Group B
+  "カナダ","ボスニア・ヘルツェゴビナ","カタール","スイス",
+  // Group C
+  "ブラジル","モロッコ","ハイチ","スコットランド",
+  // Group D
+  "アメリカ","パラグアイ","オーストラリア","トルコ",
+  // Group E
+  "ドイツ","キュラソー","コートジボワール","エクアドル",
+  // Group F
+  "オランダ","日本","スウェーデン","チュニジア",
+  // Group G
+  "ベルギー","エジプト","イラン","ニュージーランド",
+  // Group H
+  "スペイン","カーボベルデ","サウジアラビア","ウルグアイ",
+  // Group I
+  "フランス","セネガル","イラク","ノルウェー",
+  // Group J
+  "アルゼンチン","アルジェリア","オーストリア","ヨルダン",
+  // Group K
+  "ポルトガル","コンゴDR","ウズベキスタン","コロンビア",
+  // Group L
+  "イングランド","クロアチア","ガーナ","パナマ"
+];
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===== IMPORT/EXPORT =====
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      data = JSON.parse(e.target.result);
+      renderAll();
+      showStatus('✅ JSONを読み込みました');
+    } catch {
+      alert('JSONの解析に失敗しました');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function downloadJSON() {
+  if (!data) { alert('データがありません。先に読み込みか初期化をしてください。'); return; }
+  collectAllInputs();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'data.json';
+  a.click();
+  showStatus('💾 data.json をダウンロードしました');
+}
+
+function initDefaultData() {
+  data = {
+    participants: Array.from({length: 8}, (_, i) => ({
+      id: i+1, name: `参加者${String.fromCharCode(65+i)}`, countries: []
+    })),
+    groups: [],
+    matches: [],
+    knockoutResults: {
+      round_of_32: [], round_of_32_third: [], round_of_16: [], quarter_finals: [],
+      semi_finals: [], final: [], champion: ""
+    },
+    bonuses: { topScorer: "", mvp: "" }
+  };
+  renderAll();
+  showStatus('🆕 初期データを生成しました');
+}
+
+// ===== RENDER =====
+function renderAll() {
+  renderParticipants();
+  renderMatches();
+  renderKnockout();
+  renderBonus();
+}
+
+function renderParticipants() {
+  if (!data) return;
+  const el = document.getElementById('participantsEditor');
+  el.innerHTML = data.participants.map((p, pi) => {
+    const countrySelects = Array.from({length: 6}, (_, ci) => {
+      const val = p.countries[ci] || '';
+      const opts = ['', ...ALL_TEAMS_WC2026].map(t =>
+        `<option value="${t}" ${t===val?'selected':''}>${t||'-- 選択 --'}</option>`
+      ).join('');
+      return `<select onchange="updateCountry(${pi},${ci},this.value)">${opts}</select>`;
+    }).join('');
+    return `<div class="participant-row">
+      <div class="p-num">${pi+1}</div>
+      <div><label>参加者名</label><input value="${p.name}" onchange="data.participants[${pi}].name=this.value"></div>
+      <div><label>選択国（6か国）</label><div class="countries-grid">${countrySelects}</div></div>
+      <div></div>
+    </div>`;
+  }).join('');
+}
+
+function updateCountry(pi, ci, val) {
+  data.participants[pi].countries[ci] = val;
+  // clean empty trailing
+  data.participants[pi].countries = data.participants[pi].countries.filter((c,i,arr) => c || i < arr.length - 1);
+}
+
+function renderMatches() {
+  if (!data) return;
+  const el = document.getElementById('matchesEditor');
+  if (!data.matches.length) { el.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">試合がまだ追加されていません</p>'; return; }
+  // 未試合をdatetime順にソートして表示（試合済みは下に）
+  const sorted = [...data.matches.map((m,i)=>({...m,_i:i}))].sort((a,b)=>{
+    if (a.played !== b.played) return a.played ? 1 : -1;
+    return (a.datetime||'').localeCompare(b.datetime||'');
+  });
+
+  el.innerHTML = sorted.map((m) => {
+    const i = m._i;
+    const dtLabel = m.datetime ? formatDatetime(m.datetime) : '';
+    const isUpcoming = !m.played && m.datetime && new Date(m.datetime.replace(' ','T')+'+09:00') > new Date();
+    const borderStyle = isUpcoming ? 'border-left:3px solid var(--accent)' : m.played ? 'border-left:3px solid var(--green)' : '';
+    return `<div class="match-edit-row" style="${borderStyle}">
+      <span class="match-idx" style="font-size:0.7rem;color:var(--muted)">${m.group}</span>
+      <div>
+        <div style="font-size:0.75rem;color:var(--gold);margin-bottom:0.2rem">${dtLabel}</div>
+        <span style="font-size:0.85rem;font-weight:700">${m.home}</span>
+      </div>
+      <div class="score-inputs">
+        <input type="number" min="0" value="${m.homeScore??''}" placeholder="-" onchange="data.matches[${i}].homeScore=parseInt(this.value)||0">
+        <span class="score-sep">:</span>
+        <input type="number" min="0" value="${m.awayScore??''}" placeholder="-" onchange="data.matches[${i}].awayScore=parseInt(this.value)||0">
+      </div>
+      <span style="font-size:0.85rem;font-weight:700;text-align:right">${m.away}</span>
+      <div style="display:flex;align-items:center;gap:0.3rem">
+        <input type="checkbox" class="played-toggle" ${m.played?'checked':''} onchange="data.matches[${i}].played=this.checked">
+        <span style="font-size:0.75rem;color:var(--muted)">試合済</span>
+        <button class="btn btn-danger" style="padding:0.2rem 0.5rem;font-size:0.75rem" onclick="removeMatch(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function formatDatetime(dt) {
+  if (!dt) return '';
+  const d = new Date(dt.replace(' ', 'T') + '+09:00');
+  const M = d.getMonth() + 1;
+  const D = d.getDate();
+  const wd = ['日','月','火','水','木','金','土'][d.getDay()];
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${M}/${D}(${wd}) ${hh}:${mm}`;
+}
+
+function addMatch() {
+  const home = document.getElementById('newHome').value.trim();
+  const away = document.getElementById('newAway').value.trim();
+  const group = document.getElementById('newGroup').value;
+  if (!home || !away) { alert('ホーム・アウェイチームを入力してください'); return; }
+  data.matches.push({ home, away, group, played: false, homeScore: null, awayScore: null });
+  document.getElementById('newHome').value = '';
+  document.getElementById('newAway').value = '';
+  renderMatches();
+  showStatus('試合を追加しました');
+}
+
+function removeMatch(i) {
+  if (!confirm(`${data.matches[i].home} vs ${data.matches[i].away} を削除しますか？`)) return;
+  data.matches.splice(i, 1);
+  renderMatches();
+}
+
+const KO_ROUNDS = [
+  { key: 'round_of_16', label: 'ベスト16進出（16チーム）', count: 16 },
+  { key: 'quarter_finals', label: 'ベスト8・準々決勝（8チーム）', count: 8 },
+  { key: 'semi_finals', label: 'ベスト4・準決勝（4チーム）', count: 4 },
+  { key: 'final', label: '決勝進出（2チーム）', count: 2 },
+];
+
+// ===== グループ順位計算 =====
+function calcGroupStandings() {
+  if (!data) return {};
+  const standings = {}; // { groupName: [ {team, pts, gf, ga, gd, played} ] }
+
+  // 初期化
+  data.groups.forEach(g => {
+    standings[g.name] = g.teams.map(team => ({
+      team, pts: 0, gf: 0, ga: 0, gd: 0, played: 0
+    }));
+  });
+
+  // 試合結果を集計
+  data.matches.forEach(m => {
+    if (!m.played || m.homeScore === null || m.awayScore === null) return;
+    const g = standings[m.group];
+    if (!g) return;
+    const home = g.find(t => t.team === m.home);
+    const away = g.find(t => t.team === m.away);
+    if (!home || !away) return;
+
+    home.played++; away.played++;
+    home.gf += m.homeScore; home.ga += m.awayScore; home.gd += m.homeScore - m.awayScore;
+    away.gf += m.awayScore; away.ga += m.homeScore; away.gd += m.awayScore - m.homeScore;
+
+    if (m.homeScore > m.awayScore) { home.pts += 3; }
+    else if (m.homeScore === m.awayScore) { home.pts += 1; away.pts += 1; }
+    else { away.pts += 3; }
+  });
+
+  // 各グループをソート（勝ち点 → 得失点差 → 総得点）
+  Object.keys(standings).forEach(g => {
+    standings[g].sort((a, b) =>
+      b.pts - a.pts || b.gd - a.gd || b.gf - a.gf
+    );
+  });
+
+  return standings;
+}
+
+// ===== ベスト32自動算出（1位・2位） =====
+function autoCalcRound32() {
+  const standings = calcGroupStandings();
+  const auto = []; // 1位・2位の24チーム
+  const groups = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+  groups.forEach(g => {
+    if (standings[g] && standings[g].length >= 2) {
+      auto.push({ team: standings[g][0].team, group: g, rank: 1 });
+      auto.push({ team: standings[g][1].team, group: g, rank: 2 });
+    }
+  });
+  return auto;
+}
+
+function renderKnockout() {
+  if (!data) return;
+  const el = document.getElementById('knockoutEditor');
+  const standings = calcGroupStandings();
+  const autoTeams = autoCalcRound32();
+  const autoTeamNames = autoTeams.map(t => t.team);
+
+  // 3位手動選択の現在値
+  const saved3rd = data.knockoutResults.round_of_32_third || [];
+
+  // グループ順位表
+  const standingHtml = `
+    <div class="card">
+      <div class="card-title">📊 グループ順位表（自動計算）</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.75rem">
+        ${['A','B','C','D','E','F','G','H','I','J','K','L'].map(g => {
+          const rows = standings[g] || [];
+          return `<div style="background:var(--bg3);border-radius:8px;padding:0.75rem">
+            <div style="font-family:'Bebas Neue',sans-serif;color:var(--gold);letter-spacing:0.1em;margin-bottom:0.5rem">グループ ${g}</div>
+            <table style="width:100%;font-size:0.75rem;border-collapse:collapse">
+              <thead><tr style="color:var(--muted)">
+                <th style="text-align:left;padding:0.15rem 0.25rem">#</th>
+                <th style="text-align:left;padding:0.15rem 0.25rem">国</th>
+                <th style="padding:0.15rem 0.25rem">試</th>
+                <th style="padding:0.15rem 0.25rem">勝点</th>
+                <th style="padding:0.15rem 0.25rem">得失</th>
+              </tr></thead>
+              <tbody>
+                ${rows.map((r, i) => `
+                  <tr style="color:${i < 2 ? 'var(--accent)' : i === 2 ? 'var(--gold)' : 'var(--muted)'}">
+                    <td style="padding:0.15rem 0.25rem">${i+1}</td>
+                    <td style="padding:0.15rem 0.25rem">${r.team}</td>
+                    <td style="text-align:center;padding:0.15rem 0.25rem">${r.played}</td>
+                    <td style="text-align:center;padding:0.15rem 0.25rem;font-weight:700">${r.pts}</td>
+                    <td style="text-align:center;padding:0.15rem 0.25rem">${r.gd >= 0 ? '+' : ''}${r.gd}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  // ベスト32：1位・2位（自動）
+  const auto32Html = `
+    <div class="card">
+      <div class="card-title">🤖 ベスト32 ── 各グループ1位・2位（自動）</div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.75rem">グループリーグの結果から自動計算されます。試合結果を入力すると即時反映されます。</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.5rem">
+        ${['A','B','C','D','E','F','G','H','I','J','K','L'].map(g => {
+          const s = standings[g] || [];
+          const top2 = s.slice(0, 2);
+          return top2.map((t, i) => `
+            <div style="background:var(--bg3);border-radius:6px;padding:0.5rem 0.75rem;display:flex;align-items:center;gap:0.5rem">
+              <span style="font-size:0.7rem;color:var(--muted);min-width:3.5rem">G${g} ${i+1}位</span>
+              <span style="font-size:0.85rem;color:${t.played>0?'var(--accent)':'var(--muted)'};font-weight:700">${t.team}</span>
+              ${t.played > 0 ? `<span style="font-size:0.7rem;color:var(--muted);margin-left:auto">${t.pts}pts</span>` : ''}
+            </div>`).join('');
+        }).join('')}
+      </div>
+      <div style="margin-top:0.75rem">
+        <button class="btn btn-success" onclick="applyAuto32()">✅ この結果をベスト32に反映する</button>
+      </div>
+    </div>`;
+
+  // ベスト32：3位（手動・8チーム）
+  const third32Html = `
+    <div class="card">
+      <div class="card-title">✋ ベスト32 ── 3位通過チーム（手動・8チーム）</div>
+      <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.75rem">
+        各グループ3位のうち成績上位8チームを手動で選択してください。<br>
+        <span style="color:var(--gold)">※ 3位の順位比較はFIFAの公式発表を確認してから入力してください。</span>
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;margin-bottom:0.75rem">
+        ${Array.from({length: 8}, (_, i) => {
+          const val = saved3rd[i] || '';
+          // 各グループ3位の候補
+          const candidates = ['A','B','C','D','E','F','G','H','I','J','K','L']
+            .map(g => standings[g]?.[2])
+            .filter(Boolean)
+            .map(t => t.team);
+          const opts = ['', ...candidates].map(t =>
+            `<option value="${t}" ${t===val?'selected':''}>${t||'-- 選択 --'}</option>`
+          ).join('');
+          return `<div>
+            <label style="font-size:0.75rem;color:var(--muted)">3位通過 ${i+1}チーム目</label>
+            <select onchange="update3rd(${i},this.value)" style="width:100%">${opts}</select>
+          </div>`;
+        }).join('')}
+      </div>
+      <button class="btn btn-success" onclick="apply3rd()">✅ 3位チームをベスト32に追加する</button>
+    </div>`;
+
+  // ベスト32確定チーム一覧
+  const confirmed32 = (data.knockoutResults.round_of_32 || []).filter(Boolean);
+  const confirmed32Html = confirmed32.length > 0 ? `
+    <div class="card" style="border-color:rgba(0,212,255,0.3)">
+      <div class="card-title" style="color:var(--accent)">✅ ベスト32 確定チーム（${confirmed32.length}/32）</div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.4rem">
+        ${confirmed32.map(t => `<span style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:0.25rem 0.7rem;border-radius:1rem;font-size:0.78rem">${t}</span>`).join('')}
+      </div>
+    </div>` : '';
+
+  // ベスト16以降
+  const laterRoundsHtml = KO_ROUNDS.map(r => {
+    const teams = data.knockoutResults[r.key] || [];
+    const rows = Array.from({length: r.count}, (_, i) => {
+      const val = teams[i] || '';
+      const opts = ['', ...ALL_TEAMS_WC2026].map(t =>
+        `<option value="${t}" ${t===val?'selected':''}>${t||'-- 選択 --'}</option>`
+      ).join('');
+      return `<select onchange="updateKO('${r.key}',${i},this.value)">${opts}</select>`;
+    }).join('');
+    return `<div class="card">
+      <div class="card-title">${r.label}</div>
+      <div class="ko-teams-input">${rows}</div>
+    </div>`;
+  }).join('');
+
+  // 優勝国
+  const championHtml = `
+  <div class="card" style="border-color:rgba(255,215,0,0.3)">
+    <div class="card-title" style="color:var(--gold)">🏆 優勝国</div>
+    <div style="max-width:300px">
+      <select onchange="data.knockoutResults.champion=this.value" style="width:100%">
+        ${['', ...ALL_TEAMS_WC2026].map(t => `<option value="${t}" ${t===(data.knockoutResults.champion||'')?'selected':''}>${t||'-- 選択 --'}</option>`).join('')}
+      </select>
+    </div>
+  </div>`;
+
+  el.innerHTML = standingHtml + auto32Html + third32Html + confirmed32Html + laterRoundsHtml + championHtml;
+}
+
+// 1位・2位をベスト32に反映
+function applyAuto32() {
+  const autoTeams = autoCalcRound32();
+  const auto24 = autoTeams.map(t => t.team);
+  // 既存の3位分は保持
+  const existing3rd = data.knockoutResults.round_of_32_third || [];
+  data.knockoutResults.round_of_32 = [...auto24, ...existing3rd].filter(Boolean);
+  renderKnockout();
+  showStatus('✅ 1位・2位の24チームをベスト32に反映しました');
+}
+
+// 3位8チームをベスト32に追加
+function apply3rd() {
+  const saved3rd = data.knockoutResults.round_of_32_third || [];
+  const auto24 = autoCalcRound32().map(t => t.team);
+  data.knockoutResults.round_of_32 = [...auto24, ...saved3rd].filter(Boolean);
+  renderKnockout();
+  showStatus('✅ 3位チームをベスト32に反映しました');
+}
+
+// 3位選択を保存
+function update3rd(idx, val) {
+  if (!data.knockoutResults.round_of_32_third) data.knockoutResults.round_of_32_third = [];
+  data.knockoutResults.round_of_32_third[idx] = val;
+}
+
+function updateKO(round, idx, val) {
+  if (!data.knockoutResults[round]) data.knockoutResults[round] = [];
+  data.knockoutResults[round][idx] = val;
+}
+
+function renderBonus() {
+  if (!data) return;
+  const opts = ['', ...ALL_TEAMS_WC2026].map(t =>
+    `<option value="${t}">${t || '-- 未定 --'}</option>`
+  ).join('');
+  const tsEl = document.getElementById('bonusTopScorer');
+  const mvpEl = document.getElementById('bonusMvp');
+  tsEl.innerHTML = opts;
+  mvpEl.innerHTML = opts;
+  tsEl.value = data.bonuses.topScorer || '';
+  mvpEl.value = data.bonuses.mvp || '';
+}
+
+function collectAllInputs() {
+  // participant names
+  document.querySelectorAll('#participantsEditor .participant-row').forEach((row, i) => {
+    const nameInput = row.querySelector('input');
+    if (nameInput) data.participants[i].name = nameInput.value;
+  });
+}
+
+function showStatus(msg) {
+  const bar = document.getElementById('statusBar');
+  bar.textContent = msg;
+  bar.classList.add('show');
+  setTimeout(() => bar.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

@@ -1,418 +1,608 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="ja">
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>三麻精算</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏆 WC2026 予想大会</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --gold: #FFD700;
+    --gold2: #FFA500;
+    --silver: #C0C0C0;
+    --bronze: #CD7F32;
+    --bg: #0a0e1a;
+    --bg2: #111827;
+    --bg3: #1f2937;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --green: #22c55e;
+    --red: #ef4444;
+  }
 
-body{
-font-family:-apple-system;
-max-width:420px;
-margin:auto;
-padding:15px;
-background:#f2f2f2;
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-h2{
-text-align:center;
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-.card{
-background:white;
-padding:15px;
-margin-bottom:15px;
-border-radius:12px;
-box-shadow:0 2px 4px rgba(0,0,0,0.1);
-}
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    padding: 3rem 1rem 2rem;
+    text-align: center;
+    overflow: hidden;
+  }
 
-input{
-width:100%;
-font-size:20px;
-padding:10px;
-margin-bottom:10px;
-text-align:center;
-border-radius:8px;
-border:1px solid #ccc;
-}
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,212,255,0.12) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255,107,53,0.1) 0%, transparent 60%);
+    pointer-events: none;
+  }
 
-select{
-width:100%;
-font-size:18px;
-padding:8px;
-margin-bottom:10px;
-}
+  .hero-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
 
-button{
-width:100%;
-font-size:20px;
-padding:12px;
-background:#007aff;
-color:white;
-border:none;
-border-radius:10px;
-margin-bottom:10px;
-}
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 10vw, 6rem);
+    line-height: 0.9;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 50%, #fff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
 
-.warn{
-background:#ffeaea;
-color:#c00;
-text-align:center;
-padding:8px;
-border-radius:6px;
-min-height:26px;
-}
+  .hero-sub {
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
 
-.ok{
-background:#eaffea;
-color:#090;
-}
+  /* ===== NAV ===== */
+  .nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    flex-wrap: wrap;
+  }
 
-table{
-width:100%;
-border-collapse:collapse;
-text-align:center;
-font-size:16px;
-}
+  .nav-btn {
+    padding: 0.5rem 1.4rem;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 2rem;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
 
-th,td{
-border:1px solid #ccc;
-padding:6px;
-}
+  .nav-btn.active, .nav-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+    font-weight: 700;
+  }
 
-th{
-background:#eee;
-}
+  /* ===== SECTIONS ===== */
+  .section { display: none; padding: 0 1rem 4rem; max-width: 900px; margin: 0 auto; }
+  .section.active { display: block; }
 
-.yaki{
-display:flex;
-justify-content:space-around;
-font-size:18px;
-}
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0,212,255,0.2);
+  }
 
+  /* ===== RANKING ===== */
+  .ranking-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .rank-card {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    transition: transform 0.15s, border-color 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rank-card:hover { transform: translateX(4px); border-color: rgba(0,212,255,0.3); }
+
+  .rank-card.rank-1 { border-color: rgba(255,215,0,0.4); background: linear-gradient(135deg, rgba(255,215,0,0.05), var(--bg2)); }
+  .rank-card.rank-2 { border-color: rgba(192,192,192,0.3); }
+  .rank-card.rank-3 { border-color: rgba(205,127,50,0.3); }
+
+  .rank-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    line-height: 1;
+    text-align: center;
+  }
+  .rank-1 .rank-num { color: var(--gold); }
+  .rank-2 .rank-num { color: var(--silver); }
+  .rank-3 .rank-num { color: var(--bronze); }
+  .rank-card:not(.rank-1):not(.rank-2):not(.rank-3) .rank-num { color: var(--muted); }
+
+  .rank-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .rank-countries { font-size: 0.75rem; color: var(--muted); }
+
+  .rank-score {
+    text-align: right;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .rank-score-label { font-size: 0.65rem; color: var(--muted); font-family: 'Noto Sans JP', sans-serif; }
+
+  /* prize badges */
+  .prize-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 1rem;
+    margin-left: 0.5rem;
+    font-weight: 700;
+  }
+  .prize-1 { background: rgba(255,215,0,0.2); color: var(--gold); border: 1px solid rgba(255,215,0,0.4); }
+  .prize-2 { background: rgba(192,192,192,0.15); color: var(--silver); border: 1px solid rgba(192,192,192,0.3); }
+  .prize-3 { background: rgba(205,127,50,0.15); color: var(--bronze); border: 1px solid rgba(205,127,50,0.3); }
+
+  /* ===== COUNTRIES TABLE ===== */
+  .picks-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .picks-card {
+    background: var(--bg2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+  }
+
+  .picks-card h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+  }
+
+  .picks-countries { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+  .country-chip {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 1rem;
+    background: var(--bg3);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+  }
+
+  .country-chip.has-points {
+    background: rgba(0,212,255,0.1);
+    border-color: rgba(0,212,255,0.3);
+    color: var(--accent);
+  }
+
+  /* ===== MATCHES ===== */
+  .group-section { margin-bottom: 2rem; }
+  .group-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+
+  .match-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .match-team { flex: 1; }
+  .match-team.away { text-align: right; }
+
+  .match-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    color: var(--accent);
+    min-width: 4rem;
+    text-align: center;
+  }
+
+  .match-score.pending { color: var(--muted); font-size: 1rem; }
+
+  /* ===== KNOCKOUT ===== */
+  .knockout-grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .ko-round { background: var(--bg2); border-radius: 12px; padding: 1rem 1.25rem; border: 1px solid rgba(255,255,255,0.06); }
+  .ko-round-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    margin-bottom: 0.75rem;
+  }
+  .ko-teams { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .ko-team {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 1rem;
+    background: rgba(255,107,53,0.12);
+    border: 1px solid rgba(255,107,53,0.25);
+    color: #ffa07a;
+  }
+  .ko-team.champion {
+    background: rgba(255,215,0,0.15);
+    border-color: rgba(255,215,0,0.5);
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.3rem 1rem;
+  }
+
+  /* ===== BONUS ===== */
+  .bonus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .bonus-card {
+    background: var(--bg2);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .bonus-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .bonus-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.25rem; }
+  .bonus-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--gold); }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty {
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 600px) {
+    .bonus-grid { grid-template-columns: 1fr; }
+    .rank-card { grid-template-columns: 2rem 1fr auto; gap: 0.75rem; padding: 0.75rem 1rem; }
+    .rank-score { font-size: 1.8rem; }
+  }
 </style>
-
 </head>
-
 <body>
 
-<h2>三麻精算</h2>
-
-<div class="card">
-
-<h3>プレイヤー</h3>
-
-<input id="nameA" placeholder="A 名前">
-<input id="nameB" placeholder="B 名前">
-<input id="nameC" placeholder="C 名前">
-
+<div class="hero">
+  <div class="hero-label">⚽ FIFA WORLD CUP 2026</div>
+  <div class="hero-title">予想大会</div>
+  <div class="hero-sub">賞金総額 ¥80,000 · 参加者 8名</div>
 </div>
 
-<div class="card">
+<nav class="nav">
+  <button class="nav-btn active" onclick="showTab('ranking')">🏆 ランキング</button>
+  <button class="nav-btn" onclick="showTab('picks')">🌍 選択国</button>
+  <button class="nav-btn" onclick="showTab('matches')">⚽ 試合結果</button>
+  <button class="nav-btn" onclick="showTab('knockout')">🎯 決勝T</button>
+</nav>
 
-<h3>持ち点</h3>
+<!-- RANKING -->
+<section class="section active" id="tab-ranking">
+  <div class="section-title">🏆 現在のランキング</div>
+  <div class="ranking-list" id="rankingList">
+    <div class="empty">データを読み込み中...</div>
+  </div>
+</section>
 
-<input id="A" type="text" placeholder="A 点数" oninput="checkTotal()">
-<input id="B" type="text" placeholder="B 点数" oninput="checkTotal()">
-<input id="C" type="text" placeholder="C 点数" oninput="checkTotal()">
+<!-- PICKS -->
+<section class="section" id="tab-picks">
+  <div class="section-title">🌍 参加者の選択国</div>
+  <div class="picks-grid" id="picksList">
+    <div class="empty">データを読み込み中...</div>
+  </div>
+</section>
 
-<div id="warn" class="warn"></div>
+<!-- MATCHES -->
+<section class="section" id="tab-matches">
+  <div class="section-title">⚽ グループリーグ結果</div>
+  <div id="matchesList">
+    <div class="empty">データを読み込み中...</div>
+  </div>
+</section>
 
-</div>
+<!-- KNOCKOUT -->
+<section class="section" id="tab-knockout">
+  <div class="section-title">🎯 決勝トーナメント</div>
+  <div class="knockout-grid" id="knockoutList">
+    <div class="empty">データを読み込み中...</div>
+  </div>
+  <div style="margin-top:1.5rem">
+    <div class="section-title" style="font-size:1.3rem">🎖️ ボーナス</div>
+    <div class="bonus-grid" id="bonusDisplay"></div>
+  </div>
+</section>
 
-<div class="card">
+<div class="footer">最終更新: <span id="lastUpdated">-</span></div>
 
-<h3>ウマ</h3>
-
-<select id="uma">
-<option value="10,5,-15">5-10</option>
-<option value="15,0,-15">15-0</option>
-<option value="20,10,-30">10-20</option>
-</select>
-
-</div>
-
-<div class="card">
-
-<h3>焼き鳥</h3>
-
-<select id="yak">
-<option value="0">なし</option>
-<option value="10000">10000</option>
-<option value="20000">20000</option>
-<option value="30000">30000</option>
-</select>
-
-<div class="yaki">
-<label><input type="checkbox" id="yakA">A</label>
-<label><input type="checkbox" id="yakB">B</label>
-<label><input type="checkbox" id="yakC">C</label>
-</div>
-
-</div>
-
-<div class="card">
-
-<label>
-<input type="checkbox" id="shizumi" checked>
-沈みボーナス
-</label>
-
-</div>
-
-<button onclick="calc()">精算</button>
-<button onclick="saveResult()">結果保存</button>
-<button onclick="nextRound()">次の半荘</button>
-<button onclick="resetAll()">合計リセット</button>
-
-<div class="card" id="result"></div>
-
-<div class="card">
-
-<h3>半荘結果</h3>
-
-<table id="resultTable">
-
-<thead>
-<tr>
-<th>回</th>
-<th>A</th>
-<th>B</th>
-<th>C</th>
-</tr>
-</thead>
-
-<tbody></tbody>
-
-<tfoot>
-<tr>
-<th>合計</th>
-<th id="sumA">0</th>
-<th id="sumB">0</th>
-<th id="sumC">0</th>
-</tr>
-</tfoot>
-
-</table>
-
-</div>
-
+<script src="js/scoring.js"></script>
 <script>
+let appData = null;
 
-let resultA=0
-let resultB=0
-let resultC=0
-
-let rounds=[]
-
-function format(n){
-return n.toLocaleString()
+async function loadData() {
+  try {
+    const res = await fetch('data/data.json?v=' + Date.now());
+    appData = await res.json();
+    renderAll();
+  } catch(e) {
+    document.querySelectorAll('.empty').forEach(el => el.textContent = 'データの読み込みに失敗しました。');
+  }
 }
 
-function num(id){
-
-let v=document.getElementById(id).value
-v=v.replace(/[^0-9\-]/g,"")
-
-let n=parseInt(v)
-
-if(isNaN(n))n=0
-
-return n
-
+function showTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
 }
 
-function checkTotal(){
-
-let A=num("A")
-let B=num("B")
-let C=num("C")
-
-let sum=A+B+C
-
-let warn=document.getElementById("warn")
-
-if(sum===0){
-warn.innerText=""
-return
+function renderAll() {
+  if (!appData) return;
+  renderRanking();
+  renderPicks();
+  renderMatches();
+  renderKnockout();
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleString('ja-JP');
 }
 
-if(sum===105000){
+function renderRanking() {
+  const scored = calcScores(appData);
+  const prizes = ['¥40,000', '¥15,000', '¥5,000'];
+  const el = document.getElementById('rankingList');
+  if (!scored.length) { el.innerHTML = '<div class="empty">参加者データがありません</div>'; return; }
 
-warn.className="warn ok"
-warn.innerText="合計 "+format(sum)+" 点（OK）"
-
-}else{
-
-warn.className="warn"
-warn.innerText="合計 "+format(sum)+" 点（残り "+format(105000-sum)+" 点）"
-
+  el.innerHTML = scored.map((p, i) => {
+    const rank = i + 1;
+    const prizeHtml = rank <= 3 ? `<span class="prize-badge prize-${rank}">${prizes[rank-1]}</span>` : '';
+    const countriesHtml = p.countries.length
+      ? p.countries.map(c => `${c}<span style="color:var(--accent);margin-left:2px">(${p.breakdown[c]||0})</span>`).join(' · ')
+      : '<span style="color:var(--muted)">未登録</span>';
+    return `
+      <div class="rank-card rank-${rank}">
+        <div class="rank-num">${rank}</div>
+        <div>
+          <div class="rank-name">${p.name}${prizeHtml}</div>
+          <div class="rank-countries">${countriesHtml}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="rank-score">${p.total}</div>
+          <div class="rank-score-label">pts</div>
+        </div>
+      </div>`;
+  }).join('');
 }
 
+function renderPicks() {
+  const el = document.getElementById('picksList');
+  const scored = calcScores(appData);
+  if (!appData.participants.length) { el.innerHTML = '<div class="empty">参加者データがありません</div>'; return; }
+
+  el.innerHTML = scored.map(p => {
+    const countries = p.countries.length
+      ? p.countries.map(c => {
+          const pts = p.breakdown[c] || 0;
+          return `<span class="country-chip ${pts > 0 ? 'has-points' : ''}">${c}${pts > 0 ? ' +'+pts : ''}</span>`;
+        }).join('')
+      : '<span class="country-chip">未登録</span>';
+    return `<div class="picks-card"><h3>${p.name}</h3><div class="picks-countries">${countries}</div></div>`;
+  }).join('');
 }
 
-function calc(){
+function renderMatches() {
+  const el = document.getElementById('matchesList');
+  const { matches, groups } = appData;
 
-let A=num("A")
-let B=num("B")
-let C=num("C")
+  if (!matches.length) {
+    el.innerHTML = '<div class="empty">試合データがまだありません</div>';
+    return;
+  }
 
-let base=40000
+  // group by group
+  const byGroup = {};
+  matches.forEach(m => {
+    if (!byGroup[m.group]) byGroup[m.group] = [];
+    byGroup[m.group].push(m);
+  });
 
-let p={
-A:(A-base)/1000,
-B:(B-base)/1000,
-C:(C-base)/1000
+  el.innerHTML = Object.entries(byGroup).map(([g, ms]) => {
+    const sorted = [...ms].sort((a,b) => (a.datetime||'').localeCompare(b.datetime||''));
+    return `<div class="group-section">
+      <div class="group-label">グループ ${g}</div>
+      ${sorted.map(m => {
+        const scored = m.played && m.homeScore !== null;
+        const dtLabel = m.datetime ? formatDatetimeView(m.datetime) : '';
+        const now = new Date();
+        const matchDt = m.datetime ? new Date(m.datetime.replace(' ','T')+'+09:00') : null;
+        const isNext = !m.played && matchDt && matchDt > now;
+        return `<div class="match-row" style="${isNext ? 'border-left:3px solid var(--accent)' : m.played ? 'border-left:3px solid rgba(34,197,94,0.5)' : ''}">
+          <div style="display:flex;flex-direction:column;flex:1">
+            ${dtLabel ? `<span style="font-size:0.68rem;color:var(--gold);margin-bottom:0.15rem">${dtLabel}</span>` : ''}
+            <span class="match-team">${m.home}</span>
+          </div>
+          <span class="match-score ${scored ? '' : 'pending'}">${scored ? m.homeScore + ' - ' + m.awayScore : 'vs'}</span>
+          <span class="match-team away">${m.away}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
 }
 
-let players=[
-{name:"A",score:A},
-{name:"B",score:B},
-{name:"C",score:C}
-]
-
-players.sort((a,b)=>b.score-a.score)
-
-p[players[0].name]+=15
-
-let uma=document.getElementById("uma").value.split(",")
-
-p[players[0].name]+=Number(uma[0])
-p[players[1].name]+=Number(uma[1])
-p[players[2].name]+=Number(uma[2])
-
-let yak=Number(document.getElementById("yak").value)/1000
-
-let yakPlayers=[]
-let notYakPlayers=[]
-
-if(yakA.checked) yakPlayers.push({name:"A",score:A})
-else notYakPlayers.push({name:"A",score:A})
-
-if(yakB.checked) yakPlayers.push({name:"B",score:B})
-else notYakPlayers.push({name:"B",score:B})
-
-if(yakC.checked) yakPlayers.push({name:"C",score:C})
-else notYakPlayers.push({name:"C",score:C})
-
-if(yakPlayers.length>0 && notYakPlayers.length>0){
-
-notYakPlayers.sort((a,b)=>b.score-a.score)
-
-let receiver=notYakPlayers[0].name
-
-yakPlayers.forEach(ply=>{
-p[ply.name]-=yak
-p[receiver]+=yak
-})
-
+function formatDatetimeView(dt) {
+  if (!dt) return '';
+  const d = new Date(dt.replace(' ', 'T') + '+09:00');
+  const M = d.getMonth() + 1;
+  const D = d.getDate();
+  const wd = ['日','月','火','水','木','金','土'][d.getDay()];
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${M}/${D}(${wd}) ${hh}:${mm} JST`;
 }
 
-if(shizumi.checked){
-
-let minus=0
-
-if(A<35000){p.A-=10;minus++}
-if(B<35000){p.B-=10;minus++}
-if(C<35000){p.C-=10;minus++}
-
-p[players[0].name]+=minus*10
-
+function calcGroupStandings() {
+  const standings = {};
+  appData.groups.forEach(g => {
+    standings[g.name] = g.teams.map(team => ({ team, pts: 0, gf: 0, ga: 0, gd: 0, played: 0 }));
+  });
+  appData.matches.forEach(m => {
+    if (!m.played || m.homeScore === null || m.awayScore === null) return;
+    const g = standings[m.group];
+    if (!g) return;
+    const home = g.find(t => t.team === m.home);
+    const away = g.find(t => t.team === m.away);
+    if (!home || !away) return;
+    home.played++; away.played++;
+    home.gf += m.homeScore; home.ga += m.awayScore; home.gd += m.homeScore - m.awayScore;
+    away.gf += m.awayScore; away.ga += m.homeScore; away.gd += m.awayScore - m.homeScore;
+    if (m.homeScore > m.awayScore) { home.pts += 3; }
+    else if (m.homeScore === m.awayScore) { home.pts += 1; away.pts += 1; }
+    else { away.pts += 3; }
+  });
+  Object.keys(standings).forEach(g => {
+    standings[g].sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+  });
+  return standings;
 }
 
-p.A=Math.round(p.A)
-p.B=Math.round(p.B)
-p.C=Math.round(p.C)
+function renderKnockout() {
+  const { knockoutResults, bonuses } = appData;
+  const koEl = document.getElementById('knockoutList');
+  const bonusEl = document.getElementById('bonusDisplay');
 
-resultA=p.A
-resultB=p.B
-resultC=p.C
+  const standings = calcGroupStandings();
+  const groups = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 
-document.getElementById("result").innerHTML=
+  // グループ順位表
+  const standingsHtml = `
+    <div class="ko-round" style="border-color:rgba(255,215,0,0.2)">
+      <div class="ko-round-label" style="color:var(--gold)">📊 グループ順位表</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.6rem;margin-top:0.5rem">
+        ${groups.map(g => {
+          const rows = standings[g] || [];
+          return `<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:0.6rem">
+            <div style="font-size:0.75rem;font-weight:700;color:var(--gold);margin-bottom:0.4rem;letter-spacing:0.1em">グループ ${g}</div>
+            <table style="width:100%;font-size:0.72rem;border-collapse:collapse">
+              <thead><tr style="color:var(--muted)">
+                <th style="text-align:left;padding:0.1rem 0.2rem">#</th>
+                <th style="text-align:left;padding:0.1rem 0.2rem">国</th>
+                <th style="text-align:center;padding:0.1rem 0.2rem">試</th>
+                <th style="text-align:center;padding:0.1rem 0.2rem">勝点</th>
+                <th style="text-align:center;padding:0.1rem 0.2rem">得失</th>
+              </tr></thead>
+              <tbody>
+                ${rows.map((r, i) => `<tr style="color:${i<2?'var(--accent)':i===2?'var(--gold)':'var(--muted)'}">
+                  <td style="padding:0.1rem 0.2rem">${i+1}</td>
+                  <td style="padding:0.1rem 0.2rem">${r.team}</td>
+                  <td style="text-align:center;padding:0.1rem 0.2rem">${r.played}</td>
+                  <td style="text-align:center;padding:0.1rem 0.2rem;font-weight:700">${r.pts}</td>
+                  <td style="text-align:center;padding:0.1rem 0.2rem">${r.gd>=0?'+':''}${r.gd}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>`;
+        }).join('')}
+      </div>
+      <p style="font-size:0.7rem;color:var(--muted);margin-top:0.6rem">🔵 自動通過（1・2位）　🟡 3位（8チームが通過）</p>
+    </div>`;
 
-nameA()+" "+p.A+"<br>"+
-nameB()+" "+p.B+"<br>"+
-nameC()+" "+p.C
+  const roundLabels = {
+    round_of_32: 'ベスト32',
+    round_of_16: 'ベスト16',
+    quarter_finals: 'ベスト8（準々決勝）',
+    semi_finals: 'ベスト4（準決勝）',
+    final: '決勝進出'
+  };
 
+  let koHtml = standingsHtml;
+
+  koHtml += Object.entries(roundLabels).map(([key, label]) => {
+    const teams = knockoutResults[key] || [];
+    if (!teams.length) return '';
+    return `<div class="ko-round">
+      <div class="ko-round-label">${label}</div>
+      <div class="ko-teams">${teams.map(t => `<span class="ko-team">${t}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+
+  if (knockoutResults.champion) {
+    koHtml += `<div class="ko-round" style="border-color:rgba(255,215,0,0.3)">
+      <div class="ko-round-label" style="color:var(--gold)">🏆 優勝</div>
+      <div class="ko-teams"><span class="ko-team champion">👑 ${knockoutResults.champion}</span></div>
+    </div>`;
+  }
+
+  koEl.innerHTML = koHtml;
+
+  bonusEl.innerHTML = `
+    <div class="bonus-card">
+      <div class="bonus-icon">⚽</div>
+      <div class="bonus-label">大会得点王の所属国</div>
+      <div class="bonus-value">${bonuses.topScorer || '未定'}</div>
+    </div>
+    <div class="bonus-card">
+      <div class="bonus-icon">🌟</div>
+      <div class="bonus-label">大会MVPの所属国</div>
+      <div class="bonus-value">${bonuses.mvp || '未定'}</div>
+    </div>`;
 }
 
-function nameA(){return document.getElementById("nameA").value||"A"}
-function nameB(){return document.getElementById("nameB").value||"B"}
-function nameC(){return document.getElementById("nameC").value||"C"}
-
-function saveResult(){
-
-if(document.getElementById("result").innerHTML===""){
-alert("先に精算してください")
-return
-}
-
-rounds.push({A:resultA,B:resultB,C:resultC})
-
-updateTable()
-
-}
-
-function updateTable(){
-
-let tbody=document.querySelector("#resultTable tbody")
-tbody.innerHTML=""
-
-let totalA=0
-let totalB=0
-let totalC=0
-
-rounds.forEach((r,i)=>{
-
-tbody.innerHTML+=
-"<tr>"+
-"<td>"+(i+1)+"</td>"+
-"<td>"+r.A+"</td>"+
-"<td>"+r.B+"</td>"+
-"<td>"+r.C+"</td>"+
-"</tr>"
-
-totalA+=r.A
-totalB+=r.B
-totalC+=r.C
-
-})
-
-sumA.innerText=totalA
-sumB.innerText=totalB
-sumC.innerText=totalC
-
-}
-
-function nextRound(){
-
-A.value=""
-B.value=""
-C.value=""
-
-result.innerHTML=""
-
-checkTotal()
-
-}
-
-function resetAll(){
-
-rounds=[]
-
-document.querySelector("#resultTable tbody").innerHTML=""
-
-sumA.innerText=0
-sumB.innerText=0
-sumC.innerText=0
-
-}
-
+loadData();
 </script>
-
 </body>
 </html>

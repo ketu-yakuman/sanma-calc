@@ -1,0 +1,817 @@
+{
+  "participants": [
+    {
+      "id": 1,
+      "name": "青木",
+      "countries": []
+    },
+    {
+      "id": 2,
+      "name": "澤",
+      "countries": []
+    },
+    {
+      "id": 3,
+      "name": "田中（の）",
+      "countries": []
+    },
+    {
+      "id": 4,
+      "name": "田中（け）",
+      "countries": []
+    },
+    {
+      "id": 5,
+      "name": "谷澤",
+      "countries": []
+    },
+    {
+      "id": 6,
+      "name": "西川",
+      "countries": []
+    },
+    {
+      "id": 7,
+      "name": "宮嶋",
+      "countries": []
+    },
+    {
+      "id": 8,
+      "name": "塩尻",
+      "countries": []
+    }
+  ],
+  "groups": [
+    {
+      "name": "A",
+      "teams": [
+        "メキシコ",
+        "南アフリカ",
+        "韓国",
+        "チェコ"
+      ]
+    },
+    {
+      "name": "B",
+      "teams": [
+        "カナダ",
+        "ボスニア・ヘルツェゴビナ",
+        "カタール",
+        "スイス"
+      ]
+    },
+    {
+      "name": "C",
+      "teams": [
+        "ブラジル",
+        "モロッコ",
+        "ハイチ",
+        "スコットランド"
+      ]
+    },
+    {
+      "name": "D",
+      "teams": [
+        "アメリカ",
+        "パラグアイ",
+        "オーストラリア",
+        "トルコ"
+      ]
+    },
+    {
+      "name": "E",
+      "teams": [
+        "ドイツ",
+        "キュラソー",
+        "コートジボワール",
+        "エクアドル"
+      ]
+    },
+    {
+      "name": "F",
+      "teams": [
+        "オランダ",
+        "日本",
+        "スウェーデン",
+        "チュニジア"
+      ]
+    },
+    {
+      "name": "G",
+      "teams": [
+        "ベルギー",
+        "エジプト",
+        "イラン",
+        "ニュージーランド"
+      ]
+    },
+    {
+      "name": "H",
+      "teams": [
+        "スペイン",
+        "カーボベルデ",
+        "サウジアラビア",
+        "ウルグアイ"
+      ]
+    },
+    {
+      "name": "I",
+      "teams": [
+        "フランス",
+        "セネガル",
+        "イラク",
+        "ノルウェー"
+      ]
+    },
+    {
+      "name": "J",
+      "teams": [
+        "アルゼンチン",
+        "アルジェリア",
+        "オーストリア",
+        "ヨルダン"
+      ]
+    },
+    {
+      "name": "K",
+      "teams": [
+        "ポルトガル",
+        "コンゴDR",
+        "ウズベキスタン",
+        "コロンビア"
+      ]
+    },
+    {
+      "name": "L",
+      "teams": [
+        "イングランド",
+        "クロアチア",
+        "ガーナ",
+        "パナマ"
+      ]
+    }
+  ],
+  "matches": [
+    {
+      "home": "メキシコ",
+      "away": "南アフリカ",
+      "group": "A",
+      "datetime": "2026-06-12 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "韓国",
+      "away": "チェコ",
+      "group": "A",
+      "datetime": "2026-06-12 11:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "カナダ",
+      "away": "ボスニア・ヘルツェゴビナ",
+      "group": "B",
+      "datetime": "2026-06-13 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "アメリカ",
+      "away": "パラグアイ",
+      "group": "D",
+      "datetime": "2026-06-13 10:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "カタール",
+      "away": "スイス",
+      "group": "B",
+      "datetime": "2026-06-14 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ブラジル",
+      "away": "モロッコ",
+      "group": "C",
+      "datetime": "2026-06-14 07:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ハイチ",
+      "away": "スコットランド",
+      "group": "C",
+      "datetime": "2026-06-14 10:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "オーストラリア",
+      "away": "トルコ",
+      "group": "D",
+      "datetime": "2026-06-14 13:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ドイツ",
+      "away": "キュラソー",
+      "group": "E",
+      "datetime": "2026-06-15 02:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "オランダ",
+      "away": "日本",
+      "group": "F",
+      "datetime": "2026-06-15 05:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "コートジボワール",
+      "away": "エクアドル",
+      "group": "E",
+      "datetime": "2026-06-15 08:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "スウェーデン",
+      "away": "チュニジア",
+      "group": "F",
+      "datetime": "2026-06-15 11:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "スペイン",
+      "away": "カーボベルデ",
+      "group": "H",
+      "datetime": "2026-06-16 01:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ベルギー",
+      "away": "エジプト",
+      "group": "G",
+      "datetime": "2026-06-16 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "サウジアラビア",
+      "away": "ウルグアイ",
+      "group": "H",
+      "datetime": "2026-06-16 07:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "イラン",
+      "away": "ニュージーランド",
+      "group": "G",
+      "datetime": "2026-06-16 10:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "フランス",
+      "away": "セネガル",
+      "group": "I",
+      "datetime": "2026-06-17 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "イラク",
+      "away": "ノルウェー",
+      "group": "I",
+      "datetime": "2026-06-17 07:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "アルゼンチン",
+      "away": "アルジェリア",
+      "group": "J",
+      "datetime": "2026-06-17 10:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "オーストリア",
+      "away": "ヨルダン",
+      "group": "J",
+      "datetime": "2026-06-17 13:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ポルトガル",
+      "away": "コンゴDR",
+      "group": "K",
+      "datetime": "2026-06-18 02:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "イングランド",
+      "away": "クロアチア",
+      "group": "L",
+      "datetime": "2026-06-18 05:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ガーナ",
+      "away": "パナマ",
+      "group": "L",
+      "datetime": "2026-06-18 08:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ウズベキスタン",
+      "away": "コロンビア",
+      "group": "K",
+      "datetime": "2026-06-18 11:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "チェコ",
+      "away": "南アフリカ",
+      "group": "A",
+      "datetime": "2026-06-19 01:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "スイス",
+      "away": "ボスニア・ヘルツェゴビナ",
+      "group": "B",
+      "datetime": "2026-06-19 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "カナダ",
+      "away": "カタール",
+      "group": "B",
+      "datetime": "2026-06-19 07:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "メキシコ",
+      "away": "韓国",
+      "group": "A",
+      "datetime": "2026-06-19 10:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "アメリカ",
+      "away": "オーストラリア",
+      "group": "D",
+      "datetime": "2026-06-20 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "スコットランド",
+      "away": "モロッコ",
+      "group": "C",
+      "datetime": "2026-06-20 07:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ブラジル",
+      "away": "ハイチ",
+      "group": "C",
+      "datetime": "2026-06-20 09:30",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "トルコ",
+      "away": "パラグアイ",
+      "group": "D",
+      "datetime": "2026-06-20 12:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "オランダ",
+      "away": "スウェーデン",
+      "group": "F",
+      "datetime": "2026-06-21 02:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ドイツ",
+      "away": "コートジボワール",
+      "group": "E",
+      "datetime": "2026-06-21 05:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "エクアドル",
+      "away": "キュラソー",
+      "group": "E",
+      "datetime": "2026-06-21 09:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "チュニジア",
+      "away": "日本",
+      "group": "F",
+      "datetime": "2026-06-21 13:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "スペイン",
+      "away": "サウジアラビア",
+      "group": "H",
+      "datetime": "2026-06-22 01:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ベルギー",
+      "away": "イラン",
+      "group": "G",
+      "datetime": "2026-06-22 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ウルグアイ",
+      "away": "カーボベルデ",
+      "group": "H",
+      "datetime": "2026-06-22 07:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ニュージーランド",
+      "away": "エジプト",
+      "group": "G",
+      "datetime": "2026-06-22 10:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "アルゼンチン",
+      "away": "オーストリア",
+      "group": "J",
+      "datetime": "2026-06-23 02:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "フランス",
+      "away": "イラク",
+      "group": "I",
+      "datetime": "2026-06-23 06:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ノルウェー",
+      "away": "セネガル",
+      "group": "I",
+      "datetime": "2026-06-23 09:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ヨルダン",
+      "away": "アルジェリア",
+      "group": "J",
+      "datetime": "2026-06-23 12:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ポルトガル",
+      "away": "ウズベキスタン",
+      "group": "K",
+      "datetime": "2026-06-24 02:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "イングランド",
+      "away": "ガーナ",
+      "group": "L",
+      "datetime": "2026-06-24 05:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "パナマ",
+      "away": "クロアチア",
+      "group": "L",
+      "datetime": "2026-06-24 08:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "コロンビア",
+      "away": "コンゴDR",
+      "group": "K",
+      "datetime": "2026-06-24 11:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "スイス",
+      "away": "カナダ",
+      "group": "B",
+      "datetime": "2026-06-25 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ボスニア・ヘルツェゴビナ",
+      "away": "カタール",
+      "group": "B",
+      "datetime": "2026-06-25 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "スコットランド",
+      "away": "ブラジル",
+      "group": "C",
+      "datetime": "2026-06-25 07:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "モロッコ",
+      "away": "ハイチ",
+      "group": "C",
+      "datetime": "2026-06-25 07:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "チェコ",
+      "away": "メキシコ",
+      "group": "A",
+      "datetime": "2026-06-25 10:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "南アフリカ",
+      "away": "韓国",
+      "group": "A",
+      "datetime": "2026-06-25 10:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "キュラソー",
+      "away": "コートジボワール",
+      "group": "E",
+      "datetime": "2026-06-26 05:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "エクアドル",
+      "away": "ドイツ",
+      "group": "E",
+      "datetime": "2026-06-26 05:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "日本",
+      "away": "スウェーデン",
+      "group": "F",
+      "datetime": "2026-06-26 08:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "チュニジア",
+      "away": "オランダ",
+      "group": "F",
+      "datetime": "2026-06-26 08:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "トルコ",
+      "away": "アメリカ",
+      "group": "D",
+      "datetime": "2026-06-26 11:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "パラグアイ",
+      "away": "オーストラリア",
+      "group": "D",
+      "datetime": "2026-06-26 11:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ノルウェー",
+      "away": "フランス",
+      "group": "I",
+      "datetime": "2026-06-27 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "セネガル",
+      "away": "イラク",
+      "group": "I",
+      "datetime": "2026-06-27 04:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "カーボベルデ",
+      "away": "サウジアラビア",
+      "group": "H",
+      "datetime": "2026-06-27 09:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ウルグアイ",
+      "away": "スペイン",
+      "group": "H",
+      "datetime": "2026-06-27 09:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "エジプト",
+      "away": "イラン",
+      "group": "G",
+      "datetime": "2026-06-27 12:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ニュージーランド",
+      "away": "ベルギー",
+      "group": "G",
+      "datetime": "2026-06-27 12:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "パナマ",
+      "away": "イングランド",
+      "group": "L",
+      "datetime": "2026-06-28 06:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "クロアチア",
+      "away": "ガーナ",
+      "group": "L",
+      "datetime": "2026-06-28 06:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "コロンビア",
+      "away": "ポルトガル",
+      "group": "K",
+      "datetime": "2026-06-28 08:30",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "コンゴDR",
+      "away": "ウズベキスタン",
+      "group": "K",
+      "datetime": "2026-06-28 08:30",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "アルジェリア",
+      "away": "オーストリア",
+      "group": "J",
+      "datetime": "2026-06-28 11:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    },
+    {
+      "home": "ヨルダン",
+      "away": "アルゼンチン",
+      "group": "J",
+      "datetime": "2026-06-28 11:00",
+      "played": false,
+      "homeScore": null,
+      "awayScore": null
+    }
+  ],
+  "knockoutResults": {
+    "round_of_32": [],
+    "round_of_32_third": [],
+    "round_of_16": [],
+    "quarter_finals": [],
+    "semi_finals": [],
+    "final": [],
+    "champion": ""
+  },
+  "bonuses": {
+    "topScorer": "",
+    "mvp": ""
+  }
+}
