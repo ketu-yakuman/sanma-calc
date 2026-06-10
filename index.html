@@ -489,7 +489,7 @@ const FIFA_RANKINGS = {"アルゼンチン": 1, "スペイン": 2, "フランス
 function getRankLabel(country) {
   const r = FIFA_RANKINGS[country];
   if (!r) return '';
-  let color = r <= 10 ? 'var(--gold)' : r <= 30 ? 'var(--accent)' : 'var(--muted)';
+  let color = r <= 10 ? 'var(--gold)' : r <= 49 ? 'var(--accent)' : 'var(--muted)';
   return `<span style="font-size:0.65rem;color:${color};margin-left:3px">FIFA ${r}位</span>`;
 }
 
