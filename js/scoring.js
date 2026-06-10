@@ -18,6 +18,30 @@ const POINTS = {
   championOwner: 10
 };
 
+// FIFAランキング（50位以下の国は得点2倍）
+const FIFA_RANKINGS_SCORE = {
+  "アルゼンチン": 1, "スペイン": 2, "フランス": 3, "イングランド": 4,
+  "ポルトガル": 5, "ブラジル": 6, "モロッコ": 7, "オランダ": 8,
+  "ベルギー": 9, "ドイツ": 10, "クロアチア": 11, "コロンビア": 13,
+  "メキシコ": 14, "セネガル": 15, "アメリカ": 16, "ウルグアイ": 17,
+  "日本": 18, "スイス": 19, "イラン": 20, "トルコ": 22,
+  "オーストリア": 23, "エクアドル": 24, "韓国": 25, "オーストラリア": 27,
+  "アルジェリア": 28, "エジプト": 29, "カナダ": 30, "ノルウェー": 31,
+  "コートジボワール": 33, "パナマ": 34, "スウェーデン": 38, "チェコ": 39,
+  "パラグアイ": 40, "スコットランド": 43, "コンゴDR": 45, "チュニジア": 46,
+  "ウズベキスタン": 50, "カタール": 55, "イラク": 56, "南アフリカ": 60,
+  "サウジアラビア": 61, "ヨルダン": 63, "ボスニア・ヘルツェゴビナ": 64,
+  "カーボベルデ": 68, "ガーナ": 73, "ハイチ": 81, "キュラソー": 83,
+  "ニュージーランド": 85
+};
+
+// 50位以下（グレー）の国は得点2倍
+function getMultiplier(country) {
+  const rank = FIFA_RANKINGS_SCORE[country];
+  if (!rank || rank >= 50) return 2;
+  return 1;
+}
+
 function calcScores(data) {
   const { participants, matches, knockoutResults, bonuses } = data;
 
@@ -59,14 +83,18 @@ function calcScores(data) {
     let breakdown = {};
 
     p.countries.forEach(country => {
+      const multiplier = getMultiplier(country);
       let pts = 0;
       pts += (countryGroupPoints[country] || 0);
       pts += (countryKnockoutPoints[country] || 0);
 
-      // ボーナス
-      if (bonuses.topScorer === country) pts += POINTS.topScorer;
-      if (bonuses.mvp === country) pts += POINTS.mvp;
-      if (knockoutResults.champion === country) pts += POINTS.championOwner;
+      // ボーナス（2倍補正の対象外）
+      const bonus =
+        (bonuses.topScorer === country ? POINTS.topScorer : 0) +
+        (bonuses.mvp === country ? POINTS.mvp : 0) +
+        (knockoutResults.champion === country ? POINTS.championOwner : 0);
+
+      pts = pts * multiplier + bonus;
 
       breakdown[country] = pts;
       total += pts;
