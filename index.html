@@ -512,7 +512,9 @@ function renderMatches() {
   } else {
     const byGroup = {};
     matches.forEach(m => { if (!byGroup[m.group]) byGroup[m.group] = []; byGroup[m.group].push(m); });
-    el.innerHTML = Object.entries(byGroup).map(([g, ms]) => {
+    const groupOrder = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+    const sortedGroups = Object.entries(byGroup).sort((a,b) => groupOrder.indexOf(a[0]) - groupOrder.indexOf(b[0]));
+    el.innerHTML = sortedGroups.map(([g, ms]) => {
       const sorted = [...ms].sort((a,b) => (a.datetime||'').localeCompare(b.datetime||''));
       return `<div class="group-section">
         <div class="group-label">グループ ${g}</div>
