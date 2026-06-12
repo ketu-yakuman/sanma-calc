@@ -221,9 +221,9 @@
       "away": "チェコ",
       "group": "A",
       "datetime": "2026-06-12 11:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 2,
+      "awayScore": 1
     },
     {
       "home": "カナダ",
