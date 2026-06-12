@@ -396,12 +396,22 @@
     <div class="card">
       <div class="card-title">🌟 ボーナス</div>
       <div class="form-field">
-        <label>⚽ 大会得点王の所属国</label>
+        <label>⚽ 大会得点王の所属国 <span style="color:var(--gold)">＋10点</span></label>
         <select id="bonusTopScorer" onchange="data.bonuses.topScorer=this.value"></select>
       </div>
       <div class="form-field">
-        <label>🌟 大会MVPの所属国</label>
+        <label>🌟 大会MVPの所属国 <span style="color:var(--gold)">＋10点</span></label>
         <select id="bonusMvp" onchange="data.bonuses.mvp=this.value"></select>
+      </div>
+      <div style="height:1px;background:var(--border);margin:1rem 0"></div>
+      <p style="font-size:0.78rem;color:var(--red);font-weight:700;margin-bottom:0.75rem">⚠️ 逆ボーナス（ペナルティ）</p>
+      <div class="form-field">
+        <label>🟥 大会最多レッドカード国 <span style="color:var(--red)">－10点</span></label>
+        <select id="bonusMostRed" onchange="data.bonuses.mostRed=this.value"></select>
+      </div>
+      <div class="form-field">
+        <label>🥅 大会最多失点国 <span style="color:var(--red)">－10点</span></label>
+        <select id="bonusMostConceded" onchange="data.bonuses.mostConceded=this.value"></select>
       </div>
       <p style="font-size:0.75rem;color:var(--muted);margin-top:0.5rem;line-height:1.5">選択すると即時反映。JSONを保存→pushで公開ページに反映されます。</p>
     </div>
@@ -789,12 +799,17 @@ function renderBonus() {
   const opts = ['', ...ALL_TEAMS_WC2026].map(t =>
     `<option value="${t}">${t || '-- 未定 --'}</option>`
   ).join('');
-  const tsEl = document.getElementById('bonusTopScorer');
-  const mvpEl = document.getElementById('bonusMvp');
-  tsEl.innerHTML = opts;
-  mvpEl.innerHTML = opts;
-  tsEl.value = data.bonuses.topScorer || '';
-  mvpEl.value = data.bonuses.mvp || '';
+  const fields = [
+    { id: 'bonusTopScorer', key: 'topScorer' },
+    { id: 'bonusMvp',       key: 'mvp' },
+    { id: 'bonusMostRed',      key: 'mostRed' },
+    { id: 'bonusMostConceded', key: 'mostConceded' },
+  ];
+  fields.forEach(({ id, key }) => {
+    const el = document.getElementById(id);
+    el.innerHTML = opts;
+    el.value = data.bonuses[key] || '';
+  });
 }
 
 // ===== UTILS =====
