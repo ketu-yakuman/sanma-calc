@@ -309,6 +309,37 @@
 
   /* ===== RANK LABEL ===== */
   .rl { font-size: 0.6rem; margin-left: 2px; }
+
+  /* ===== POPUP ===== */
+  .popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .popup-overlay.show { opacity: 1; pointer-events: all; }
+  .popup-sheet {
+    width: 100%;
+    background: var(--bg2);
+    border-radius: 18px 18px 0 0;
+    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+    transform: translateY(100%);
+    transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
+    border-top: 1px solid var(--border);
+  }
+  .popup-overlay.show .popup-sheet { transform: translateY(0); }
+  .popup-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 1rem; }
+  .popup-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--accent); letter-spacing: 0.08em; margin-bottom: 0.2rem; }
+  .popup-rank { font-size: 0.75rem; color: var(--muted); margin-bottom: 1rem; }
+  .popup-owners { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .popup-owner-chip { padding: 0.35rem 0.9rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 700; background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.3); color: var(--accent); }
+  .popup-none { font-size: 0.85rem; color: var(--muted); padding: 0.5rem 0; }
+  .popup-close { width: 100%; margin-top: 1rem; padding: 0.75rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg3); color: var(--muted); font-family: 'Noto Sans JP', sans-serif; font-size: 0.9rem; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -478,10 +509,10 @@ function buildMatchRow(m, showGroup) {
   return `<div class="match-row" style="${border}">
     <div class="match-left">
       <div class="match-dt">${groupBadge}${dtLabel}</div>
-      <div class="match-team">${m.home}${getRankLabel(m.home)}</div>
+      <div class="match-team" onclick="showCountryPopup('${m.home}')" style="cursor:pointer">${m.home}${getRankLabel(m.home)}</div>
     </div>
     <div class="match-score ${scored?'':'pending'}">${scored ? m.homeScore+' - '+m.awayScore : 'vs'}</div>
-    <div class="match-team-away">${m.away}${getRankLabel(m.away)}</div>
+    <div class="match-team-away" onclick="showCountryPopup('${m.away}')" style="cursor:pointer">${m.away}${getRankLabel(m.away)}</div>
   </div>`;
 }
 
@@ -522,6 +553,34 @@ function renderMatches() {
       </div>`;
     }).join('');
   }
+}
+
+function showCountryPopup(country) {
+  if (!appData) return;
+  const owners = appData.participants.filter(p => p.countries.includes(country));
+  const rank = FIFA_RANKINGS[country];
+
+  document.getElementById('popupCountry').textContent = country;
+  document.getElementById('popupRank').textContent = rank ? `FIFA ${rank}位` : '';
+
+  const ownersEl = document.getElementById('popupOwners');
+  if (owners.length) {
+    ownersEl.innerHTML = owners.map(p =>
+      `<span class="popup-owner-chip">${p.name}</span>`
+    ).join('');
+  } else {
+    ownersEl.innerHTML = '<span class="popup-none">この国を選んでいる参加者はいません</span>';
+  }
+
+  document.getElementById('popupOverlay').classList.add('show');
+}
+
+function hidePopup() {
+  document.getElementById('popupOverlay').classList.remove('show');
+}
+
+function closePopup(e) {
+  if (e.target === document.getElementById('popupOverlay')) hidePopup();
 }
 
 function formatDt(dt) {
@@ -613,5 +672,16 @@ function renderKnockout() {
 
 loadData();
 </script>
+<!-- POPUP -->
+<div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
+  <div class="popup-sheet">
+    <div class="popup-handle"></div>
+    <div class="popup-title" id="popupCountry"></div>
+    <div class="popup-rank" id="popupRank"></div>
+    <div class="popup-owners" id="popupOwners"></div>
+    <button class="popup-close" onclick="hidePopup()">閉じる</button>
+  </div>
+</div>
+
 </body>
 </html>
