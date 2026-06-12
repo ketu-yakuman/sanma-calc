@@ -856,6 +856,8 @@
   },
   "bonuses": {
     "topScorer": "",
-    "mvp": ""
+    "mvp": "",
+    "mostRed": "",
+    "mostConceded": ""
   }
 }
