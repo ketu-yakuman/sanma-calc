@@ -88,13 +88,17 @@ function calcScores(data) {
       pts += (countryGroupPoints[country] || 0);
       pts += (countryKnockoutPoints[country] || 0);
 
-      // ボーナス（2倍補正の対象外）
+      // ボーナス・ペナルティ（2倍補正の対象外）
       const bonus =
         (bonuses.topScorer === country ? POINTS.topScorer : 0) +
         (bonuses.mvp === country ? POINTS.mvp : 0) +
         (knockoutResults.champion === country ? POINTS.championOwner : 0);
 
-      pts = pts * multiplier + bonus;
+      const penalty =
+        (bonuses.mostRed === country ? 10 : 0) +
+        (bonuses.mostConceded === country ? 10 : 0);
+
+      pts = pts * multiplier + bonus - penalty;
 
       breakdown[country] = pts;
       total += pts;
