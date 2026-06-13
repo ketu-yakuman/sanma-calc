@@ -696,7 +696,7 @@ function renderKnockout() {
         const c = i<2?'var(--accent)':i===2?'var(--gold)':'var(--muted)';
         return `<div class="standing-row">
           <span class="s-rank" style="color:${c}">${i+1}</span>
-          <span class="s-team" style="color:${c}">${r.team}</span>
+          <span class="s-team" style="color:${c}">${r.team}${getRankLabel(r.team)}</span>
           <span class="s-played">${r.played}試</span>
           <span class="s-pts" style="color:${c}">${r.pts}pt</span>
           <span class="s-gd">${r.gd>=0?'+':''}${r.gd}</span>
