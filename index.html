@@ -173,28 +173,44 @@
   .prize-4 { background: rgba(148,163,184,0.12); color: var(--muted); border: 1px solid rgba(148,163,184,0.25); }
 
   /* ===== PICKS ===== */
-  .picks-list { display: flex; flex-direction: column; gap: 0.5rem; }
-  .picks-card {
-    background: var(--bg2);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    padding: 0.85rem;
-  }
-  .picks-card h3 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.5rem; }
-  .picks-countries { display: flex; flex-wrap: wrap; gap: 0.35rem; }
-  .country-chip {
-    font-size: 0.72rem;
-    padding: 0.2rem 0.6rem;
-    border-radius: 1rem;
-    background: var(--bg3);
-    border: 1px solid rgba(255,255,255,0.08);
+  .picks-table { width: 100%; border-collapse: collapse; }
+  .picks-table th {
+    font-size: 0.68rem;
     color: var(--muted);
+    font-weight: 700;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-align: left;
+    white-space: nowrap;
   }
-  .country-chip.has-points {
-    background: rgba(0,212,255,0.08);
-    border-color: rgba(0,212,255,0.25);
+  .picks-table th.pts-col { text-align: right; color: var(--accent); }
+  .picks-table td {
+    padding: 0.55rem 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    vertical-align: top;
+    font-size: 0.82rem;
+  }
+  .picks-table tr:last-child td { border-bottom: none; }
+  .picks-player-name { font-weight: 700; white-space: nowrap; }
+  .picks-player-pts {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
     color: var(--accent);
+    text-align: right;
+    white-space: nowrap;
   }
+  .picks-country-row { display: flex; flex-direction: column; gap: 0.25rem; }
+  .picks-country-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; }
+  .picks-country-name { flex: 1; }
+  .picks-country-pts {
+    font-size: 0.7rem;
+    color: var(--green);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .picks-country-item.has-pts .picks-country-name { color: var(--text); }
+  .picks-country-item:not(.has-pts) .picks-country-name { color: var(--muted); }
+  .picks-country-penalty { font-size: 0.7rem; color: var(--red); font-weight: 700; white-space: nowrap; }
 
   /* ===== MATCHES ===== */
   .view-toggle {
@@ -377,7 +393,7 @@
   <!-- PICKS -->
   <div class="tab-content" id="tab-picks">
     <div class="section-title">🌍 選択国</div>
-    <div class="picks-list" id="picksList">
+    <div id="picksList">
       <div class="empty">読み込み中...</div>
     </div>
   </div>
@@ -491,15 +507,54 @@ function renderPicks() {
   const scored = calcScores(appData);
   const el = document.getElementById('picksList');
   if (!appData.participants.length) { el.innerHTML = '<div class="empty">参加者データがありません</div>'; return; }
-  el.innerHTML = scored.map(p => {
-    const chips = p.countries.length
+
+  const prizes = ['3.5万円','2.5万円','1万円'];
+  const prizeColors = ['var(--gold)','var(--silver)','var(--bronze)'];
+
+  const rows = scored.map((p, i) => {
+    const rank = i + 1;
+    const prizeHtml = rank <= 3
+      ? `<span style="font-size:0.6rem;color:${prizeColors[rank-1]};margin-left:3px">${prizes[rank-1]}</span>`
+      : '';
+
+    const countryRows = p.countries.length
       ? p.countries.map(c => {
           const pts = p.breakdown[c] || 0;
-          return `<span class="country-chip ${pts>0?'has-points':''}">${c}${getRankLabel(c)}${pts>0?`<span style="color:var(--green);font-size:0.62rem"> +${pts}pt</span>`:''}</span>`;
+          const hasPts = pts > 0;
+          // ペナルティ国チェック
+          const isPenaltyRed = appData.bonuses.mostRed === c;
+          const isPenaltyConceded = appData.bonuses.mostConceded === c;
+          const rankLabel = getRankLabel(c);
+          let ptLabel = '';
+          if (hasPts) ptLabel += `<span class="picks-country-pts">+${pts}pt</span>`;
+          if (isPenaltyRed) ptLabel += `<span class="picks-country-penalty">🟥-10</span>`;
+          if (isPenaltyConceded) ptLabel += `<span class="picks-country-penalty">🥅-10</span>`;
+          return `<div class="picks-country-item${hasPts?' has-pts':''}">
+            <span class="picks-country-name">${c}${rankLabel}</span>
+            ${ptLabel}
+          </div>`;
         }).join('')
-      : '<span class="country-chip">未登録</span>';
-    return `<div class="picks-card"><h3>${p.name} <span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--accent);margin-left:4px">${p.total}pts</span></h3><div class="picks-countries">${chips}</div></div>`;
+      : '<span style="color:var(--muted);font-size:0.75rem">未登録</span>';
+
+    return `<tr>
+      <td>
+        <div class="picks-player-name">${rank}. ${p.name}${prizeHtml}</div>
+      </td>
+      <td><div class="picks-country-row">${countryRows}</div></td>
+      <td class="picks-player-pts">${p.total}<span style="font-size:0.6rem;font-family:'Noto Sans JP',sans-serif;color:var(--muted)">pt</span></td>
+    </tr>`;
   }).join('');
+
+  el.innerHTML = `<table class="picks-table">
+    <thead>
+      <tr>
+        <th style="width:5rem">参加者</th>
+        <th>選択国</th>
+        <th class="pts-col">得点</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
 }
 
 // ===== MATCHES =====
