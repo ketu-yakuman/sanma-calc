@@ -219,18 +219,18 @@
       "away": "ボスニア・ヘルツェゴビナ",
       "group": "B",
       "datetime": "2026-06-13 04:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 1
     },
     {
       "home": "アメリカ",
       "away": "パラグアイ",
       "group": "D",
       "datetime": "2026-06-13 10:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 4,
+      "awayScore": 1
     },
     {
       "home": "カタール",
