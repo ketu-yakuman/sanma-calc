@@ -237,9 +237,9 @@
       "away": "スイス",
       "group": "B",
       "datetime": "2026-06-14 04:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 1
     },
     {
       "home": "ブラジル",
