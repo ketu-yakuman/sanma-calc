@@ -451,12 +451,12 @@ function renderAll() {
 // ===== RANKING =====
 function renderRanking() {
   const scored = calcScores(appData);
-  const prizes = ['4万円','2.5万円','1万円','0.5万円'];
+  const prizes = ['3.5万円','2.5万円','1万円'];
   const el = document.getElementById('rankingList');
   if (!scored.length) { el.innerHTML = '<div class="empty">参加者データがありません</div>'; return; }
   el.innerHTML = scored.map((p, i) => {
     const rank = i + 1;
-    const prize = rank <= 4 ? `<span class="prize-badge prize-${rank}">${prizes[rank-1]}</span>` : '';
+    const prize = rank <= 3 ? `<span class="prize-badge prize-${rank}">${prizes[rank-1]}</span>` : '';
     const countries = p.countries.length
       ? p.countries.map(c => `${c}${getRankLabel(c)}<span style="color:var(--accent);font-size:0.62rem;margin-left:1px">(${p.breakdown[c]||0})</span>`).join(' · ')
       : '<span style="color:var(--muted)">未登録</span>';
