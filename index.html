@@ -272,6 +272,12 @@
     border: 1px solid rgba(255,107,53,0.2);
     color: #ffa07a;
   }
+  .ko-team.ko-owned {
+    background: rgba(0,212,255,0.12);
+    border-color: rgba(0,212,255,0.35);
+    color: var(--accent);
+    font-weight: 700;
+  }
   .ko-team.champion {
     background: rgba(255,215,0,0.12);
     border-color: rgba(255,215,0,0.4);
@@ -282,14 +288,20 @@
   }
 
   /* ===== STANDINGS ===== */
-  .standings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; }
-  .standing-group { background: var(--bg3); border-radius: 8px; padding: 0.55rem; }
-  .standing-group-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; color: var(--gold); margin-bottom: 0.3rem; }
-  .standing-row { display: flex; align-items: center; gap: 0.25rem; font-size: 0.68rem; padding: 0.1rem 0; }
-  .s-rank { color: var(--muted); min-width: 0.7rem; }
-  .s-team { flex: 1; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .s-pts { font-weight: 700; min-width: 1.8rem; text-align: right; }
-  .s-gd { color: var(--muted); min-width: 2rem; text-align: right; font-size: 0.62rem; }
+  .standings-nav { display: flex; gap: 0.3rem; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 0.4rem; margin-bottom: 0.6rem; scrollbar-width: none; }
+  .standings-nav::-webkit-scrollbar { display: none; }
+  .standings-nav-btn { flex-shrink: 0; padding: 0.3rem 0.8rem; border-radius: 1rem; border: 1px solid var(--border); background: transparent; color: var(--muted); font-family: 'Noto Sans JP', sans-serif; font-size: 0.75rem; cursor: pointer; transition: all 0.15s; }
+  .standings-nav-btn.active { background: var(--gold); border-color: var(--gold); color: var(--bg); font-weight: 700; }
+  .standing-group { background: var(--bg3); border-radius: 10px; padding: 0.75rem; display: none; }
+  .standing-group.active { display: block; }
+  .standing-group-label { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; color: var(--gold); margin-bottom: 0.5rem; letter-spacing: 0.1em; }
+  .standing-row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .standing-row:last-child { border-bottom: none; }
+  .s-rank { color: var(--muted); min-width: 1rem; font-size: 0.75rem; }
+  .s-team { flex: 1; font-weight: 700; }
+  .s-played { color: var(--muted); min-width: 1.5rem; text-align: center; font-size: 0.72rem; }
+  .s-pts { font-weight: 700; min-width: 2rem; text-align: right; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; }
+  .s-gd { color: var(--muted); min-width: 2.2rem; text-align: right; font-size: 0.72rem; }
 
   /* ===== BONUS ===== */
   .bonus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.75rem; }
@@ -616,42 +628,58 @@ function renderKnockout() {
   const { knockoutResults, bonuses } = appData;
   const standings = calcGroupStandings();
 
-  // グループ順位表
+  // グループ順位表（タブ切り替え式）
   const groups = ['A','B','C','D','E','F','G','H','I','J','K','L'];
-  document.getElementById('standingsList').innerHTML = groups.map(g => {
+  const navHtml = groups.map((g,i) =>
+    `<button class="standings-nav-btn${i===0?' active':''}" onclick="switchStanding('${g}',this)">G ${g}</button>`
+  ).join('');
+  const groupsHtml = groups.map((g,i) => {
     const rows = standings[g] || [];
-    return `<div class="standing-group">
-      <div class="standing-group-label">G ${g}</div>
-      ${rows.map((r,i) => `<div class="standing-row" style="color:${i<2?'var(--accent)':i===2?'var(--gold)':'var(--muted)'}">
-        <span class="s-rank">${i+1}</span>
-        <span class="s-team">${r.team}</span>
-        <span class="s-pts" style="color:${i<2?'var(--accent)':i===2?'var(--gold)':'var(--muted)'}">${r.pts}p</span>
-        <span class="s-gd">${r.gd>=0?'+':''}${r.gd}</span>
-      </div>`).join('')}
+    return `<div class="standing-group${i===0?' active':''}" id="sg-${g}">
+      <div class="standing-group-label">グループ ${g}</div>
+      ${rows.map((r,i) => {
+        const c = i<2?'var(--accent)':i===2?'var(--gold)':'var(--muted)';
+        return `<div class="standing-row">
+          <span class="s-rank" style="color:${c}">${i+1}</span>
+          <span class="s-team" style="color:${c}">${r.team}</span>
+          <span class="s-played">${r.played}試</span>
+          <span class="s-pts" style="color:${c}">${r.pts}pt</span>
+          <span class="s-gd">${r.gd>=0?'+':''}${r.gd}</span>
+        </div>`;
+      }).join('')}
+      <p style="font-size:0.62rem;color:var(--muted);margin-top:0.4rem">🔵 通過圏内　🟡 3位</p>
     </div>`;
   }).join('');
+  document.getElementById('standingsList').innerHTML =
+    `<div class="standings-nav">${navHtml}</div>${groupsHtml}`;
 
   // 決勝トーナメント
   const koEl = document.getElementById('knockoutList');
-  const roundLabels = {
-    round_of_32: 'ベスト32',
-    round_of_16: 'ベスト16',
-    quarter_finals: 'ベスト8（準々決勝）',
-    semi_finals: 'ベスト4（準決勝）',
-    final: '決勝進出'
-  };
-  let koHtml = Object.entries(roundLabels).map(([key, label]) => {
+  const roundDefs = [
+    { key: 'round_of_32',    label: 'ベスト32',          cols: 2 },
+    { key: 'round_of_16',    label: 'ベスト16',          cols: 2 },
+    { key: 'quarter_finals', label: 'ベスト8（準々決勝）', cols: 2 },
+    { key: 'semi_finals',    label: 'ベスト4（準決勝）',  cols: 2 },
+    { key: 'final',          label: '決勝進出',           cols: 2 },
+  ];
+  let koHtml = roundDefs.map(({ key, label, cols }) => {
     const teams = (knockoutResults[key] || []).filter(Boolean);
     if (!teams.length) return '';
+    // 参加者の選択国と照合してハイライト
+    const owned = new Set(appData.participants.flatMap(p => p.countries));
+    const teamChips = teams.map(t => {
+      const isOwned = owned.has(t);
+      return `<span class="ko-team${isOwned ? ' ko-owned' : ''}" onclick="showCountryPopup('${t}')" style="cursor:pointer">${t}</span>`;
+    }).join('');
     return `<div class="ko-round">
-      <div class="ko-round-label">${label}</div>
-      <div class="ko-teams">${teams.map(t => `<span class="ko-team">${t}</span>`).join('')}</div>
+      <div class="ko-round-label">${label} <span style="font-size:0.7rem;color:var(--muted);font-family:'Noto Sans JP',sans-serif">${teams.length}チーム</span></div>
+      <div class="ko-teams">${teamChips}</div>
     </div>`;
   }).join('');
   if (knockoutResults.champion) {
     koHtml += `<div class="ko-round" style="border-color:rgba(255,215,0,0.25)">
       <div class="ko-round-label" style="color:var(--gold)">🏆 優勝</div>
-      <div class="ko-teams"><span class="ko-team champion">👑 ${knockoutResults.champion}</span></div>
+      <div class="ko-teams"><span class="ko-team champion" onclick="showCountryPopup('${knockoutResults.champion}')" style="cursor:pointer">👑 ${knockoutResults.champion}</span></div>
     </div>`;
   }
   koEl.innerHTML = koHtml || '<div class="empty">決勝トーナメントはまだ始まっていません</div>';
@@ -682,6 +710,14 @@ function renderKnockout() {
       <div class="bonus-value" style="color:var(--red)">${bonuses.mostConceded || '未定'}</div>
       <div style="font-size:0.68rem;color:var(--red);margin-top:0.2rem">－10点</div>
     </div>`;
+}
+
+function switchStanding(g, el) {
+  document.querySelectorAll('.standing-group').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.standings-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sg-' + g).classList.add('active');
+  el.classList.add('active');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 }
 
 loadData();
