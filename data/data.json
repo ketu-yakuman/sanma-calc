@@ -273,18 +273,18 @@
       "away": "キュラソー",
       "group": "E",
       "datetime": "2026-06-15 02:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 7,
+      "awayScore": 1
     },
     {
       "home": "オランダ",
       "away": "日本",
       "group": "F",
       "datetime": "2026-06-15 05:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 1
     },
     {
       "home": "コートジボワール",
