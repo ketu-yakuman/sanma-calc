@@ -246,27 +246,27 @@
       "away": "モロッコ",
       "group": "C",
       "datetime": "2026-06-14 07:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 1
     },
     {
       "home": "ハイチ",
       "away": "スコットランド",
       "group": "C",
       "datetime": "2026-06-14 10:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 1
     },
     {
       "home": "オーストラリア",
       "away": "トルコ",
       "group": "D",
       "datetime": "2026-06-14 13:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 2,
+      "awayScore": 0
     },
     {
       "home": "ドイツ",
