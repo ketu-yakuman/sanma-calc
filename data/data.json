@@ -309,18 +309,18 @@
       "away": "カーボベルデ",
       "group": "H",
       "datetime": "2026-06-16 01:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 0
     },
     {
       "home": "ベルギー",
       "away": "エジプト",
       "group": "G",
       "datetime": "2026-06-16 04:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 1
     },
     {
       "home": "サウジアラビア",
