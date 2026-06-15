@@ -291,18 +291,18 @@
       "away": "エクアドル",
       "group": "E",
       "datetime": "2026-06-15 08:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 0
     },
     {
       "home": "スウェーデン",
       "away": "チュニジア",
       "group": "F",
       "datetime": "2026-06-15 11:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 5,
+      "awayScore": 1
     },
     {
       "home": "スペイン",
