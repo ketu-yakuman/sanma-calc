@@ -327,18 +327,18 @@
       "away": "ウルグアイ",
       "group": "H",
       "datetime": "2026-06-16 07:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 1
     },
     {
       "home": "イラン",
       "away": "ニュージーランド",
       "group": "G",
       "datetime": "2026-06-16 10:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 2,
+      "awayScore": 2
     },
     {
       "home": "フランス",
