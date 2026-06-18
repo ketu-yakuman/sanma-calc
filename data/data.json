@@ -399,18 +399,18 @@
       "away": "パナマ",
       "group": "L",
       "datetime": "2026-06-18 08:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 0
     },
     {
       "home": "ウズベキスタン",
       "away": "コロンビア",
       "group": "K",
       "datetime": "2026-06-18 11:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 3
     },
     {
       "home": "チェコ",
