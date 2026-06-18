@@ -417,18 +417,18 @@
       "away": "南アフリカ",
       "group": "A",
       "datetime": "2026-06-19 01:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 1
     },
     {
       "home": "スイス",
       "away": "ボスニア・ヘルツェゴビナ",
       "group": "B",
       "datetime": "2026-06-19 04:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 4,
+      "awayScore": 1
     },
     {
       "home": "カナダ",
