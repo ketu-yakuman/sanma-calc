@@ -453,9 +453,9 @@
       "away": "オーストラリア",
       "group": "D",
       "datetime": "2026-06-20 04:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 2,
+      "awayScore": 0
     },
     {
       "home": "スコットランド",
