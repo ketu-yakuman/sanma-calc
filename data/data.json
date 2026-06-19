@@ -435,18 +435,18 @@
       "away": "カタール",
       "group": "B",
       "datetime": "2026-06-19 07:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 6,
+      "awayScore": 0
     },
     {
       "home": "メキシコ",
       "away": "韓国",
       "group": "A",
       "datetime": "2026-06-19 10:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 0
     },
     {
       "home": "アメリカ",
