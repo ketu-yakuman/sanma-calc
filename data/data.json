@@ -489,18 +489,18 @@
       "away": "スウェーデン",
       "group": "F",
       "datetime": "2026-06-21 02:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 5,
+      "awayScore": 1
     },
     {
       "home": "ドイツ",
       "away": "コートジボワール",
       "group": "E",
       "datetime": "2026-06-21 05:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 2,
+      "awayScore": 1
     },
     {
       "home": "エクアドル",
