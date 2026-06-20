@@ -462,27 +462,27 @@
       "away": "モロッコ",
       "group": "C",
       "datetime": "2026-06-20 07:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 1
     },
     {
       "home": "ブラジル",
       "away": "ハイチ",
       "group": "C",
       "datetime": "2026-06-20 09:30",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 3,
+      "awayScore": 0
     },
     {
       "home": "トルコ",
       "away": "パラグアイ",
       "group": "D",
       "datetime": "2026-06-20 12:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 1
     },
     {
       "home": "オランダ",
