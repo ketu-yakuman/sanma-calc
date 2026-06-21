@@ -507,18 +507,18 @@
       "away": "キュラソー",
       "group": "E",
       "datetime": "2026-06-21 09:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 0
     },
     {
       "home": "チュニジア",
       "away": "日本",
       "group": "F",
       "datetime": "2026-06-21 13:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 4
     },
     {
       "home": "スペイン",
