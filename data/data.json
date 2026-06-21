@@ -525,18 +525,18 @@
       "away": "サウジアラビア",
       "group": "H",
       "datetime": "2026-06-22 01:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 4,
+      "awayScore": 0
     },
     {
       "home": "ベルギー",
       "away": "イラン",
       "group": "G",
       "datetime": "2026-06-22 04:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 0
     },
     {
       "home": "ウルグアイ",
