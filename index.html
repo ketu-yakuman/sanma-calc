@@ -563,6 +563,19 @@ function switchMatchView(mode, btn) {
   document.getElementById('btnByGroup').classList.toggle('active', mode === 'group');
   document.getElementById('btnByDate').classList.toggle('active', mode === 'date');
   renderMatches();
+  if (mode === 'date') setTimeout(scrollToTodayMatch, 50);
+}
+
+function scrollToTodayMatch() {
+  const todayKey = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
+  const dates = [...new Set(
+    appData.matches.map(m => m.datetime ? m.datetime.slice(0, 10) : null).filter(Boolean).sort()
+  )];
+  if (!dates.length) return;
+  // 今日以降で最初の試合日、なければ初日
+  const targetDate = dates.find(d => d >= todayKey) || dates[0];
+  const el = document.getElementById('date-' + targetDate);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function buildMatchRow(m, showGroup) {
@@ -602,7 +615,7 @@ function renderMatches() {
         const d = new Date(key+'T00:00:00+09:00');
         label = `${d.getMonth()+1}/${d.getDate()}(${'日月火水木金土'[d.getDay()]})`;
       }
-      return `<div class="group-section">
+      return `<div class="group-section" id="date-${key}">
         <div class="group-label" style="color:var(--accent)">${label}</div>
         ${ms.map(m => buildMatchRow(m, true)).join('')}
       </div>`;
