@@ -543,18 +543,18 @@
       "away": "カーボベルデ",
       "group": "H",
       "datetime": "2026-06-22 07:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 2,
+      "awayScore": 2
     },
     {
       "home": "ニュージーランド",
       "away": "エジプト",
       "group": "G",
       "datetime": "2026-06-22 10:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 3
     },
     {
       "home": "アルゼンチン",
