@@ -561,9 +561,9 @@
       "away": "オーストリア",
       "group": "J",
       "datetime": "2026-06-23 02:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 2,
+      "awayScore": 0
     },
     {
       "home": "フランス",
