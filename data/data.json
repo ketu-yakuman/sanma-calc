@@ -597,18 +597,18 @@
       "away": "ウズベキスタン",
       "group": "K",
       "datetime": "2026-06-24 02:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 5,
+      "awayScore": 0
     },
     {
       "home": "イングランド",
       "away": "ガーナ",
       "group": "L",
       "datetime": "2026-06-24 05:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 0
     },
     {
       "home": "パナマ",
