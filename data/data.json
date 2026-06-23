@@ -570,18 +570,18 @@
       "away": "イラク",
       "group": "I",
       "datetime": "2026-06-23 06:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 3,
+      "awayScore": 0
     },
     {
       "home": "ノルウェー",
       "away": "セネガル",
       "group": "I",
       "datetime": "2026-06-23 09:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 3,
+      "awayScore": 2
     },
     {
       "home": "ヨルダン",
