@@ -615,18 +615,18 @@
       "away": "クロアチア",
       "group": "L",
       "datetime": "2026-06-24 08:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 1
     },
     {
       "home": "コロンビア",
       "away": "コンゴDR",
       "group": "K",
       "datetime": "2026-06-24 11:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 0
     },
     {
       "home": "スイス",
