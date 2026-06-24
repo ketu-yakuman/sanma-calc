@@ -633,18 +633,18 @@
       "away": "カナダ",
       "group": "B",
       "datetime": "2026-06-25 04:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 2,
+      "awayScore": 1
     },
     {
       "home": "ボスニア・ヘルツェゴビナ",
       "away": "カタール",
       "group": "B",
       "datetime": "2026-06-25 04:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 3,
+      "awayScore": 1
     },
     {
       "home": "スコットランド",
