@@ -695,20 +695,39 @@ function renderKnockout() {
     <p style="font-size:0.68rem;color:var(--muted)">🔵 自動通過（1・2位）　🟡 3位（8チーム通過）</p>
   </div>`;
 
-  // ベスト32自動
+  // ベスト32 グループ別入力（1位・2位を個別ドロップダウン）
+  const saved32 = data.knockoutResults.round_of_32 || [];
+
+  // グループごとの保存済みデータを取り出す（各グループ1位・2位の順）
+  // saved32は [GA1位, GA2位, GB1位, GB2位, ...] の順で保存
   const auto32Html = `<div class="card">
-    <div class="card-title">🤖 ベスト32 ─ 1位・2位（自動）</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;margin-bottom:0.75rem">
-      ${groups.map(g => {
-        const s = standings[g] || [];
-        return s.slice(0,2).map((t, i) => `
-          <div style="background:var(--bg);border-radius:6px;padding:0.4rem 0.6rem;font-size:0.78rem">
-            <span style="color:var(--muted);font-size:0.65rem">G${g} ${i+1}位 </span>
-            <span style="color:${t.played>0?'var(--accent)':'var(--muted)'};font-weight:700">${t.team}</span>
-          </div>`).join('');
-      }).join('')}
-    </div>
-    <button class="btn btn-success btn-block" onclick="applyAuto32()">✅ ベスト32に反映する</button>
+    <div class="card-title">🎯 ベスト32 ─ 各グループ1位・2位</div>
+    <p style="font-size:0.75rem;color:var(--muted);margin-bottom:0.75rem;line-height:1.5">グループ戦結果をもとに自動入力されています。公式発表に合わせて修正できます。</p>
+    ${groups.map((g, gi) => {
+      const s = standings[g] || [];
+      const idx1 = gi * 2;
+      const idx2 = gi * 2 + 1;
+      const val1 = saved32[idx1] || (s[0] ? s[0].team : '');
+      const val2 = saved32[idx2] || (s[1] ? s[1].team : '');
+      const groupTeams = (data.groups.find(gr => gr.name === g) || {}).teams || [];
+      const opts = (teamList) => ['', ...groupTeams, ...ALL_TEAMS_WC2026.filter(t => !groupTeams.includes(t))]
+        .filter((t, i, arr) => arr.indexOf(t) === i)
+        .map(t => `<option value="${t}" ${t===teamList?'selected':''}>${t||'-- 選択 --'}</option>`).join('');
+      return `<div style="background:var(--bg3);border-radius:8px;padding:0.6rem;margin-bottom:0.5rem">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--gold);margin-bottom:0.4rem">グループ ${g}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem">
+          <div>
+            <label>1位</label>
+            <select onchange="updateR32(${idx1},this.value)">${opts(val1)}</select>
+          </div>
+          <div>
+            <label>2位</label>
+            <select onchange="updateR32(${idx2},this.value)">${opts(val2)}</select>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+    <button class="btn btn-success btn-block" onclick="applyAuto32()">🔄 グループ戦結果で自動上書き</button>
   </div>`;
 
   // 3位手動
@@ -767,12 +786,22 @@ function renderKnockout() {
   el.innerHTML = standingsHtml + auto32Html + third32Html + confirmed32Html + laterHtml + champHtml;
 }
 
+function updateR32(idx, val) {
+  if (!data.knockoutResults.round_of_32) data.knockoutResults.round_of_32 = [];
+  // 配列の長さを確保してから値をセット
+  while (data.knockoutResults.round_of_32.length <= idx) {
+    data.knockoutResults.round_of_32.push('');
+  }
+  data.knockoutResults.round_of_32[idx] = val;
+}
+
 function applyAuto32() {
+  if (!confirm('グループ戦の現在の結果で1位・2位の24枠を上書きします。よろしいですか？')) return;
   const auto24 = autoCalcRound32().map(t => t.team);
   const existing3rd = data.knockoutResults.round_of_32_third || [];
   data.knockoutResults.round_of_32 = [...auto24, ...existing3rd].filter(Boolean);
   renderKnockout();
-  showStatus('✅ 1位・2位 24チームを反映しました');
+  showStatus('✅ グループ戦結果で上書きしました');
 }
 
 function apply3rd() {
