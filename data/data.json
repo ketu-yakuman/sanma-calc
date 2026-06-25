@@ -846,8 +846,35 @@
     }
   ],
   "knockoutResults": {
-    "round_of_32": [],
-    "round_of_32_third": [],
+    "round_of_32": [
+      null,
+      null,
+      "スイス",
+      null,
+      null,
+      null,
+      null,
+      "",
+      null,
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      null,
+      null,
+      null,
+      "",
+      null,
+      "",
+      "",
+      ""
+    ],
+    "round_of_32_third": [
+      "ボスニア・ヘルツェゴビナ"
+    ],
     "round_of_16": [],
     "quarter_finals": [],
     "semi_finals": [],
