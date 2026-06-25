@@ -651,36 +651,36 @@
       "away": "ブラジル",
       "group": "C",
       "datetime": "2026-06-25 07:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 3
     },
     {
       "home": "モロッコ",
       "away": "ハイチ",
       "group": "C",
       "datetime": "2026-06-25 07:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 4,
+      "awayScore": 2
     },
     {
       "home": "チェコ",
       "away": "メキシコ",
       "group": "A",
       "datetime": "2026-06-25 10:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 3
     },
     {
       "home": "南アフリカ",
       "away": "韓国",
       "group": "A",
       "datetime": "2026-06-25 10:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 0
     },
     {
       "home": "キュラソー",
