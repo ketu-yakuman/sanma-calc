@@ -68,7 +68,7 @@ function calcScores(data) {
   const countryKnockoutPoints = {};
   const rounds = ['round_of_32', 'round_of_16', 'quarter_finals', 'semi_finals', 'final'];
   rounds.forEach(round => {
-    (knockoutResults[round] || []).forEach(team => {
+    (knockoutResults[round] || []).filter(t => t).forEach(team => {
       countryKnockoutPoints[team] = (countryKnockoutPoints[team] || 0) + POINTS[round];
     });
   });
