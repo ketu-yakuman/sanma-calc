@@ -705,36 +705,36 @@
       "away": "スウェーデン",
       "group": "F",
       "datetime": "2026-06-26 08:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 1
     },
     {
       "home": "チュニジア",
       "away": "オランダ",
       "group": "F",
       "datetime": "2026-06-26 08:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 3
     },
     {
       "home": "トルコ",
       "away": "アメリカ",
       "group": "D",
       "datetime": "2026-06-26 11:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 3,
+      "awayScore": 2
     },
     {
       "home": "パラグアイ",
       "away": "オーストラリア",
       "group": "D",
       "datetime": "2026-06-26 11:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 0
     },
     {
       "home": "ノルウェー",
@@ -854,11 +854,11 @@
       "ブラジル",
       "モロッコ",
       "アメリカ",
-      "",
+      "オーストラリア",
       "ドイツ",
       "コートジボワール",
-      "",
-      "",
+      "オランダ",
+      "日本",
       "",
       "",
       "",
@@ -872,12 +872,13 @@
       "",
       "",
       "ボスニア・ヘルツェゴビナ",
-      "エクアドル"
+      "エクアドル",
+      "スウェーデン"
     ],
     "round_of_32_third": [
       "ボスニア・ヘルツェゴビナ",
       "エクアドル",
-      "",
+      "スウェーデン",
       "",
       "",
       "",
