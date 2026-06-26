@@ -741,18 +741,18 @@
       "away": "フランス",
       "group": "I",
       "datetime": "2026-06-27 04:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 4
     },
     {
       "home": "セネガル",
       "away": "イラク",
       "group": "I",
       "datetime": "2026-06-27 04:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 5,
+      "awayScore": 0
     },
     {
       "home": "カーボベルデ",
