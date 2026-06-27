@@ -795,18 +795,18 @@
       "away": "イングランド",
       "group": "L",
       "datetime": "2026-06-28 06:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 2
     },
     {
       "home": "クロアチア",
       "away": "ガーナ",
       "group": "L",
       "datetime": "2026-06-28 06:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 2,
+      "awayScore": 1
     },
     {
       "home": "コロンビア",
@@ -870,12 +870,13 @@
       "コロンビア",
       "ポルトガル",
       "イングランド",
-      "ガーナ",
+      "クロアチア",
       "ボスニア・ヘルツェゴビナ",
       "エクアドル",
       "スウェーデン",
       "パラグアイ",
-      "セネガル"
+      "セネガル",
+      "ガーナ"
     ],
     "round_of_32_third": [
       "ボスニア・ヘルツェゴビナ",
@@ -883,7 +884,7 @@
       "スウェーデン",
       "パラグアイ",
       "セネガル",
-      "",
+      "ガーナ",
       "",
       ""
     ],
