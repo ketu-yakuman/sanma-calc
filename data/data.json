@@ -777,18 +777,18 @@
       "away": "イラン",
       "group": "G",
       "datetime": "2026-06-27 12:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 1
     },
     {
       "home": "ニュージーランド",
       "away": "ベルギー",
       "group": "G",
       "datetime": "2026-06-27 12:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 5
     },
     {
       "home": "パナマ",
@@ -859,8 +859,8 @@
       "コートジボワール",
       "オランダ",
       "日本",
+      "ベルギー",
       "エジプト",
-      "",
       "スペイン",
       "カーボベルデ",
       "フランス",
@@ -874,14 +874,15 @@
       "ボスニア・ヘルツェゴビナ",
       "エクアドル",
       "スウェーデン",
-      "パラグアイ"
+      "パラグアイ",
+      "セネガル"
     ],
     "round_of_32_third": [
       "ボスニア・ヘルツェゴビナ",
       "エクアドル",
       "スウェーデン",
       "パラグアイ",
-      "",
+      "セネガル",
       "",
       "",
       ""
