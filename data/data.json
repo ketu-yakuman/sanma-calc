@@ -890,7 +890,9 @@
       "コンゴDR",
       "アルジェリア"
     ],
-    "round_of_16": [],
+    "round_of_16": [
+      "カナダ"
+    ],
     "quarter_finals": [],
     "semi_finals": [],
     "final": [],
@@ -909,11 +911,11 @@
       "date": "2026-06-29",
       "home": "南アフリカ",
       "away": "カナダ",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 0,
+      "awayScore": 1,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "04:00"
     },
     {
