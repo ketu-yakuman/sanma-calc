@@ -468,7 +468,6 @@
   <div class="tab-content" id="tab-knockout">
     <div class="view-toggle" style="margin-bottom:0.75rem">
       <button class="view-btn active" id="btnStandings" onclick="switchKOView('standings', this)">順位表</button>
-      <button class="view-btn" id="btnBracket" onclick="switchKOView('bracket', this)">トーナメント図</button>
       <button class="view-btn" id="btnKOList" onclick="switchKOView('kolist', this)">進出国</button>
       <button class="view-btn" id="btnKOMatches" onclick="switchKOView('matches', this)">試合結果</button>
     </div>
@@ -476,11 +475,6 @@
     <div id="ko-standings">
       <div class="section-title">📊 グループ順位</div>
       <div class="standings-grid" id="standingsList"></div>
-    </div>
-    <!-- トーナメント図 -->
-    <div id="ko-bracket" style="display:none">
-      <div class="section-title">🏆 トーナメント図</div>
-      <div id="bracketList"></div>
     </div>
     <!-- 進出国リスト -->
     <div id="ko-kolist" style="display:none">
@@ -859,12 +853,11 @@ function renderKnockout() {
 }
 
 function switchKOView(view, btn) {
-  ['standings','bracket','kolist','matches'].forEach(v => {
+  ['standings','kolist','matches'].forEach(v => {
     document.getElementById('ko-' + v).style.display = v === view ? 'block' : 'none';
   });
   document.querySelectorAll('#tab-knockout .view-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  if (view === 'bracket') renderBracket();
   if (view === 'matches') renderKnockoutMatches();
 }
 
@@ -891,7 +884,10 @@ function renderKnockoutMatches() {
   matches.forEach(m => { if (byRound[m.round]) byRound[m.round].push(m); });
 
   el.innerHTML = roundOrder.map(round => {
-    const ms = byRound[round].filter(m => m.home || m.played);
+    // ベスト32はhomeが入っているものだけ、ベスト16以降は全試合表示（日時だけでも）
+    const ms = round === 'round_of_32'
+      ? byRound[round].filter(m => m.home)
+      : byRound[round];
     if (!ms.length) return '';
 
     const rows = ms.map(m => {
@@ -904,8 +900,9 @@ function renderKnockoutMatches() {
       const homeOwned = owned.has(m.home);
       const awayOwned = owned.has(m.away);
       const border = m.played ? 'border-left:3px solid rgba(34,197,94,0.5)' : '';
+      const homeName = m.home || '未定';
+      const awayName = m.away || '未定';
 
-      // スコア表示（延長・PK含む）
       let scoreHtml = '';
       if (scored) {
         let label = `${m.homeScore} - ${m.awayScore}`;
@@ -916,13 +913,16 @@ function renderKnockoutMatches() {
         scoreHtml = 'vs';
       }
 
+      const homeStyle = homeOwned ? 'color:var(--accent)' : m.home ? '' : 'color:var(--muted);font-style:italic';
+      const awayStyle = awayOwned ? 'color:var(--accent)' : m.away ? '' : 'color:var(--muted);font-style:italic';
+
       return `<div class="match-row" style="${border}">
         <div style="display:flex;flex-direction:column;flex:1">
           <span style="font-size:0.68rem;color:var(--gold);margin-bottom:0.15rem">${dateLabel}</span>
-          <span class="match-team" style="color:${homeOwned?'var(--accent)':'var(--text)'}" onclick="showCountryPopup('${m.home}')">${m.home||'未定'}${getRankLabel(m.home)}</span>
+          <span class="match-team" style="${homeStyle}" ${m.home?`onclick="showCountryPopup('${m.home}')"`:''}>${homeName}${m.home?getRankLabel(m.home):''}</span>
         </div>
-        <span class="match-score ${scored?'':'pending'}" style="font-size:${scored&&(m.extraTime||m.penalties)?'0.85rem':''}"> ${scoreHtml}</span>
-        <span class="match-team away" style="color:${awayOwned?'var(--accent)':'var(--text)'}" onclick="showCountryPopup('${m.away}')">${m.away||'未定'}${getRankLabel(m.away)}</span>
+        <span class="match-score ${scored?'':'pending'}">${scoreHtml}</span>
+        <span class="match-team away" style="${awayStyle}" ${m.away?`onclick="showCountryPopup('${m.away}')"`:''}>${awayName}${m.away?getRankLabel(m.away):''}</span>
       </div>`;
     }).join('');
 
