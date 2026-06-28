@@ -492,10 +492,7 @@
     <!-- 組合せ表 -->
     <div id="ko-bracket" style="display:none">
       <div class="section-title">🏆 組合せ表</div>
-      <div style="display:flex;gap:0.4rem;margin-bottom:0.75rem">
-        <button class="view-btn active" id="btnBracketH" onclick="switchBracketView('horizontal',this)">横型（PC向け）</button>
-        <button class="view-btn" id="btnBracketV" onclick="switchBracketView('vertical',this)">縦型（iPhone向け）</button>
-      </div>
+      <p style="font-size:0.72rem;color:var(--muted);margin-bottom:0.75rem">PC・タブレット推奨（横スクロール対応）</p>
       <div id="bracketContainer"></div>
     </div>
   </div>
@@ -869,12 +866,7 @@ function switchKOView(view, btn) {
   document.querySelectorAll('#tab-knockout .view-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   if (view === 'matches') renderKnockoutMatches();
-  if (view === 'bracket') {
-    // デフォルトは縦型
-    document.getElementById('btnBracketH').classList.remove('active');
-    document.getElementById('btnBracketV').classList.add('active');
-    renderBracketVertical();
-  }
+  if (view === 'bracket') renderBracketTable();
 }
 
 const KO_ROUND_LABELS_VIEW = {
@@ -1074,127 +1066,6 @@ function renderBracket() {
   `;
 }
 
-function switchBracketView(type, btn) {
-  document.getElementById('btnBracketH').classList.toggle('active', type === 'horizontal');
-  document.getElementById('btnBracketV').classList.toggle('active', type === 'vertical');
-  if (type === 'horizontal') renderBracketTable();
-  else renderBracketVertical();
-}
-
-function renderBracketVertical() {
-  const el = document.getElementById('bracketContainer');
-  if (!appData) return;
-
-  const km = appData.knockoutMatches || [];
-  const owned = new Set(appData.participants.flatMap(p => p.countries));
-  const r16  = (appData.knockoutResults.round_of_16 || []).filter(Boolean);
-  const qf   = (appData.knockoutResults.quarter_finals || []).filter(Boolean);
-  const sf   = (appData.knockoutResults.semi_finals || []).filter(Boolean);
-  const fin  = (appData.knockoutResults.final || []).filter(Boolean);
-  const champ = appData.knockoutResults.champion || '';
-
-  const r32m = km.filter(m => m.round === 'round_of_32');
-  const r16m = km.filter(m => m.round === 'round_of_16');
-  const qfm  = km.filter(m => m.round === 'quarter_finals');
-  const sfm  = km.filter(m => m.round === 'semi_finals');
-  const finm = km.filter(m => m.round === 'final');
-
-  function fmtDt(date, time) {
-    if (!date) return '';
-    const d = new Date(date + 'T00:00:00+09:00');
-    const M = d.getMonth()+1, D = d.getDate();
-    const wd = ['日','月','火','水','木','金','土'][d.getDay()];
-    return time ? `${M}/${D}(${wd}) ${time}` : `${M}/${D}(${wd})`;
-  }
-
-  function teamRow(name, isWinner) {
-    if (!name) return `<div class="bv-team tbd">未定</div>`;
-    const isOwned = owned.has(name);
-    const cls = isWinner ? 'winner' : isOwned ? 'owned' : '';
-    return `<div class="bv-team ${cls}" onclick="showCountryPopup('${name}')">${name}${getRankLabel(name)}</div>`;
-  }
-
-  function matchBlock(home, away, winner, date, time) {
-    const dt = fmtDt(date, time);
-    const hWin = winner && winner === home;
-    const aWin = winner && winner === away;
-    return `<div class="bv-match">
-      ${dt ? `<div class="bv-date">${dt} JST</div>` : ''}
-      ${teamRow(home, hWin)}
-      ${teamRow(away, aWin)}
-    </div>`;
-  }
-
-  // ラウンド別対戦
-  const rounds = [
-    {
-      key: 'round_of_32', label: 'ベスト32',
-      matches: r32m.map((m,i) => matchBlock(m.home, m.away, r16[i] || '', m.date, m.time))
-    },
-    {
-      key: 'round_of_16', label: 'ベスト16',
-      matches: r16m.map((m,i) => matchBlock(m.home||r16[i*2]||'', m.away||r16[i*2+1]||'', qf[i]||'', m.date, m.time))
-    },
-    {
-      key: 'quarter_finals', label: '準々決勝',
-      matches: qfm.map((m,i) => matchBlock(m.home||qf[i*2]||'', m.away||qf[i*2+1]||'', sf[i]||'', m.date, m.time))
-    },
-    {
-      key: 'semi_finals', label: '準決勝',
-      matches: sfm.map((m,i) => matchBlock(m.home||sf[i*2]||'', m.away||sf[i*2+1]||'', fin[i]||'', m.date, m.time))
-    },
-    {
-      key: 'final', label: '決勝',
-      matches: [matchBlock(fin[0]||'', fin[1]||'', champ, finm[0]?.date, finm[0]?.time)]
-    },
-  ];
-
-  el.innerHTML = `
-  <style>
-    .bv-round { margin-bottom:1.25rem; }
-    .bv-round-label {
-      font-family:'Bebas Neue',sans-serif; font-size:1rem;
-      color:var(--accent2); letter-spacing:0.1em;
-      margin-bottom:0.5rem; padding-bottom:0.3rem;
-      border-bottom:1px solid rgba(255,107,53,0.2);
-    }
-    .bv-matches { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
-    .bv-match {
-      background:var(--bg2); border:1px solid var(--border);
-      border-radius:10px; padding:0.5rem 0.6rem;
-    }
-    .bv-date { font-size:0.62rem; color:var(--gold); margin-bottom:0.3rem; }
-    .bv-team {
-      font-size:0.78rem; font-weight:700;
-      padding:0.25rem 0; cursor:pointer;
-      border-bottom:1px solid rgba(255,255,255,0.05);
-      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-    }
-    .bv-team:last-child { border-bottom:none; }
-    .bv-team.winner { color:var(--gold); }
-    .bv-team.owned  { color:var(--accent); }
-    .bv-team.tbd    { color:var(--muted); font-style:italic; font-weight:400; }
-    .bv-champ {
-      font-family:'Bebas Neue',sans-serif; font-size:1.3rem;
-      color:var(--gold); text-align:center; padding:0.75rem;
-      background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.3);
-      border-radius:10px; margin-top:0.5rem;
-    }
-  </style>
-  <div style="display:flex;gap:1rem;font-size:0.7rem;margin-bottom:0.75rem">
-    <span><span style="display:inline-block;width:10px;height:10px;background:rgba(255,215,0,0.3);border:1px solid var(--gold);border-radius:2px;margin-right:3px"></span>勝者</span>
-    <span><span style="display:inline-block;width:10px;height:10px;background:rgba(0,212,255,0.15);border:1px solid var(--accent);border-radius:2px;margin-right:3px"></span>参加者選択国</span>
-  </div>
-  ${rounds.map(r => `
-    <div class="bv-round">
-      <div class="bv-round-label">${r.label}</div>
-      <div class="bv-matches">${r.matches.join('')}</div>
-    </div>
-  `).join('')}
-  ${champ ? `<div class="bv-champ">👑 優勝: ${champ}</div>` : ''}
-  `;
-}
-
 function renderBracketTable() {
   const el = document.getElementById('bracketContainer');
   if (!appData) return;
@@ -1202,139 +1073,193 @@ function renderBracketTable() {
   const km = appData.knockoutMatches || [];
   const owned = new Set(appData.participants.flatMap(p => p.countries));
 
-  // knockoutMatchesからラウンド別取得
+  // ラウンド別取得
   const r32m = km.filter(m => m.round === 'round_of_32');
   const r16m = km.filter(m => m.round === 'round_of_16');
   const qfm  = km.filter(m => m.round === 'quarter_finals');
   const sfm  = km.filter(m => m.round === 'semi_finals');
   const finm = km.filter(m => m.round === 'final');
 
-  // knockoutResultsから進出国
-  const r16 = (appData.knockoutResults.round_of_16 || []).filter(Boolean);
-  const qf  = (appData.knockoutResults.quarter_finals || []).filter(Boolean);
-  const sf  = (appData.knockoutResults.semi_finals || []).filter(Boolean);
-  const fin = (appData.knockoutResults.final || []).filter(Boolean);
+  const r16  = (appData.knockoutResults.round_of_16 || []).filter(Boolean);
+  const qf   = (appData.knockoutResults.quarter_finals || []).filter(Boolean);
+  const sf   = (appData.knockoutResults.semi_finals || []).filter(Boolean);
+  const fin  = (appData.knockoutResults.final || []).filter(Boolean);
   const champ = appData.knockoutResults.champion || '';
 
-  // 左ブラケット8試合・右ブラケット8試合
-  const leftR32  = r32m.slice(0, 8);
-  const rightR32 = r32m.slice(8, 16);
+  // 公式ブラケット（左サイド上→下）
+  // Left: ドイツvパラグアイ, フランスvスウェーデン, 南アフリカvカナダ, オランダvモロッコ
+  //       コートジボワールvノルウェー, メキシコvエクアドル, アメリカvボスニア, ベルギーvセネガル
+  // Right: ブラジルv日本, イングランドvコンゴDR, ポルトガルvクロアチア, スペインvオーストリア
+  //        スイスvアルジェリア, オーストラリアvエジプト, アルゼンチンvカーボベルデ, コロンビアvガーナ
 
-  function teamBox(name, isWinner, date, time) {
-    if (!name) name = '未定';
-    const isOwned = owned.has(name);
-    const cls = isWinner ? 'winner' : isOwned ? 'owned' : '';
-    const dt = date && time ? `<div class="br-date">${formatDt(date, time)}</div>` : '';
-    return `${dt}<div class="br-team ${cls}" onclick="${name !== '未定' ? `showCountryPopup('${name}')` : ''}">${name}</div>`;
+  // knockoutMatchesを対戦カードで検索
+  function findMatch(home, away) {
+    return r32m.find(m => m.home === home && m.away === away) ||
+           r32m.find(m => m.home === away && m.away === home) || {};
   }
 
-  function formatDt(date, time) {
+  // 左サイド8試合（公式左山・上から順）
+  // Germany, France, South Africa, Netherlands, Portugal, Spain, USA, Belgium
+  const leftR32 = [
+    findMatch('ドイツ', 'パラグアイ'),
+    findMatch('フランス', 'スウェーデン'),
+    findMatch('南アフリカ', 'カナダ'),
+    findMatch('オランダ', 'モロッコ'),
+    findMatch('ポルトガル', 'クロアチア'),
+    findMatch('スペイン', 'オーストリア'),
+    findMatch('アメリカ', 'ボスニア・ヘルツェゴビナ'),
+    findMatch('ベルギー', 'セネガル'),
+  ];
+
+  // 右サイド8試合（公式右山・上から順）
+  // Brazil, Ivory Coast, Mexico, England, Argentina, Australia, Switzerland, Colombia
+  const rightR32 = [
+    findMatch('ブラジル', '日本'),
+    findMatch('コートジボワール', 'ノルウェー'),
+    findMatch('メキシコ', 'エクアドル'),
+    findMatch('イングランド', 'コンゴDR'),
+    findMatch('アルゼンチン', 'カーボベルデ'),
+    findMatch('オーストラリア', 'エジプト'),
+    findMatch('スイス', 'アルジェリア'),
+    findMatch('コロンビア', 'ガーナ'),
+  ];
+
+  // ベスト16の対戦（左サイド：上4試合、右サイド：下4試合）
+  const leftR16  = r16m.slice(0, 4);
+  const rightR16 = r16m.slice(4, 8);
+  const leftQF   = qfm.slice(0, 2);
+  const rightQF  = qfm.slice(2, 4);
+
+  // 左右のSF
+  const leftSF  = sfm[0] || {};
+  const rightSF = sfm[1] || {};
+  const finalM  = finm[0] || {};
+
+  function fmtDt(date, time) {
     if (!date) return '';
     const d = new Date(date + 'T00:00:00+09:00');
     const M = d.getMonth()+1, D = d.getDate();
     const wd = ['日','月','火','水','木','金','土'][d.getDay()];
-    return time ? `${M}/${D}(${wd}) ${time}` : `${M}/${D}(${wd})`;
+    return time ? `${M}/${D}(${wd})<br>${time}` : `${M}/${D}(${wd})`;
   }
 
-  function matchCell(home, away, winner, date, time) {
-    const hWin = winner && winner === home;
-    const aWin = winner && winner === away;
-    return `<div class="br-match">
-      ${teamBox(home, hWin, date, time)}
+  function teamBox(name, isWinner) {
+    if (!name) name = '未定';
+    const isOwned = owned.has(name);
+    const cls = isWinner ? 'br-winner' : isOwned ? 'br-owned' : '';
+    const click = name !== '未定' ? `onclick="showCountryPopup('${name}')"` : '';
+    return `<div class="br-team ${cls}" ${click}>${name}</div>`;
+  }
+
+  function matchCard(m, winnerA, winnerB) {
+    const home = m.home || '未定';
+    const away = m.away || '未定';
+    const hWin = (winnerA && winnerA === home) || (winnerB && winnerB === home);
+    const aWin = (winnerA && winnerA === away) || (winnerB && winnerB === away);
+    const dt = fmtDt(m.date, m.time);
+    return `<div class="br-card">
+      ${dt ? `<div class="br-dt">${dt}</div>` : ''}
+      ${teamBox(home, hWin)}
       ${teamBox(away, aWin)}
     </div>`;
   }
 
-  // 左右それぞれ8試合→QF4試合→SF2試合→決勝1試合
-  // 左ブラケット
-  const leftR32Cells  = leftR32.map((m,i)  => matchCell(m.home, m.away, r16[i*2] || r16[i*2+1] || '', m.date, m.time));
-  const leftR16Cells  = r16m.slice(0,4).map((m,i) => matchCell(m.home||r16[i*2]||'', m.away||r16[i*2+1]||'', qf[i]||'', m.date, m.time));
-  const leftQFCells   = qfm.slice(0,2).map((m,i)  => matchCell(m.home||qf[i*2]||'', m.away||qf[i*2+1]||'', sf[i]||'', m.date, m.time));
-  const leftSFCell    = sfm[0] ? matchCell(sfm[0].home||sf[0]||'', sfm[0].away||sf[1]||'', fin[0]||'', sfm[0].date, sfm[0].time) : matchCell(sf[0]||'', sf[1]||'', fin[0]||'', sfm[0]?.date, sfm[0]?.time);
-
-  // 右ブラケット
-  const rightR32Cells = rightR32.map((m,i) => matchCell(m.home, m.away, r16[8+i*2] || r16[8+i*2+1] || '', m.date, m.time));
-  const rightR16Cells = r16m.slice(4,8).map((m,i) => matchCell(m.home||r16[8+i*2]||'', m.away||r16[8+i*2+1]||'', qf[4+i]||'', m.date, m.time));
-  const rightQFCells  = qfm.slice(2,4).map((m,i)  => matchCell(m.home||qf[4+i*2]||'', m.away||qf[4+i*2+1]||'', sf[2+i]||'', m.date, m.time));
-  const rightSFCell   = sfm[1] ? matchCell(sfm[1].home||sf[2]||'', sfm[1].away||sf[3]||'', fin[1]||'', sfm[1].date, sfm[1].time) : matchCell(sf[2]||'', sf[3]||'', fin[1]||'', sfm[1]?.date, sfm[1]?.time);
-
-  // 決勝
-  const finalDate = finm[0]?.date || '';
-  const finalTime = finm[0]?.time || '';
-  const finalCell = matchCell(fin[0]||'', fin[1]||'', champ, finalDate, finalTime);
-  const champCell = champ ? `<div class="br-champion">🏆 ${champ}</div>` : '<div class="br-champion" style="color:var(--muted)">🏆 未定</div>';
-
-  function col(cells, cls='') {
-    return `<div class="br-col ${cls}">${cells.join('')}</div>`;
+  function roundCol(matches, winners, cls) {
+    const cards = matches.map((m, i) => matchCard(m, winners[i*2], winners[i*2+1]));
+    return `<div class="br-col ${cls}">${cards.join('')}</div>`;
   }
 
   el.innerHTML = `
-  <style>
-    .br-wrap { display:flex; align-items:center; gap:0; min-width:900px; }
-    .br-col { display:flex; flex-direction:column; justify-content:space-around; }
-    .br-col.r32  { min-width:110px; }
-    .br-col.r16  { min-width:110px; }
-    .br-col.qf   { min-width:110px; }
-    .br-col.sf   { min-width:110px; }
-    .br-col.fin  { min-width:130px; text-align:center; }
-    .br-col.conn { min-width:16px; }
-    .br-match { display:flex; flex-direction:column; margin:4px 0; }
-    .br-team {
-      font-size:0.72rem; font-weight:700;
-      padding:3px 6px; background:var(--bg2);
-      border:1px solid var(--border); border-radius:4px;
-      margin:1px 0; white-space:nowrap; cursor:pointer;
-      max-width:108px; overflow:hidden; text-overflow:ellipsis;
-    }
-    .br-team.winner { background:rgba(255,215,0,0.15); border-color:rgba(255,215,0,0.5); color:var(--gold); }
-    .br-team.owned  { background:rgba(0,212,255,0.1);  border-color:rgba(0,212,255,0.3);  color:var(--accent); }
-    .br-team:hover  { opacity:0.8; }
-    .br-date { font-size:0.58rem; color:var(--muted); margin-top:4px; padding-left:2px; }
-    .br-champion {
-      font-family:'Bebas Neue',sans-serif; font-size:1.2rem;
-      color:var(--gold); text-align:center; padding:8px 4px;
-      background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.3);
-      border-radius:8px; margin:4px 0;
-    }
-    .br-label {
-      font-size:0.65rem; color:var(--muted); text-align:center;
-      padding:2px 0; letter-spacing:0.05em;
-    }
-    /* 接続線 */
-    .br-lines { display:flex; flex-direction:column; justify-content:space-around; }
-    .br-line-group { display:flex; flex-direction:column; align-items:center; }
-    .br-h { width:12px; height:1px; background:rgba(255,255,255,0.2); }
-    .br-v { width:1px; background:rgba(255,255,255,0.2); flex:1; min-height:20px; }
-  </style>
-  <div style="margin-bottom:0.5rem;display:flex;gap:1rem;font-size:0.7rem">
-    <span><span style="display:inline-block;width:10px;height:10px;background:rgba(255,215,0,0.3);border:1px solid var(--gold);border-radius:2px;margin-right:3px"></span>勝者</span>
-    <span><span style="display:inline-block;width:10px;height:10px;background:rgba(0,212,255,0.15);border:1px solid var(--accent);border-radius:2px;margin-right:3px"></span>参加者選択国</span>
+<style>
+.br-wrap { display:flex; align-items:stretch; gap:0; min-width:1000px; font-family:'Noto Sans JP',sans-serif; }
+.br-col { display:flex; flex-direction:column; justify-content:space-around; min-width:100px; }
+.br-col.r32  { min-width:105px; }
+.br-col.r16  { min-width:105px; }
+.br-col.qf   { min-width:105px; }
+.br-col.sf   { min-width:105px; flex-direction:column; justify-content:space-around; }
+.br-col.fin  { min-width:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+.br-col.conn { min-width:10px; display:flex; flex-direction:column; justify-content:space-around; }
+.br-conn-line { border-left:1px solid rgba(255,255,255,0.15); height:50%; }
+.br-card { display:flex; flex-direction:column; margin:3px 2px; }
+.br-dt { font-size:0.58rem; color:var(--gold); margin-bottom:2px; padding-left:2px; line-height:1.3; }
+.br-team {
+  font-size:0.7rem; font-weight:700;
+  padding:3px 5px; margin:1px 0;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:4px; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis;
+  max-width:103px; cursor:pointer;
+  transition:opacity 0.15s;
+}
+.br-team:hover { opacity:0.75; }
+.br-winner { background:rgba(255,215,0,0.15); border-color:rgba(255,215,0,0.5); color:var(--gold); }
+.br-owned  { background:rgba(0,212,255,0.1); border-color:rgba(0,212,255,0.3); color:var(--accent); }
+.br-label {
+  font-family:'Bebas Neue',sans-serif; font-size:0.7rem;
+  color:var(--muted); text-align:center; letter-spacing:0.05em;
+  padding:2px 0 4px;
+}
+.br-round-header {
+  font-family:'Bebas Neue',sans-serif; font-size:0.65rem;
+  color:var(--muted); text-align:center; margin-bottom:4px;
+  letter-spacing:0.05em;
+}
+.br-champ {
+  font-family:'Bebas Neue',sans-serif; font-size:1rem;
+  color:var(--gold); text-align:center; padding:6px 8px;
+  background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.35);
+  border-radius:8px; white-space:nowrap;
+}
+</style>
+<div style="display:flex;gap:1rem;font-size:0.68rem;margin-bottom:0.75rem">
+  <span><span style="display:inline-block;width:10px;height:10px;background:rgba(255,215,0,0.3);border:1px solid var(--gold);border-radius:2px;margin-right:3px"></span>勝者</span>
+  <span><span style="display:inline-block;width:10px;height:10px;background:rgba(0,212,255,0.15);border:1px solid var(--accent);border-radius:2px;margin-right:3px"></span>参加者選択国</span>
+</div>
+<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:1rem">
+<div>
+  <div style="display:flex;min-width:1000px;margin-bottom:2px">
+    <div style="min-width:105px;font-family:'Bebas Neue',sans-serif;font-size:0.65rem;color:var(--muted);text-align:center">ベスト32</div>
+    <div style="min-width:10px"></div>
+    <div style="min-width:105px;font-family:'Bebas Neue',sans-serif;font-size:0.65rem;color:var(--muted);text-align:center">ベスト16</div>
+    <div style="min-width:10px"></div>
+    <div style="min-width:105px;font-family:'Bebas Neue',sans-serif;font-size:0.65rem;color:var(--muted);text-align:center">準々決勝</div>
+    <div style="min-width:10px"></div>
+    <div style="min-width:105px;font-family:'Bebas Neue',sans-serif;font-size:0.65rem;color:var(--muted);text-align:center">準決勝</div>
+    <div style="min-width:10px"></div>
+    <div style="min-width:120px;font-family:'Bebas Neue',sans-serif;font-size:0.65rem;color:var(--gold);text-align:center">決勝</div>
+    <div style="min-width:10px"></div>
+    <div style="min-width:105px;font-family:'Bebas Neue',sans-serif;font-size:0.65rem;color:var(--muted);text-align:center">準決勝</div>
+    <div style="min-width:10px"></div>
+    <div style="min-width:105px;font-family:'Bebas Neue',sans-serif;font-size:0.65rem;color:var(--muted);text-align:center">準々決勝</div>
+    <div style="min-width:10px"></div>
+    <div style="min-width:105px;font-family:'Bebas Neue',sans-serif;font-size:0.65rem;color:var(--muted);text-align:center">ベスト16</div>
+    <div style="min-width:10px"></div>
+    <div style="min-width:105px;font-family:'Bebas Neue',sans-serif;font-size:0.65rem;color:var(--muted);text-align:center">ベスト32</div>
   </div>
-  <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:1rem">
   <div class="br-wrap">
-    ${col(leftR32Cells, 'r32')}
+    ${roundCol(leftR32, r16, 'r32')}
     <div class="br-col conn"></div>
-    ${col(leftR16Cells, 'r16')}
+    ${roundCol(leftR16.length ? leftR16 : Array(4).fill({}), qf, 'r16')}
     <div class="br-col conn"></div>
-    ${col(leftQFCells, 'qf')}
+    ${roundCol(leftQF.length ? leftQF : Array(2).fill({}), sf, 'qf')}
     <div class="br-col conn"></div>
-    <div class="br-col sf">${leftSFCell}</div>
+    <div class="br-col sf">${matchCard(leftSF, fin[0], '')}</div>
     <div class="br-col conn"></div>
     <div class="br-col fin">
-      <div class="br-label">決勝</div>
-      ${finalCell}
-      ${champCell}
+      ${matchCard(finalM, champ, '')}
+      ${champ ? `<div class="br-champ">👑 ${champ}</div>` : ''}
     </div>
     <div class="br-col conn"></div>
-    <div class="br-col sf">${rightSFCell}</div>
+    <div class="br-col sf">${matchCard(rightSF, fin[1], '')}</div>
     <div class="br-col conn"></div>
-    ${col(rightQFCells, 'qf')}
+    ${roundCol(rightQF.length ? rightQF : Array(2).fill({}), sf.slice(2), 'qf')}
     <div class="br-col conn"></div>
-    ${col(rightR16Cells, 'r16')}
+    ${roundCol(rightR16.length ? rightR16 : Array(4).fill({}), qf.slice(4), 'r16')}
     <div class="br-col conn"></div>
-    ${col(rightR32Cells, 'r32')}
+    ${roundCol(rightR32, r16.slice(8), 'r32')}
   </div>
-  </div>`;
+</div>
+</div>`;
 }
 
 function switchStanding(g, el) {
