@@ -534,7 +534,8 @@ async function loadData() {
     appData = await res.json();
     renderAll();
   } catch(e) {
-    document.querySelectorAll('.empty').forEach(el => el.textContent = 'データの読み込みに失敗しました');
+    console.error('loadData error:', e);
+    document.querySelectorAll('.empty').forEach(el => el.textContent = 'エラー: ' + e.message);
   }
 }
 
@@ -548,11 +549,16 @@ function showTab(tab, el) {
 
 function renderAll() {
   if (!appData) return;
-  renderRanking();
-  renderPicks();
-  renderMatches();
-  renderKnockout();
-  document.getElementById('lastUpdated').textContent = new Date().toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  try {
+    renderRanking();
+    renderPicks();
+    renderMatches();
+    renderKnockout();
+    document.getElementById('lastUpdated').textContent = new Date().toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    console.error('renderAll error:', e);
+    document.querySelectorAll('.empty').forEach(el => el.textContent = 'レンダリングエラー: ' + e.message);
+  }
 }
 
 // ===== RANKING =====
@@ -1079,128 +1085,6 @@ function renderKnockoutMatches() {
       ${rows}
     </div>`;
   }).filter(Boolean).join('') || '<div class="empty">試合データがまだありません</div>';
-}
-
-function renderBracket() {
-  if (!appData) return;
-  const el = document.getElementById('bracketList');
-  const ko = appData.knockoutResults;
-  const r32 = (ko.round_of_32 || []).filter(Boolean);
-  const r16 = (ko.round_of_16 || []).filter(Boolean);
-  const qf  = (ko.quarter_finals || []).filter(Boolean);
-  const sf  = (ko.semi_finals || []).filter(Boolean);
-  const fin = (ko.final || []).filter(Boolean);
-  const champ = ko.champion || '';
-  const owned = new Set(appData.participants.flatMap(p => p.countries));
-
-  // data.jsonのround_of_32からベスト32対戦カードを生成
-  // 固定ブラケット構造（FIFA公式）
-  const BRACKET = [
-    // [match番号, home枠index, away枠index, 日付, ラベル]
-    // homeとawayはr32配列のインデックス（グループ順：A1,A2,B1,B2,...L1,L2,3位×8）
-    {m:73,  h:0,  a:3,  date:"6/28", label:"M73"},
-    {m:74,  h:4,  a:11, date:"6/29", label:"M74"},
-    {m:75,  h:10, a:5,  date:"6/29", label:"M75"},
-    {m:76,  h:2,  a:24, date:"6/30", label:"M76"}, // B1 vs 3位
-    {m:77,  h:12, a:25, date:"7/1",  label:"M77"}, // G1 vs 3位
-    {m:78,  h:8,  a:26, date:"7/1",  label:"M78"}, // E1 vs 3位
-    {m:79,  h:6,  a:27, date:"7/1",  label:"M79"}, // D1 vs 3位
-    {m:80,  h:14, a:19, date:"7/2",  label:"M80"}, // H1 vs J2
-    {m:81,  h:22, a:28, date:"7/1",  label:"M81"}, // L1 vs 3位
-    {m:82,  h:20, a:29, date:"7/2",  label:"M82"}, // K1 vs 3位
-    {m:83,  h:21, a:23, date:"7/2",  label:"M83"}, // K2 vs L2
-    {m:84,  h:7,  a:13, date:"7/3",  label:"M84"}, // D2 vs G2
-    {m:85,  h:16, a:30, date:"7/3",  label:"M85"}, // I1 vs 3位
-    {m:86,  h:18, a:15, date:"7/3",  label:"M86"}, // J1 vs H2
-    {m:87,  h:9,  a:17, date:"7/4",  label:"M87"}, // E2 vs I2
-    {m:88,  h:1,  a:31, date:"7/4",  label:"M88"}, // A2 vs 3位
-  ];
-
-  function teamChip(name, isWinner) {
-    if (!name) return `<div class="bracket-team tbd"><span class="bracket-team-name">未定</span><span class="bracket-score">-</span></div>`;
-    const isOwned = owned.has(name);
-    const cls = isWinner ? 'winner' : isOwned ? 'owned' : '';
-    return `<div class="bracket-team ${cls}" onclick="showCountryPopup('${name}')">
-      <span class="bracket-team-name">${name}${getRankLabel(name)}</span>
-      ${isWinner ? '<span style="font-size:0.7rem">👑</span>' : ''}
-    </div>`;
-  }
-
-  function matchCard(match, teamA, teamB, winner) {
-    const decided = !!winner;
-    return `<div class="bracket-match ${decided ? 'decided' : ''}">
-      <div class="bracket-match-num">${match.label}</div>
-      <div class="bracket-match-date">📅 ${match.date}</div>
-      ${teamChip(teamA, winner === teamA)}
-      ${teamChip(teamB, winner === teamB)}
-    </div>`;
-  }
-
-  // ベスト32
-  const r32html = BRACKET.map(m => {
-    const teamA = r32[m.h] || '';
-    const teamB = r32[m.a] || '';
-    const winner = r16.length ? '' : ''; // R16から逆算は複雑なので未設定
-    return matchCard(m, teamA, teamB, '');
-  }).join('');
-
-  // ベスト16（8試合）
-  const r16html = Array.from({length: 8}, (_, i) => {
-    const teamA = r16[i*2] || '';
-    const teamB = r16[i*2+1] || '';
-    const winner = qf[i] || '';
-    return `<div class="bracket-match ${winner ? 'decided' : ''}">
-      <div class="bracket-match-num">R16-${i+1}</div>
-      ${teamChip(teamA, !!winner && winner === teamA)}
-      ${teamChip(teamB, !!winner && winner === teamB)}
-    </div>`;
-  }).join('');
-
-  // ベスト8（4試合）
-  const qfhtml = Array.from({length: 4}, (_, i) => {
-    const teamA = qf[i*2] || '';
-    const teamB = qf[i*2+1] || '';
-    const winner = sf[i] || '';
-    return `<div class="bracket-match ${winner ? 'decided' : ''}">
-      <div class="bracket-match-num">QF-${i+1}</div>
-      ${teamChip(teamA, !!winner && winner === teamA)}
-      ${teamChip(teamB, !!winner && winner === teamB)}
-    </div>`;
-  }).join('');
-
-  // 準決勝（2試合）
-  const sfhtml = Array.from({length: 2}, (_, i) => {
-    const teamA = sf[i*2] || '';
-    const teamB = sf[i*2+1] || '';
-    const winner = fin[i] || '';
-    return `<div class="bracket-match ${winner ? 'decided' : ''}">
-      <div class="bracket-match-num">SF-${i+1}</div>
-      ${teamChip(teamA, !!winner && winner === teamA)}
-      ${teamChip(teamB, !!winner && winner === teamB)}
-    </div>`;
-  }).join('');
-
-  // 決勝
-  const finhtml = `<div class="bracket-match ${champ ? 'decided' : ''}" style="border-color:rgba(255,215,0,0.4)">
-    <div class="bracket-match-num">FINAL</div>
-    <div class="bracket-match-date" style="color:var(--gold)">🏆 7/19 決勝</div>
-    ${teamChip(fin[0] || '', !!champ && champ === fin[0])}
-    ${teamChip(fin[1] || '', !!champ && champ === fin[1])}
-    ${champ ? `<div style="text-align:center;margin-top:0.5rem;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold)">👑 優勝: ${champ}</div>` : ''}
-  </div>`;
-
-  el.innerHTML = `
-    <div class="bracket-round-label">🥊 ベスト32（6/28〜7/4）</div>
-    ${r32.length ? r32html : '<div class="empty">ベスト32未確定</div>'}
-    <div class="bracket-round-label">⚔️ ベスト16（7/5〜7/7）</div>
-    ${r16.length ? r16html : '<div class="empty">ベスト16未確定</div>'}
-    <div class="bracket-round-label">🔥 準々決勝（7/10〜7/11）</div>
-    ${qf.length ? qfhtml : '<div class="empty">準々決勝未確定</div>'}
-    <div class="bracket-round-label">⚡ 準決勝（7/15〜7/16）</div>
-    ${sf.length ? sfhtml : '<div class="empty">準決勝未確定</div>'}
-    <div class="bracket-round-label">🏆 決勝（7/19）</div>
-    ${finhtml}
-  `;
 }
 
 function renderBracketTable() {
