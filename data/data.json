@@ -813,36 +813,36 @@
       "away": "ポルトガル",
       "group": "K",
       "datetime": "2026-06-28 08:30",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 0,
+      "awayScore": 0
     },
     {
       "home": "コンゴDR",
       "away": "ウズベキスタン",
       "group": "K",
       "datetime": "2026-06-28 08:30",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 3,
+      "awayScore": 1
     },
     {
       "home": "アルジェリア",
       "away": "オーストリア",
       "group": "J",
       "datetime": "2026-06-28 11:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 3,
+      "awayScore": 3
     },
     {
       "home": "ヨルダン",
       "away": "アルゼンチン",
       "group": "J",
       "datetime": "2026-06-28 11:00",
-      "played": false,
-      "homeScore": null,
-      "awayScore": null
+      "played": true,
+      "homeScore": 1,
+      "awayScore": 3
     }
   ],
   "knockoutResults": {
@@ -866,7 +866,7 @@
       "フランス",
       "ノルウェー",
       "アルゼンチン",
-      "",
+      "オーストリア",
       "コロンビア",
       "ポルトガル",
       "イングランド",
@@ -876,7 +876,9 @@
       "スウェーデン",
       "パラグアイ",
       "セネガル",
-      "ガーナ"
+      "ガーナ",
+      "コンゴDR",
+      "アルジェリア"
     ],
     "round_of_32_third": [
       "ボスニア・ヘルツェゴビナ",
@@ -885,8 +887,8 @@
       "パラグアイ",
       "セネガル",
       "ガーナ",
-      "",
-      ""
+      "コンゴDR",
+      "アルジェリア"
     ],
     "round_of_16": [],
     "quarter_finals": [],
