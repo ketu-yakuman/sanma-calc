@@ -534,8 +534,7 @@ async function loadData() {
     appData = await res.json();
     renderAll();
   } catch(e) {
-    console.error('loadData error:', e);
-    document.querySelectorAll('.empty').forEach(el => el.textContent = 'エラー: ' + e.message);
+    document.querySelectorAll('.empty').forEach(el => el.textContent = 'データの読み込みに失敗しました');
   }
 }
 
@@ -549,16 +548,11 @@ function showTab(tab, el) {
 
 function renderAll() {
   if (!appData) return;
-  try {
-    renderRanking();
-    renderPicks();
-    renderMatches();
-    renderKnockout();
-    document.getElementById('lastUpdated').textContent = new Date().toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-  } catch(e) {
-    console.error('renderAll error:', e);
-    document.querySelectorAll('.empty').forEach(el => el.textContent = 'レンダリングエラー: ' + e.message);
-  }
+  renderRanking();
+  renderPicks();
+  renderMatches();
+  renderKnockout();
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
 }
 
 // ===== RANKING =====
@@ -884,138 +878,192 @@ const KO_ROUND_LABELS_VIEW = {
 };
 
 function renderKnockoutMatches() {
-  var el = document.getElementById('knockoutMatchesList');
-  var matches = (appData.knockoutMatches || []);
-  if (!matches.length) { el.innerHTML = '<div class="empty">試合データがまだありません</div>'; return; }
-
-  var owned = new Set(appData.participants.flatMap(function(p) { return p.countries; }));
-  var roundOrder = ['round_of_32','round_of_16','quarter_finals','semi_finals','final'];
-  var byRound = {};
-  roundOrder.forEach(function(r) { byRound[r] = []; });
-  matches.forEach(function(m) { if (byRound[m.round]) byRound[m.round].push(m); });
-
-  function getW(m) {
-    if (!m || !m.played || m.homeScore === null || m.awayScore === null) return '';
-    if (m.homeScore > m.awayScore) return m.home;
-    if (m.awayScore > m.homeScore) return m.away;
-    if (m.penalties) return m.penalties.home > m.penalties.away ? m.home : m.away;
-    return '';
+  const el = document.getElementById('knockoutMatchesList');
+  const matches = appData.knockoutMatches || [];
+  if (!matches.length) {
+    el.innerHTML = '<div class="empty">試合データがまだありません</div>';
+    return;
   }
 
-  function fm(home, away) {
-    return byRound['round_of_32'].find(function(m) {
-      return (m.home===home&&m.away===away)||(m.home===away&&m.away===home);
-    }) || {};
-  }
+  const owned = new Set(appData.participants.flatMap(p => p.countries));
+  const roundOrder = ['round_of_32','round_of_16','quarter_finals','semi_finals','final'];
+  const byRound = {};
+  roundOrder.forEach(r => byRound[r] = []);
+  matches.forEach(m => { if (byRound[m.round]) byRound[m.round].push(m); });
 
-  var leftR32 = [
-    fm('ドイツ','パラグアイ'), fm('フランス','スウェーデン'),
-    fm('南アフリカ','カナダ'), fm('オランダ','モロッコ'),
-    fm('ポルトガル','クロアチア'), fm('スペイン','オーストリア'),
-    fm('アメリカ','ボスニア・ヘルツェゴビナ'), fm('ベルギー','セネガル')
-  ];
-  var rightR32 = [
-    fm('ブラジル','日本'), fm('コートジボワール','ノルウェー'),
-    fm('メキシコ','エクアドル'), fm('イングランド','コンゴDR'),
-    fm('アルゼンチン','カーボベルデ'), fm('オーストラリア','エジプト'),
-    fm('スイス','アルジェリア'), fm('コロンビア','ガーナ')
-  ];
-  var allR32 = leftR32.concat(rightR32);
-  var r32w = allR32.map(function(m) { return getW(m); });
+  el.innerHTML = roundOrder.map(round => {
+    // ベスト32はhomeが入っているものだけ、ベスト16以降は全試合表示（日時だけでも）
+    const ms = round === 'round_of_32'
+      ? byRound[round].filter(m => m.home)
+      : byRound[round];
+    if (!ms.length) return '';
 
-  var r16m = byRound['round_of_16'];
-  var r16pairs = [
-    [r32w[0],r32w[1]], [r32w[2],r32w[3]], [r32w[4],r32w[5]], [r32w[6],r32w[7]],
-    [r32w[8],r32w[9]], [r32w[10],r32w[11]], [r32w[12],r32w[13]], [r32w[14],r32w[15]]
-  ];
-  var r16e = r16m.map(function(m,i) {
-    return { round:m.round, match:m.match, date:m.date, time:m.time, played:m.played,
-      homeScore:m.homeScore, awayScore:m.awayScore, extraTime:m.extraTime, penalties:m.penalties,
-      home: m.home || (r16pairs[i]&&r16pairs[i][0]) || '',
-      away: m.away || (r16pairs[i]&&r16pairs[i][1]) || '' };
-  });
-  var r16w = r16e.map(function(m) { return getW(m); });
+    const rows = ms.map(m => {
+      const scored = m.played && m.homeScore !== null;
+      const d = new Date(m.date + 'T00:00:00+09:00');
+      const wd = ['日','月','火','水','木','金','土'][d.getDay()];
+      const dateLabel = m.time
+        ? `${d.getMonth()+1}/${d.getDate()}(${wd}) ${m.time} JST`
+        : `${d.getMonth()+1}/${d.getDate()}(${wd})`;
+      const homeOwned = owned.has(m.home);
+      const awayOwned = owned.has(m.away);
+      const border = m.played ? 'border-left:3px solid rgba(34,197,94,0.5)' : '';
+      const homeName = m.home || '未定';
+      const awayName = m.away || '未定';
 
-  var qfm = byRound['quarter_finals'];
-  var qfe = qfm.map(function(m,i) {
-    return { round:m.round, date:m.date, time:m.time, played:m.played,
-      homeScore:m.homeScore, awayScore:m.awayScore, extraTime:m.extraTime, penalties:m.penalties,
-      home: m.home || r16w[i*2] || '', away: m.away || r16w[i*2+1] || '' };
-  });
-  var qfw = qfe.map(function(m) { return getW(m); });
-
-  var sfm = byRound['semi_finals'];
-  var sfe = sfm.map(function(m,i) {
-    return { round:m.round, date:m.date, time:m.time, played:m.played,
-      homeScore:m.homeScore, awayScore:m.awayScore, extraTime:m.extraTime, penalties:m.penalties,
-      home: m.home || qfw[i*2] || '', away: m.away || qfw[i*2+1] || '' };
-  });
-  var sfw = sfe.map(function(m) { return getW(m); });
-
-  var finm = byRound['final'];
-  var fine = finm.map(function(m) {
-    return { round:m.round, date:m.date, time:m.time, played:m.played,
-      homeScore:m.homeScore, awayScore:m.awayScore, extraTime:m.extraTime, penalties:m.penalties,
-      home: m.home || sfw[0] || '', away: m.away || sfw[1] || '' };
-  });
-
-  var enriched = {
-    round_of_32: byRound['round_of_32'].filter(function(m) { return m.home; }),
-    round_of_16: r16e, quarter_finals: qfe, semi_finals: sfe, final: fine
-  };
-
-  var KO_LABELS = {
-    round_of_32:'ベスト32', round_of_16:'ベスト16',
-    quarter_finals:'準々決勝（ベスト8）', semi_finals:'準決勝（ベスト4）', final:'決勝'
-  };
-
-  var html = '';
-  roundOrder.forEach(function(round) {
-    var ms = enriched[round];
-    if (!ms || !ms.length) return;
-    var rows = '';
-    ms.forEach(function(m) {
-      var scored = m.played && m.homeScore !== null;
-      var d = new Date(m.date + 'T00:00:00+09:00');
-      var wd = ['日','月','火','水','木','金','土'][d.getDay()];
-      var dtLabel = m.time
-        ? (d.getMonth()+1) + '/' + d.getDate() + '(' + wd + ') ' + m.time + ' JST'
-        : (d.getMonth()+1) + '/' + d.getDate() + '(' + wd + ')';
-      var hOwned = owned.has(m.home);
-      var aOwned = owned.has(m.away);
-      var border = m.played ? 'border-left:3px solid rgba(34,197,94,0.5)' : '';
-      var hName = m.home || '未定';
-      var aName = m.away || '未定';
-      var scoreHtml;
+      let scoreHtml = '';
       if (scored) {
-        scoreHtml = m.homeScore + ' - ' + m.awayScore;
-        if (m.extraTime) scoreHtml += '<br><span style="font-size:0.58rem;color:var(--accent)">延長</span>';
-        if (m.penalties) scoreHtml += '<br><span style="font-size:0.58rem;color:var(--gold)">PK ' + m.penalties.home + '-' + m.penalties.away + '</span>';
+        let label = `${m.homeScore} - ${m.awayScore}`;
+        if (m.extraTime) label += '<br><span style="font-size:0.58rem;color:var(--accent)">延長</span>';
+        if (m.penalties) label += `<br><span style="font-size:0.58rem;color:var(--gold)">PK ${m.penalties.home}-${m.penalties.away}</span>`;
+        scoreHtml = label;
       } else {
         scoreHtml = 'vs';
       }
-      var hStyle = hOwned ? 'color:var(--accent)' : m.home ? '' : 'color:var(--muted);font-style:italic';
-      var aStyle = aOwned ? 'color:var(--accent)' : m.away ? '' : 'color:var(--muted);font-style:italic';
-      var hClick = m.home ? 'onclick="showCountryPopup('' + m.home + '')"' : '';
-      var aClick = m.away ? 'onclick="showCountryPopup('' + m.away + '')"' : '';
-      var hCursor = m.home ? 'pointer' : 'default';
-      var aCursor = m.away ? 'pointer' : 'default';
-      rows += '<div class="match-row" style="' + border + '">'
-        + '<div style="display:flex;flex-direction:column;flex:1;min-width:0">'
-        + '<span style="font-size:0.68rem;color:var(--gold);margin-bottom:0.15rem">' + dtLabel + '</span>'
-        + '<span class="match-team" style="' + hStyle + ';cursor:' + hCursor + '" ' + hClick + '>'
-        + (m.home ? getFlag(m.home) : '') + hName + (m.home ? getRankLabel(m.home) : '')
-        + '</span></div>'
-        + '<span class="match-score ' + (scored?'':'pending') + '" style="white-space:nowrap;flex-shrink:0">' + scoreHtml + '</span>'
-        + '<div style="display:flex;flex-direction:column;flex:1;min-width:0;align-items:flex-end">'
-        + '<span style="font-size:0.68rem;color:transparent;margin-bottom:0.15rem">-</span>'
-        + '<span class="match-team-away" style="' + aStyle + ';cursor:' + aCursor + '" ' + aClick + '>'
-        + aName + (m.away ? getRankLabel(m.away) : '') + (m.away ? getFlag(m.away) : '')
-        + '</span></div></div>';
-    });
-    html += '<div class="group-section"><div class="group-label" style="color:var(--accent2)">' + KO_LABELS[round] + '</div>' + rows + '</div>';
-  });
-  el.innerHTML = html || '<div class="empty">試合データがまだありません</div>';
+
+      const homeStyle = homeOwned ? 'color:var(--accent)' : m.home ? '' : 'color:var(--muted);font-style:italic';
+      const awayStyle = awayOwned ? 'color:var(--accent)' : m.away ? '' : 'color:var(--muted);font-style:italic';
+
+      return `<div class="match-row" style="${border}">
+        <div style="display:flex;flex-direction:column;flex:1;min-width:0">
+          <span style="font-size:0.68rem;color:var(--gold);margin-bottom:0.15rem">${dateLabel}</span>
+          <span class="match-team" style="${homeStyle};cursor:${m.home?'pointer':'default'}" ${m.home?`onclick="showCountryPopup('${m.home}')"`:''}>${m.home?getFlag(m.home):''}${homeName}${m.home?getRankLabel(m.home):''}</span>
+        </div>
+        <span class="match-score ${scored?'':'pending'}" style="white-space:nowrap;flex-shrink:0">${scoreHtml}</span>
+        <div style="display:flex;flex-direction:column;flex:1;min-width:0;align-items:flex-end">
+          <span style="font-size:0.68rem;color:transparent;margin-bottom:0.15rem">-</span>
+          <span class="match-team-away" style="${awayStyle};cursor:${m.away?'pointer':'default'}" ${m.away?`onclick="showCountryPopup('${m.away}')"`:''}>${awayName}${m.away?getRankLabel(m.away):''}${m.away?getFlag(m.away):''}</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="group-section">
+      <div class="group-label" style="color:var(--accent2)">${KO_ROUND_LABELS_VIEW[round]}</div>
+      ${rows}
+    </div>`;
+  }).filter(Boolean).join('') || '<div class="empty">試合データがまだありません</div>';
+}
+
+function renderBracket() {
+  if (!appData) return;
+  const el = document.getElementById('bracketList');
+  const ko = appData.knockoutResults;
+  const r32 = (ko.round_of_32 || []).filter(Boolean);
+  const r16 = (ko.round_of_16 || []).filter(Boolean);
+  const qf  = (ko.quarter_finals || []).filter(Boolean);
+  const sf  = (ko.semi_finals || []).filter(Boolean);
+  const fin = (ko.final || []).filter(Boolean);
+  const champ = ko.champion || '';
+  const owned = new Set(appData.participants.flatMap(p => p.countries));
+
+  // data.jsonのround_of_32からベスト32対戦カードを生成
+  // 固定ブラケット構造（FIFA公式）
+  const BRACKET = [
+    // [match番号, home枠index, away枠index, 日付, ラベル]
+    // homeとawayはr32配列のインデックス（グループ順：A1,A2,B1,B2,...L1,L2,3位×8）
+    {m:73,  h:0,  a:3,  date:"6/28", label:"M73"},
+    {m:74,  h:4,  a:11, date:"6/29", label:"M74"},
+    {m:75,  h:10, a:5,  date:"6/29", label:"M75"},
+    {m:76,  h:2,  a:24, date:"6/30", label:"M76"}, // B1 vs 3位
+    {m:77,  h:12, a:25, date:"7/1",  label:"M77"}, // G1 vs 3位
+    {m:78,  h:8,  a:26, date:"7/1",  label:"M78"}, // E1 vs 3位
+    {m:79,  h:6,  a:27, date:"7/1",  label:"M79"}, // D1 vs 3位
+    {m:80,  h:14, a:19, date:"7/2",  label:"M80"}, // H1 vs J2
+    {m:81,  h:22, a:28, date:"7/1",  label:"M81"}, // L1 vs 3位
+    {m:82,  h:20, a:29, date:"7/2",  label:"M82"}, // K1 vs 3位
+    {m:83,  h:21, a:23, date:"7/2",  label:"M83"}, // K2 vs L2
+    {m:84,  h:7,  a:13, date:"7/3",  label:"M84"}, // D2 vs G2
+    {m:85,  h:16, a:30, date:"7/3",  label:"M85"}, // I1 vs 3位
+    {m:86,  h:18, a:15, date:"7/3",  label:"M86"}, // J1 vs H2
+    {m:87,  h:9,  a:17, date:"7/4",  label:"M87"}, // E2 vs I2
+    {m:88,  h:1,  a:31, date:"7/4",  label:"M88"}, // A2 vs 3位
+  ];
+
+  function teamChip(name, isWinner) {
+    if (!name) return `<div class="bracket-team tbd"><span class="bracket-team-name">未定</span><span class="bracket-score">-</span></div>`;
+    const isOwned = owned.has(name);
+    const cls = isWinner ? 'winner' : isOwned ? 'owned' : '';
+    return `<div class="bracket-team ${cls}" onclick="showCountryPopup('${name}')">
+      <span class="bracket-team-name">${name}${getRankLabel(name)}</span>
+      ${isWinner ? '<span style="font-size:0.7rem">👑</span>' : ''}
+    </div>`;
+  }
+
+  function matchCard(match, teamA, teamB, winner) {
+    const decided = !!winner;
+    return `<div class="bracket-match ${decided ? 'decided' : ''}">
+      <div class="bracket-match-num">${match.label}</div>
+      <div class="bracket-match-date">📅 ${match.date}</div>
+      ${teamChip(teamA, winner === teamA)}
+      ${teamChip(teamB, winner === teamB)}
+    </div>`;
+  }
+
+  // ベスト32
+  const r32html = BRACKET.map(m => {
+    const teamA = r32[m.h] || '';
+    const teamB = r32[m.a] || '';
+    const winner = r16.length ? '' : ''; // R16から逆算は複雑なので未設定
+    return matchCard(m, teamA, teamB, '');
+  }).join('');
+
+  // ベスト16（8試合）
+  const r16html = Array.from({length: 8}, (_, i) => {
+    const teamA = r16[i*2] || '';
+    const teamB = r16[i*2+1] || '';
+    const winner = qf[i] || '';
+    return `<div class="bracket-match ${winner ? 'decided' : ''}">
+      <div class="bracket-match-num">R16-${i+1}</div>
+      ${teamChip(teamA, !!winner && winner === teamA)}
+      ${teamChip(teamB, !!winner && winner === teamB)}
+    </div>`;
+  }).join('');
+
+  // ベスト8（4試合）
+  const qfhtml = Array.from({length: 4}, (_, i) => {
+    const teamA = qf[i*2] || '';
+    const teamB = qf[i*2+1] || '';
+    const winner = sf[i] || '';
+    return `<div class="bracket-match ${winner ? 'decided' : ''}">
+      <div class="bracket-match-num">QF-${i+1}</div>
+      ${teamChip(teamA, !!winner && winner === teamA)}
+      ${teamChip(teamB, !!winner && winner === teamB)}
+    </div>`;
+  }).join('');
+
+  // 準決勝（2試合）
+  const sfhtml = Array.from({length: 2}, (_, i) => {
+    const teamA = sf[i*2] || '';
+    const teamB = sf[i*2+1] || '';
+    const winner = fin[i] || '';
+    return `<div class="bracket-match ${winner ? 'decided' : ''}">
+      <div class="bracket-match-num">SF-${i+1}</div>
+      ${teamChip(teamA, !!winner && winner === teamA)}
+      ${teamChip(teamB, !!winner && winner === teamB)}
+    </div>`;
+  }).join('');
+
+  // 決勝
+  const finhtml = `<div class="bracket-match ${champ ? 'decided' : ''}" style="border-color:rgba(255,215,0,0.4)">
+    <div class="bracket-match-num">FINAL</div>
+    <div class="bracket-match-date" style="color:var(--gold)">🏆 7/19 決勝</div>
+    ${teamChip(fin[0] || '', !!champ && champ === fin[0])}
+    ${teamChip(fin[1] || '', !!champ && champ === fin[1])}
+    ${champ ? `<div style="text-align:center;margin-top:0.5rem;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold)">👑 優勝: ${champ}</div>` : ''}
+  </div>`;
+
+  el.innerHTML = `
+    <div class="bracket-round-label">🥊 ベスト32（6/28〜7/4）</div>
+    ${r32.length ? r32html : '<div class="empty">ベスト32未確定</div>'}
+    <div class="bracket-round-label">⚔️ ベスト16（7/5〜7/7）</div>
+    ${r16.length ? r16html : '<div class="empty">ベスト16未確定</div>'}
+    <div class="bracket-round-label">🔥 準々決勝（7/10〜7/11）</div>
+    ${qf.length ? qfhtml : '<div class="empty">準々決勝未確定</div>'}
+    <div class="bracket-round-label">⚡ 準決勝（7/15〜7/16）</div>
+    ${sf.length ? sfhtml : '<div class="empty">準決勝未確定</div>'}
+    <div class="bracket-round-label">🏆 決勝（7/19）</div>
+    ${finhtml}
+  `;
 }
 
 function renderBracketTable() {
