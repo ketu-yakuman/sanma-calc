@@ -884,21 +884,17 @@ const KO_ROUND_LABELS_VIEW = {
 };
 
 function renderKnockoutMatches() {
-  const el = document.getElementById('knockoutMatchesList');
-  const matches = appData.knockoutMatches || [];
-  if (!matches.length) {
-    el.innerHTML = '<div class="empty">試合データがまだありません</div>';
-    return;
-  }
+  var el = document.getElementById('knockoutMatchesList');
+  var matches = (appData.knockoutMatches || []);
+  if (!matches.length) { el.innerHTML = '<div class="empty">試合データがまだありません</div>'; return; }
 
-  const owned = new Set(appData.participants.flatMap(p => p.countries));
-  const roundOrder = ['round_of_32','round_of_16','quarter_finals','semi_finals','final'];
-  const byRound = {};
-  roundOrder.forEach(r => byRound[r] = []);
-  matches.forEach(m => { if (byRound[m.round]) byRound[m.round].push(m); });
+  var owned = new Set(appData.participants.flatMap(function(p) { return p.countries; }));
+  var roundOrder = ['round_of_32','round_of_16','quarter_finals','semi_finals','final'];
+  var byRound = {};
+  roundOrder.forEach(function(r) { byRound[r] = []; });
+  matches.forEach(function(m) { if (byRound[m.round]) byRound[m.round].push(m); });
 
-  // 各試合の勝者を取得
-  function getWinnerFromMatch(m) {
+  function getW(m) {
     if (!m || !m.played || m.homeScore === null || m.awayScore === null) return '';
     if (m.homeScore > m.awayScore) return m.home;
     if (m.awayScore > m.homeScore) return m.away;
@@ -906,185 +902,120 @@ function renderKnockoutMatches() {
     return '';
   }
 
-  // R32の勝者リスト（左山・右山の公式順）
-  function findMatch(home, away) {
-    return byRound['round_of_32'].find(m =>
-      (m.home === home && m.away === away) ||
-      (m.home === away && m.away === home)
-    ) || {};
+  function fm(home, away) {
+    return byRound['round_of_32'].find(function(m) {
+      return (m.home===home&&m.away===away)||(m.home===away&&m.away===home);
+    }) || {};
   }
-  const leftR32ordered = [
-    findMatch('ドイツ','パラグアイ'), findMatch('フランス','スウェーデン'),
-    findMatch('南アフリカ','カナダ'), findMatch('オランダ','モロッコ'),
-    findMatch('ポルトガル','クロアチア'), findMatch('スペイン','オーストリア'),
-    findMatch('アメリカ','ボスニア・ヘルツェゴビナ'), findMatch('ベルギー','セネガル'),
+
+  var leftR32 = [
+    fm('ドイツ','パラグアイ'), fm('フランス','スウェーデン'),
+    fm('南アフリカ','カナダ'), fm('オランダ','モロッコ'),
+    fm('ポルトガル','クロアチア'), fm('スペイン','オーストリア'),
+    fm('アメリカ','ボスニア・ヘルツェゴビナ'), fm('ベルギー','セネガル')
   ];
-  const rightR32ordered = [
-    findMatch('ブラジル','日本'), findMatch('コートジボワール','ノルウェー'),
-    findMatch('メキシコ','エクアドル'), findMatch('イングランド','コンゴDR'),
-    findMatch('アルゼンチン','カーボベルデ'), findMatch('オーストラリア','エジプト'),
-    findMatch('スイス','アルジェリア'), findMatch('コロンビア','ガーナ'),
+  var rightR32 = [
+    fm('ブラジル','日本'), fm('コートジボワール','ノルウェー'),
+    fm('メキシコ','エクアドル'), fm('イングランド','コンゴDR'),
+    fm('アルゼンチン','カーボベルデ'), fm('オーストラリア','エジプト'),
+    fm('スイス','アルジェリア'), fm('コロンビア','ガーナ')
   ];
-  const allR32ordered = [...leftR32ordered, ...rightR32ordered];
-  const r32winners = allR32ordered.map(m => getWinnerFromMatch(m));
+  var allR32 = leftR32.concat(rightR32);
+  var r32w = allR32.map(function(m) { return getW(m); });
 
-  // R16の表示チーム（home/away未入力ならR32勝者から補完）
-  const r16matches = byRound['round_of_16'];
-  // 左山R16ペア: [0,1]→M89, [2,3]→M90, [4,5]→M91, [6,7]→M92
-  // 右山R16ペア: [8,9]→M93, [10,11]→M94, [12,13]→M95, [14,15]→M96
-  const r16pairs = [
-    [r32winners[0], r32winners[1]],  // M89: 左上1,2
-    [r32winners[2], r32winners[3]],  // M90: 左上3,4
-    [r32winners[4], r32winners[5]],  // M91: 左下1,2
-    [r32winners[6], r32winners[7]],  // M92: 左下3,4
-    [r32winners[8], r32winners[9]],  // M93: 右上1,2
-    [r32winners[10], r32winners[11]],// M94: 右上3,4
-    [r32winners[12], r32winners[13]],// M95: 右下1,2
-    [r32winners[14], r32winners[15]],// M96: 右下3,4
+  var r16m = byRound['round_of_16'];
+  var r16pairs = [
+    [r32w[0],r32w[1]], [r32w[2],r32w[3]], [r32w[4],r32w[5]], [r32w[6],r32w[7]],
+    [r32w[8],r32w[9]], [r32w[10],r32w[11]], [r32w[12],r32w[13]], [r32w[14],r32w[15]]
   ];
+  var r16e = r16m.map(function(m,i) {
+    return { round:m.round, match:m.match, date:m.date, time:m.time, played:m.played,
+      homeScore:m.homeScore, awayScore:m.awayScore, extraTime:m.extraTime, penalties:m.penalties,
+      home: m.home || (r16pairs[i]&&r16pairs[i][0]) || '',
+      away: m.away || (r16pairs[i]&&r16pairs[i][1]) || '' };
+  });
+  var r16w = r16e.map(function(m) { return getW(m); });
 
-  // R16のhome/awayをR32勝者で補完したオブジェクト生成
-  const r16enriched = r16matches.map((m, i) => ({
-    ...m,
-    home: m.home || r16pairs[i]?.[0] || '',
-    away: m.away || r16pairs[i]?.[1] || '',
-  }));
-  const r16winners = r16enriched.map(m => getWinnerFromMatch(m));
+  var qfm = byRound['quarter_finals'];
+  var qfe = qfm.map(function(m,i) {
+    return { round:m.round, date:m.date, time:m.time, played:m.played,
+      homeScore:m.homeScore, awayScore:m.awayScore, extraTime:m.extraTime, penalties:m.penalties,
+      home: m.home || r16w[i*2] || '', away: m.away || r16w[i*2+1] || '' };
+  });
+  var qfw = qfe.map(function(m) { return getW(m); });
 
-  // QF補完
-  const qfmatches = byRound['quarter_finals'];
-  const qfpairs = [
-    [r16winners[0], r16winners[1]],
-    [r16winners[2], r16winners[3]],
-    [r16winners[4], r16winners[5]],
-    [r16winners[6], r16winners[7]],
-  ];
-  const qfenriched = qfmatches.map((m, i) => ({
-    ...m,
-    home: m.home || qfpairs[i]?.[0] || '',
-    away: m.away || qfpairs[i]?.[1] || '',
-  }));
-  const qfwinners = qfenriched.map(m => getWinnerFromMatch(m));
+  var sfm = byRound['semi_finals'];
+  var sfe = sfm.map(function(m,i) {
+    return { round:m.round, date:m.date, time:m.time, played:m.played,
+      homeScore:m.homeScore, awayScore:m.awayScore, extraTime:m.extraTime, penalties:m.penalties,
+      home: m.home || qfw[i*2] || '', away: m.away || qfw[i*2+1] || '' };
+  });
+  var sfw = sfe.map(function(m) { return getW(m); });
 
-  // SF補完
-  const sfmatches = byRound['semi_finals'];
-  const sfenriched = sfmatches.map((m, i) => ({
-    ...m,
-    home: m.home || qfwinners[i*2] || '',
-    away: m.away || qfwinners[i*2+1] || '',
-  }));
-  const sfwinners = sfenriched.map(m => getWinnerFromMatch(m));
+  var finm = byRound['final'];
+  var fine = finm.map(function(m) {
+    return { round:m.round, date:m.date, time:m.time, played:m.played,
+      homeScore:m.homeScore, awayScore:m.awayScore, extraTime:m.extraTime, penalties:m.penalties,
+      home: m.home || sfw[0] || '', away: m.away || sfw[1] || '' };
+  });
 
-  // 決勝補完
-  const finmatches = byRound['final'];
-  const finenriched = finmatches.map((m) => ({
-    ...m,
-    home: m.home || sfwinners[0] || '',
-    away: m.away || sfwinners[1] || '',
-  }));
-
-  const enrichedByRound = {
-    round_of_32: byRound['round_of_32'].filter(m => m.home),
-    round_of_16: r16enriched,
-    quarter_finals: qfenriched,
-    semi_finals: sfenriched,
-    final: finenriched,
+  var enriched = {
+    round_of_32: byRound['round_of_32'].filter(function(m) { return m.home; }),
+    round_of_16: r16e, quarter_finals: qfe, semi_finals: sfe, final: fine
   };
 
-  el.innerHTML = roundOrder.map(round => {
-    const ms = enrichedByRound[round];
-    if (!ms.length) return '';
+  var KO_LABELS = {
+    round_of_32:'ベスト32', round_of_16:'ベスト16',
+    quarter_finals:'準々決勝（ベスト8）', semi_finals:'準決勝（ベスト4）', final:'決勝'
+  };
 
-    const rows = ms.map(m => {
-      const scored = m.played && m.homeScore !== null;
-      const d = new Date(m.date + 'T00:00:00+09:00');
-      const wd = ['日','月','火','水','木','金','土'][d.getDay()];
-      const dateLabel = m.time
-        ? `${d.getMonth()+1}/${d.getDate()}(${wd}) ${m.time} JST`
-        : `${d.getMonth()+1}/${d.getDate()}(${wd})`;
-      const homeOwned = owned.has(m.home);
-      const awayOwned = owned.has(m.away);
-      const border = m.played ? 'border-left:3px solid rgba(34,197,94,0.5)' : '';
-      const homeName = m.home || '未定';
-      const awayName = m.away || '未定';
-
-      let scoreHtml = '';
+  var html = '';
+  roundOrder.forEach(function(round) {
+    var ms = enriched[round];
+    if (!ms || !ms.length) return;
+    var rows = '';
+    ms.forEach(function(m) {
+      var scored = m.played && m.homeScore !== null;
+      var d = new Date(m.date + 'T00:00:00+09:00');
+      var wd = ['日','月','火','水','木','金','土'][d.getDay()];
+      var dtLabel = m.time
+        ? (d.getMonth()+1) + '/' + d.getDate() + '(' + wd + ') ' + m.time + ' JST'
+        : (d.getMonth()+1) + '/' + d.getDate() + '(' + wd + ')';
+      var hOwned = owned.has(m.home);
+      var aOwned = owned.has(m.away);
+      var border = m.played ? 'border-left:3px solid rgba(34,197,94,0.5)' : '';
+      var hName = m.home || '未定';
+      var aName = m.away || '未定';
+      var scoreHtml;
       if (scored) {
-        let label = `${m.homeScore} - ${m.awayScore}`;
-        if (m.extraTime) label += '<br><span style="font-size:0.58rem;color:var(--accent)">延長</span>';
-        if (m.penalties) label += `<br><span style="font-size:0.58rem;color:var(--gold)">PK ${m.penalties.home}-${m.penalties.away}</span>`;
-        scoreHtml = label;
+        scoreHtml = m.homeScore + ' - ' + m.awayScore;
+        if (m.extraTime) scoreHtml += '<br><span style="font-size:0.58rem;color:var(--accent)">延長</span>';
+        if (m.penalties) scoreHtml += '<br><span style="font-size:0.58rem;color:var(--gold)">PK ' + m.penalties.home + '-' + m.penalties.away + '</span>';
       } else {
         scoreHtml = 'vs';
       }
-
-      const homeStyle = homeOwned ? 'color:var(--accent)' : m.home ? '' : 'color:var(--muted);font-style:italic';
-      const awayStyle = awayOwned ? 'color:var(--accent)' : m.away ? '' : 'color:var(--muted);font-style:italic';
-
-      return `<div class="match-row" style="${border}">
-        <div style="display:flex;flex-direction:column;flex:1;min-width:0">
-          <span style="font-size:0.68rem;color:var(--gold);margin-bottom:0.15rem">${dateLabel}</span>
-          <span class="match-team" style="${homeStyle};cursor:${m.home?'pointer':'default'}" ${m.home?`onclick="showCountryPopup('${m.home}')"`:''}>${m.home?getFlag(m.home):''}${homeName}${m.home?getRankLabel(m.home):''}</span>
-        </div>
-        <span class="match-score ${scored?'':'pending'}" style="white-space:nowrap;flex-shrink:0">${scoreHtml}</span>
-        <div style="display:flex;flex-direction:column;flex:1;min-width:0;align-items:flex-end">
-          <span style="font-size:0.68rem;color:transparent;margin-bottom:0.15rem">-</span>
-          <span class="match-team-away" style="${awayStyle};cursor:${m.away?'pointer':'default'}" ${m.away?`onclick="showCountryPopup('${m.away}')"`:''}>${awayName}${m.away?getRankLabel(m.away):''}${m.away?getFlag(m.away):''}</span>
-        </div>
-      </div>`;
-    }).join('');
-
-    return `<div class="group-section">
-      <div class="group-label" style="color:var(--accent2)">${KO_ROUND_LABELS_VIEW[round]}</div>
-      ${rows}
-    </div>`;
-  }).filter(Boolean).join('') || '<div class="empty">試合データがまだありません</div>';
-}
-
-    const rows = ms.map(m => {
-      const scored = m.played && m.homeScore !== null;
-      const d = new Date(m.date + 'T00:00:00+09:00');
-      const wd = ['日','月','火','水','木','金','土'][d.getDay()];
-      const dateLabel = m.time
-        ? `${d.getMonth()+1}/${d.getDate()}(${wd}) ${m.time} JST`
-        : `${d.getMonth()+1}/${d.getDate()}(${wd})`;
-      const homeOwned = owned.has(m.home);
-      const awayOwned = owned.has(m.away);
-      const border = m.played ? 'border-left:3px solid rgba(34,197,94,0.5)' : '';
-      const homeName = m.home || '未定';
-      const awayName = m.away || '未定';
-
-      let scoreHtml = '';
-      if (scored) {
-        let label = `${m.homeScore} - ${m.awayScore}`;
-        if (m.extraTime) label += '<br><span style="font-size:0.58rem;color:var(--accent)">延長</span>';
-        if (m.penalties) label += `<br><span style="font-size:0.58rem;color:var(--gold)">PK ${m.penalties.home}-${m.penalties.away}</span>`;
-        scoreHtml = label;
-      } else {
-        scoreHtml = 'vs';
-      }
-
-      const homeStyle = homeOwned ? 'color:var(--accent)' : m.home ? '' : 'color:var(--muted);font-style:italic';
-      const awayStyle = awayOwned ? 'color:var(--accent)' : m.away ? '' : 'color:var(--muted);font-style:italic';
-
-      return `<div class="match-row" style="${border}">
-        <div style="display:flex;flex-direction:column;flex:1;min-width:0">
-          <span style="font-size:0.68rem;color:var(--gold);margin-bottom:0.15rem">${dateLabel}</span>
-          <span class="match-team" style="${homeStyle};cursor:${m.home?'pointer':'default'}" ${m.home?`onclick="showCountryPopup('${m.home}')"`:''}>${m.home?getFlag(m.home):''}${homeName}${m.home?getRankLabel(m.home):''}</span>
-        </div>
-        <span class="match-score ${scored?'':'pending'}" style="white-space:nowrap;flex-shrink:0">${scoreHtml}</span>
-        <div style="display:flex;flex-direction:column;flex:1;min-width:0;align-items:flex-end">
-          <span style="font-size:0.68rem;color:transparent;margin-bottom:0.15rem">-</span>
-          <span class="match-team-away" style="${awayStyle};cursor:${m.away?'pointer':'default'}" ${m.away?`onclick="showCountryPopup('${m.away}')"`:''}>${awayName}${m.away?getRankLabel(m.away):''}${m.away?getFlag(m.away):''}</span>
-        </div>
-      </div>`;
-    }).join('');
-
-    return `<div class="group-section">
-      <div class="group-label" style="color:var(--accent2)">${KO_ROUND_LABELS_VIEW[round]}</div>
-      ${rows}
-    </div>`;
-  }).filter(Boolean).join('') || '<div class="empty">試合データがまだありません</div>';
+      var hStyle = hOwned ? 'color:var(--accent)' : m.home ? '' : 'color:var(--muted);font-style:italic';
+      var aStyle = aOwned ? 'color:var(--accent)' : m.away ? '' : 'color:var(--muted);font-style:italic';
+      var hClick = m.home ? 'onclick="showCountryPopup('' + m.home + '')"' : '';
+      var aClick = m.away ? 'onclick="showCountryPopup('' + m.away + '')"' : '';
+      var hCursor = m.home ? 'pointer' : 'default';
+      var aCursor = m.away ? 'pointer' : 'default';
+      rows += '<div class="match-row" style="' + border + '">'
+        + '<div style="display:flex;flex-direction:column;flex:1;min-width:0">'
+        + '<span style="font-size:0.68rem;color:var(--gold);margin-bottom:0.15rem">' + dtLabel + '</span>'
+        + '<span class="match-team" style="' + hStyle + ';cursor:' + hCursor + '" ' + hClick + '>'
+        + (m.home ? getFlag(m.home) : '') + hName + (m.home ? getRankLabel(m.home) : '')
+        + '</span></div>'
+        + '<span class="match-score ' + (scored?'':'pending') + '" style="white-space:nowrap;flex-shrink:0">' + scoreHtml + '</span>'
+        + '<div style="display:flex;flex-direction:column;flex:1;min-width:0;align-items:flex-end">'
+        + '<span style="font-size:0.68rem;color:transparent;margin-bottom:0.15rem">-</span>'
+        + '<span class="match-team-away" style="' + aStyle + ';cursor:' + aCursor + '" ' + aClick + '>'
+        + aName + (m.away ? getRankLabel(m.away) : '') + (m.away ? getFlag(m.away) : '')
+        + '</span></div></div>';
+    });
+    html += '<div class="group-section"><div class="group-label" style="color:var(--accent2)">' + KO_LABELS[round] + '</div>' + rows + '</div>';
+  });
+  el.innerHTML = html || '<div class="empty">試合データがまだありません</div>';
 }
 
 function renderBracketTable() {
