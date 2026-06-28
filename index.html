@@ -927,12 +927,12 @@ function renderKnockoutMatches() {
       return `<div class="match-row" style="${border}">
         <div style="display:flex;flex-direction:column;flex:1;min-width:0">
           <span style="font-size:0.68rem;color:var(--gold);margin-bottom:0.15rem">${dateLabel}</span>
-          <span class="match-team" style="${homeStyle};cursor:${m.home?'pointer':'default'}" ${m.home?`onclick="showCountryPopup('${m.home}')"`:''}>${m.home?getFlag(m.home)+' ':''}${homeName}${m.home?getRankLabel(m.home):''}</span>
+          <span class="match-team" style="${homeStyle};cursor:${m.home?'pointer':'default'}" ${m.home?`onclick="showCountryPopup('${m.home}')"`:''}>${m.home?getFlag(m.home):''}${homeName}${m.home?getRankLabel(m.home):''}</span>
         </div>
         <span class="match-score ${scored?'':'pending'}" style="white-space:nowrap;flex-shrink:0">${scoreHtml}</span>
         <div style="display:flex;flex-direction:column;flex:1;min-width:0;align-items:flex-end">
           <span style="font-size:0.68rem;color:transparent;margin-bottom:0.15rem">-</span>
-          <span class="match-team-away" style="${awayStyle};cursor:${m.away?'pointer':'default'}" ${m.away?`onclick="showCountryPopup('${m.away}')"`:''}>${awayName}${m.away?getRankLabel(m.away):''}${m.away?' '+getFlag(m.away):''}</span>
+          <span class="match-team-away" style="${awayStyle};cursor:${m.away?'pointer':'default'}" ${m.away?`onclick="showCountryPopup('${m.away}')"`:''}>${awayName}${m.away?getRankLabel(m.away):''}${m.away?getFlag(m.away):''}</span>
         </div>
       </div>`;
     }).join('');
@@ -1150,13 +1150,79 @@ function renderBracketTable() {
   // 各ラウンドの勝者リスト（ブラケット順）
   const leftR32Winners  = leftR32.map(m => getWinner(m));
   const rightR32Winners = rightR32.map(m => getWinner(m));
-  const leftR16Winners  = leftR16.map(m => getWinner(m));
-  const rightR16Winners = rightR16.map(m => getWinner(m));
-  const leftQFWinners   = leftQF.map(m => getWinner(m));
-  const rightQFWinners  = rightQF.map(m => getWinner(m));
-  const leftSFWinner    = getWinner(leftSF);
-  const rightSFWinner   = getWinner(rightSF);
-  const finalWinner     = champ || getWinner(finalM);
+
+  // R16のmatchCardに表示するチーム名：
+  // R16試合にhome/awayが入力済みならそれを使い、未入力ならR32勝者を使う
+  function makeR16Card(r16match, winnerA, winnerB) {
+    const home = (r16match && r16match.home) || winnerA || '';
+    const away = (r16match && r16match.away) || winnerB || '';
+    const date = r16match ? r16match.date : '';
+    const time = r16match ? r16match.time : '';
+    const winner = getWinner(r16match || {});
+    return { home, away, date, time, _winner: winner };
+  }
+
+  // 左サイドR16（R32勝者のペア：0-1, 2-3, 4-5, 6-7）
+  const leftR16Cards = [
+    makeR16Card(leftR16[0], leftR32Winners[0], leftR32Winners[1]),
+    makeR16Card(leftR16[1], leftR32Winners[2], leftR32Winners[3]),
+    makeR16Card(leftR16[2], leftR32Winners[4], leftR32Winners[5]),
+    makeR16Card(leftR16[3], leftR32Winners[6], leftR32Winners[7]),
+  ];
+  // 右サイドR16
+  const rightR16Cards = [
+    makeR16Card(rightR16[0], rightR32Winners[0], rightR32Winners[1]),
+    makeR16Card(rightR16[1], rightR32Winners[2], rightR32Winners[3]),
+    makeR16Card(rightR16[2], rightR32Winners[4], rightR32Winners[5]),
+    makeR16Card(rightR16[3], rightR32Winners[6], rightR32Winners[7]),
+  ];
+
+  const leftR16Winners  = leftR16Cards.map(m => m._winner);
+  const rightR16Winners = rightR16Cards.map(m => m._winner);
+
+  // QFも同様
+  function makeQFCard(qfmatch, winnerA, winnerB) {
+    const home = (qfmatch && qfmatch.home) || winnerA || '';
+    const away = (qfmatch && qfmatch.away) || winnerB || '';
+    const date = qfmatch ? qfmatch.date : '';
+    const time = qfmatch ? qfmatch.time : '';
+    const winner = getWinner(qfmatch || {});
+    return { home, away, date, time, _winner: winner };
+  }
+
+  const leftQFCards = [
+    makeQFCard(qfm[0], leftR16Winners[0], leftR16Winners[1]),
+    makeQFCard(qfm[1], leftR16Winners[2], leftR16Winners[3]),
+  ];
+  const rightQFCards = [
+    makeQFCard(qfm[2], rightR16Winners[0], rightR16Winners[1]),
+    makeQFCard(qfm[3], rightR16Winners[2], rightR16Winners[3]),
+  ];
+
+  const leftQFWinners  = leftQFCards.map(m => m._winner);
+  const rightQFWinners = rightQFCards.map(m => m._winner);
+
+  // SF
+  const leftSFCard  = {
+    home: (sfm[0] && sfm[0].home) || leftQFWinners[0] || '',
+    away: (sfm[0] && sfm[0].away) || leftQFWinners[1] || '',
+    date: sfm[0]?.date || '', time: sfm[0]?.time || '',
+    _winner: getWinner(sfm[0] || {})
+  };
+  const rightSFCard = {
+    home: (sfm[1] && sfm[1].home) || rightQFWinners[0] || '',
+    away: (sfm[1] && sfm[1].away) || rightQFWinners[1] || '',
+    date: sfm[1]?.date || '', time: sfm[1]?.time || '',
+    _winner: getWinner(sfm[1] || {})
+  };
+
+  // 決勝
+  const finalCard = {
+    home: (finm[0] && finm[0].home) || leftSFCard._winner || '',
+    away: (finm[0] && finm[0].away) || rightSFCard._winner || '',
+    date: finm[0]?.date || '', time: finm[0]?.time || '',
+  };
+  const finalWinner = champ || getWinner(finm[0] || {});
 
   function fmtDt(date, time) {
     if (!date) return '';
@@ -1171,7 +1237,7 @@ function renderBracketTable() {
     const isOwned = owned.has(name);
     const cls = isWinner ? 'br-winner' : isOwned ? 'br-owned' : '';
     const click = name !== '未定' ? `onclick="showCountryPopup('${name}')"` : '';
-    const flag = name !== '未定' ? getFlag(name) + ' ' : '';
+    const flag = name !== '未定' ? getFlag(name) : '';
     return `<div class="br-team ${cls}" ${click}>${flag}${name}</div>`;
   }
 
@@ -1263,22 +1329,22 @@ function renderBracketTable() {
   <div class="br-wrap">
     ${roundCol(leftR32, leftR32Winners, 'r32')}
     <div class="br-col conn"></div>
-    ${roundCol(leftR16.length ? leftR16 : Array(4).fill({}), leftR16Winners, 'r16')}
+    ${roundCol(leftR16Cards, leftR16Winners, 'r16')}
     <div class="br-col conn"></div>
-    ${roundCol(leftQF.length ? leftQF : Array(2).fill({}), leftQFWinners, 'qf')}
+    ${roundCol(leftQFCards, leftQFWinners, 'qf')}
     <div class="br-col conn"></div>
-    <div class="br-col sf">${matchCard(leftSF, leftSFWinner)}</div>
+    <div class="br-col sf">${matchCard(leftSFCard, leftSFCard._winner)}</div>
     <div class="br-col conn"></div>
     <div class="br-col fin">
-      ${matchCard(finalM, finalWinner)}
+      ${matchCard(finalCard, finalWinner)}
       ${finalWinner ? `<div class="br-champ">👑 ${finalWinner}</div>` : ''}
     </div>
     <div class="br-col conn"></div>
-    <div class="br-col sf">${matchCard(rightSF, rightSFWinner)}</div>
+    <div class="br-col sf">${matchCard(rightSFCard, rightSFCard._winner)}</div>
     <div class="br-col conn"></div>
-    ${roundCol(rightQF.length ? rightQF : Array(2).fill({}), rightQFWinners, 'qf')}
+    ${roundCol(rightQFCards, rightQFWinners, 'qf')}
     <div class="br-col conn"></div>
-    ${roundCol(rightR16.length ? rightR16 : Array(4).fill({}), rightR16Winners, 'r16')}
+    ${roundCol(rightR16Cards, rightR16Winners, 'r16')}
     <div class="br-col conn"></div>
     ${roundCol(rightR32, rightR32Winners, 'r32')}
   </div>
@@ -1286,25 +1352,27 @@ function renderBracketTable() {
 </div>`;
 }
 
-const COUNTRY_FLAGS = {
-  "アルゼンチン":"🇦🇷","オーストラリア":"🇦🇺","オーストリア":"🇦🇹",
-  "ベルギー":"🇧🇪","ボスニア・ヘルツェゴビナ":"🇧🇦","ブラジル":"🇧🇷",
-  "カナダ":"🇨🇦","カーボベルデ":"🇨🇻","コロンビア":"🇨🇴","コンゴDR":"🇨🇩",
-  "コートジボワール":"🇨🇮","クロアチア":"🇭🇷","チェコ":"🇨🇿",
-  "エクアドル":"🇪🇨","エジプト":"🇪🇬","イングランド":"🏴󠁧󠁢󠁥󠁮󠁧󠁿",
-  "フランス":"🇫🇷","ガーナ":"🇬🇭","ドイツ":"🇩🇪","ハイチ":"🇭🇹",
-  "イラク":"🇮🇶","イラン":"🇮🇷","日本":"🇯🇵","ヨルダン":"🇯🇴",
-  "韓国":"🇰🇷","キュラソー":"🇨🇼","メキシコ":"🇲🇽","モロッコ":"🇲🇦",
-  "ニュージーランド":"🇳🇿","ノルウェー":"🇳🇴","オランダ":"🇳🇱",
-  "パナマ":"🇵🇦","パラグアイ":"🇵🇾","ポルトガル":"🇵🇹",
-  "サウジアラビア":"🇸🇦","スコットランド":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","セネガル":"🇸🇳",
-  "南アフリカ":"🇿🇦","スペイン":"🇪🇸","スウェーデン":"🇸🇪","スイス":"🇨🇭",
-  "チュニジア":"🇹🇳","トルコ":"🇹🇷","アルジェリア":"🇩🇿","アメリカ":"🇺🇸",
-  "ウルグアイ":"🇺🇾","ウズベキスタン":"🇺🇿","カタール":"🇶🇦"
+const COUNTRY_ISO = {
+  "アルゼンチン":"ar","オーストラリア":"au","オーストリア":"at",
+  "ベルギー":"be","ボスニア・ヘルツェゴビナ":"ba","ブラジル":"br",
+  "カナダ":"ca","カーボベルデ":"cv","コロンビア":"co","コンゴDR":"cd",
+  "コートジボワール":"ci","クロアチア":"hr","チェコ":"cz",
+  "エクアドル":"ec","エジプト":"eg","イングランド":"gb-eng",
+  "フランス":"fr","ガーナ":"gh","ドイツ":"de","ハイチ":"ht",
+  "イラク":"iq","イラン":"ir","日本":"jp","ヨルダン":"jo",
+  "韓国":"kr","キュラソー":"cw","メキシコ":"mx","モロッコ":"ma",
+  "ニュージーランド":"nz","ノルウェー":"no","オランダ":"nl",
+  "パナマ":"pa","パラグアイ":"py","ポルトガル":"pt",
+  "サウジアラビア":"sa","スコットランド":"gb-sct","セネガル":"sn",
+  "南アフリカ":"za","スペイン":"es","スウェーデン":"se","スイス":"ch",
+  "チュニジア":"tn","トルコ":"tr","アルジェリア":"dz","アメリカ":"us",
+  "ウルグアイ":"uy","ウズベキスタン":"uz","カタール":"qa",
 };
 
 function getFlag(country) {
-  return COUNTRY_FLAGS[country] || '';
+  const iso = COUNTRY_ISO[country];
+  if (!iso) return '';
+  return `<img src="https://flagcdn.com/16x12/${iso}.png" width="16" height="12" alt="${country}" style="vertical-align:middle;margin-right:3px;border-radius:1px">`;
 }
 
 function switchStanding(g, el) {
