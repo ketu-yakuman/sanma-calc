@@ -368,6 +368,62 @@
   .popup-owner-chip { padding: 0.35rem 0.9rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 700; background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.3); color: var(--accent); }
   .popup-none { font-size: 0.85rem; color: var(--muted); padding: 0.5rem 0; }
   .popup-close { width: 100%; margin-top: 1rem; padding: 0.75rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg3); color: var(--muted); font-family: 'Noto Sans JP', sans-serif; font-size: 0.9rem; cursor: pointer; }
+
+  /* ===== BRACKET ===== */
+  .bracket-round-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin: 1rem 0 0.5rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid rgba(0,212,255,0.2);
+  }
+  .bracket-match {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .bracket-match-date {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+  .bracket-match-num {
+    font-size: 0.6rem;
+    color: var(--muted);
+    position: absolute;
+    top: 0.4rem;
+    right: 0.6rem;
+  }
+  .bracket-team {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+    font-size: 0.88rem;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer;
+  }
+  .bracket-team:last-child { border-bottom: none; }
+  .bracket-team.winner { color: var(--gold); }
+  .bracket-team.tbd { color: var(--muted); font-weight: 400; font-style: italic; }
+  .bracket-team.owned { color: var(--accent); }
+  .bracket-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    min-width: 1.5rem;
+    text-align: center;
+  }
+  .bracket-team-name { flex: 1; }
+  .bracket-match.decided { border-left: 3px solid var(--gold); }
+  .bracket-match.in-progress { border-left: 3px solid var(--green); }
+
 </style>
 </head>
 <body>
@@ -410,12 +466,34 @@
 
   <!-- KNOCKOUT -->
   <div class="tab-content" id="tab-knockout">
-    <div class="section-title">📊 グループ順位</div>
-    <div class="standings-grid" id="standingsList"></div>
-    <div class="section-title">🎯 決勝トーナメント</div>
-    <div class="ko-section" id="knockoutList"><div class="empty">読み込み中...</div></div>
-    <div class="section-title" style="margin-top:0.75rem">🌟 ボーナス</div>
-    <div class="bonus-grid" id="bonusDisplay"></div>
+    <div class="view-toggle" style="margin-bottom:0.75rem">
+      <button class="view-btn active" id="btnStandings" onclick="switchKOView('standings', this)">順位表</button>
+      <button class="view-btn" id="btnBracket" onclick="switchKOView('bracket', this)">トーナメント図</button>
+      <button class="view-btn" id="btnKOList" onclick="switchKOView('kolist', this)">進出国</button>
+      <button class="view-btn" id="btnKOMatches" onclick="switchKOView('matches', this)">試合結果</button>
+    </div>
+    <!-- 順位表 -->
+    <div id="ko-standings">
+      <div class="section-title">📊 グループ順位</div>
+      <div class="standings-grid" id="standingsList"></div>
+    </div>
+    <!-- トーナメント図 -->
+    <div id="ko-bracket" style="display:none">
+      <div class="section-title">🏆 トーナメント図</div>
+      <div id="bracketList"></div>
+    </div>
+    <!-- 進出国リスト -->
+    <div id="ko-kolist" style="display:none">
+      <div class="section-title">🎯 決勝トーナメント</div>
+      <div class="ko-section" id="knockoutList"><div class="empty">読み込み中...</div></div>
+      <div class="section-title" style="margin-top:0.75rem">🌟 ボーナス</div>
+      <div class="bonus-grid" id="bonusDisplay"></div>
+    </div>
+    <!-- 試合結果 -->
+    <div id="ko-matches" style="display:none">
+      <div class="section-title">⚽ 決勝T 試合結果</div>
+      <div id="knockoutMatchesList"><div class="empty">読み込み中...</div></div>
+    </div>
   </div>
 
 </div>
@@ -778,6 +856,203 @@ function renderKnockout() {
       <div class="bonus-value" style="color:var(--red)">${bonuses.mostConceded || '未定'}</div>
       <div style="font-size:0.68rem;color:var(--red);margin-top:0.2rem">－10点</div>
     </div>`;
+}
+
+function switchKOView(view, btn) {
+  ['standings','bracket','kolist','matches'].forEach(v => {
+    document.getElementById('ko-' + v).style.display = v === view ? 'block' : 'none';
+  });
+  document.querySelectorAll('#tab-knockout .view-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (view === 'bracket') renderBracket();
+  if (view === 'matches') renderKnockoutMatches();
+}
+
+const KO_ROUND_LABELS_VIEW = {
+  round_of_32: 'ベスト32',
+  round_of_16: 'ベスト16',
+  quarter_finals: '準々決勝（ベスト8）',
+  semi_finals: '準決勝（ベスト4）',
+  final: '決勝'
+};
+
+function renderKnockoutMatches() {
+  const el = document.getElementById('knockoutMatchesList');
+  const matches = appData.knockoutMatches || [];
+  if (!matches.length) {
+    el.innerHTML = '<div class="empty">試合データがまだありません</div>';
+    return;
+  }
+
+  const owned = new Set(appData.participants.flatMap(p => p.countries));
+  const roundOrder = ['round_of_32','round_of_16','quarter_finals','semi_finals','final'];
+  const byRound = {};
+  roundOrder.forEach(r => byRound[r] = []);
+  matches.forEach(m => { if (byRound[m.round]) byRound[m.round].push(m); });
+
+  el.innerHTML = roundOrder.map(round => {
+    const ms = byRound[round].filter(m => m.home || m.played);
+    if (!ms.length) return '';
+
+    const rows = ms.map(m => {
+      const scored = m.played && m.homeScore !== null;
+      const d = new Date(m.date + 'T00:00:00+09:00');
+      const wd = ['日','月','火','水','木','金','土'][d.getDay()];
+      const dateLabel = m.time
+        ? `${d.getMonth()+1}/${d.getDate()}(${wd}) ${m.time} JST`
+        : `${d.getMonth()+1}/${d.getDate()}(${wd})`;
+      const homeOwned = owned.has(m.home);
+      const awayOwned = owned.has(m.away);
+      const border = m.played ? 'border-left:3px solid rgba(34,197,94,0.5)' : '';
+
+      // スコア表示（延長・PK含む）
+      let scoreHtml = '';
+      if (scored) {
+        let label = `${m.homeScore} - ${m.awayScore}`;
+        if (m.extraTime) label += '<span style="font-size:0.6rem;color:var(--accent);margin-left:3px">延長</span>';
+        if (m.penalties) label += `<span style="font-size:0.6rem;color:var(--gold);margin-left:3px">PK ${m.penalties.home}-${m.penalties.away}</span>`;
+        scoreHtml = label;
+      } else {
+        scoreHtml = 'vs';
+      }
+
+      return `<div class="match-row" style="${border}">
+        <div style="display:flex;flex-direction:column;flex:1">
+          <span style="font-size:0.68rem;color:var(--gold);margin-bottom:0.15rem">${dateLabel}</span>
+          <span class="match-team" style="color:${homeOwned?'var(--accent)':'var(--text)'}" onclick="showCountryPopup('${m.home}')">${m.home||'未定'}${getRankLabel(m.home)}</span>
+        </div>
+        <span class="match-score ${scored?'':'pending'}" style="font-size:${scored&&(m.extraTime||m.penalties)?'0.85rem':''}"> ${scoreHtml}</span>
+        <span class="match-team away" style="color:${awayOwned?'var(--accent)':'var(--text)'}" onclick="showCountryPopup('${m.away}')">${m.away||'未定'}${getRankLabel(m.away)}</span>
+      </div>`;
+    }).join('');
+
+    return `<div class="group-section">
+      <div class="group-label" style="color:var(--accent2)">${KO_ROUND_LABELS_VIEW[round]}</div>
+      ${rows}
+    </div>`;
+  }).filter(Boolean).join('') || '<div class="empty">試合データがまだありません</div>';
+}
+
+function renderBracket() {
+  if (!appData) return;
+  const el = document.getElementById('bracketList');
+  const ko = appData.knockoutResults;
+  const r32 = (ko.round_of_32 || []).filter(Boolean);
+  const r16 = (ko.round_of_16 || []).filter(Boolean);
+  const qf  = (ko.quarter_finals || []).filter(Boolean);
+  const sf  = (ko.semi_finals || []).filter(Boolean);
+  const fin = (ko.final || []).filter(Boolean);
+  const champ = ko.champion || '';
+  const owned = new Set(appData.participants.flatMap(p => p.countries));
+
+  // data.jsonのround_of_32からベスト32対戦カードを生成
+  // 固定ブラケット構造（FIFA公式）
+  const BRACKET = [
+    // [match番号, home枠index, away枠index, 日付, ラベル]
+    // homeとawayはr32配列のインデックス（グループ順：A1,A2,B1,B2,...L1,L2,3位×8）
+    {m:73,  h:0,  a:3,  date:"6/28", label:"M73"},
+    {m:74,  h:4,  a:11, date:"6/29", label:"M74"},
+    {m:75,  h:10, a:5,  date:"6/29", label:"M75"},
+    {m:76,  h:2,  a:24, date:"6/30", label:"M76"}, // B1 vs 3位
+    {m:77,  h:12, a:25, date:"7/1",  label:"M77"}, // G1 vs 3位
+    {m:78,  h:8,  a:26, date:"7/1",  label:"M78"}, // E1 vs 3位
+    {m:79,  h:6,  a:27, date:"7/1",  label:"M79"}, // D1 vs 3位
+    {m:80,  h:14, a:19, date:"7/2",  label:"M80"}, // H1 vs J2
+    {m:81,  h:22, a:28, date:"7/1",  label:"M81"}, // L1 vs 3位
+    {m:82,  h:20, a:29, date:"7/2",  label:"M82"}, // K1 vs 3位
+    {m:83,  h:21, a:23, date:"7/2",  label:"M83"}, // K2 vs L2
+    {m:84,  h:7,  a:13, date:"7/3",  label:"M84"}, // D2 vs G2
+    {m:85,  h:16, a:30, date:"7/3",  label:"M85"}, // I1 vs 3位
+    {m:86,  h:18, a:15, date:"7/3",  label:"M86"}, // J1 vs H2
+    {m:87,  h:9,  a:17, date:"7/4",  label:"M87"}, // E2 vs I2
+    {m:88,  h:1,  a:31, date:"7/4",  label:"M88"}, // A2 vs 3位
+  ];
+
+  function teamChip(name, isWinner) {
+    if (!name) return `<div class="bracket-team tbd"><span class="bracket-team-name">未定</span><span class="bracket-score">-</span></div>`;
+    const isOwned = owned.has(name);
+    const cls = isWinner ? 'winner' : isOwned ? 'owned' : '';
+    return `<div class="bracket-team ${cls}" onclick="showCountryPopup('${name}')">
+      <span class="bracket-team-name">${name}${getRankLabel(name)}</span>
+      ${isWinner ? '<span style="font-size:0.7rem">👑</span>' : ''}
+    </div>`;
+  }
+
+  function matchCard(match, teamA, teamB, winner) {
+    const decided = !!winner;
+    return `<div class="bracket-match ${decided ? 'decided' : ''}">
+      <div class="bracket-match-num">${match.label}</div>
+      <div class="bracket-match-date">📅 ${match.date}</div>
+      ${teamChip(teamA, winner === teamA)}
+      ${teamChip(teamB, winner === teamB)}
+    </div>`;
+  }
+
+  // ベスト32
+  const r32html = BRACKET.map(m => {
+    const teamA = r32[m.h] || '';
+    const teamB = r32[m.a] || '';
+    const winner = r16.length ? '' : ''; // R16から逆算は複雑なので未設定
+    return matchCard(m, teamA, teamB, '');
+  }).join('');
+
+  // ベスト16（8試合）
+  const r16html = Array.from({length: 8}, (_, i) => {
+    const teamA = r16[i*2] || '';
+    const teamB = r16[i*2+1] || '';
+    const winner = qf[i] || '';
+    return `<div class="bracket-match ${winner ? 'decided' : ''}">
+      <div class="bracket-match-num">R16-${i+1}</div>
+      ${teamChip(teamA, !!winner && winner === teamA)}
+      ${teamChip(teamB, !!winner && winner === teamB)}
+    </div>`;
+  }).join('');
+
+  // ベスト8（4試合）
+  const qfhtml = Array.from({length: 4}, (_, i) => {
+    const teamA = qf[i*2] || '';
+    const teamB = qf[i*2+1] || '';
+    const winner = sf[i] || '';
+    return `<div class="bracket-match ${winner ? 'decided' : ''}">
+      <div class="bracket-match-num">QF-${i+1}</div>
+      ${teamChip(teamA, !!winner && winner === teamA)}
+      ${teamChip(teamB, !!winner && winner === teamB)}
+    </div>`;
+  }).join('');
+
+  // 準決勝（2試合）
+  const sfhtml = Array.from({length: 2}, (_, i) => {
+    const teamA = sf[i*2] || '';
+    const teamB = sf[i*2+1] || '';
+    const winner = fin[i] || '';
+    return `<div class="bracket-match ${winner ? 'decided' : ''}">
+      <div class="bracket-match-num">SF-${i+1}</div>
+      ${teamChip(teamA, !!winner && winner === teamA)}
+      ${teamChip(teamB, !!winner && winner === teamB)}
+    </div>`;
+  }).join('');
+
+  // 決勝
+  const finhtml = `<div class="bracket-match ${champ ? 'decided' : ''}" style="border-color:rgba(255,215,0,0.4)">
+    <div class="bracket-match-num">FINAL</div>
+    <div class="bracket-match-date" style="color:var(--gold)">🏆 7/19 決勝</div>
+    ${teamChip(fin[0] || '', !!champ && champ === fin[0])}
+    ${teamChip(fin[1] || '', !!champ && champ === fin[1])}
+    ${champ ? `<div style="text-align:center;margin-top:0.5rem;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold)">👑 優勝: ${champ}</div>` : ''}
+  </div>`;
+
+  el.innerHTML = `
+    <div class="bracket-round-label">🥊 ベスト32（6/28〜7/4）</div>
+    ${r32.length ? r32html : '<div class="empty">ベスト32未確定</div>'}
+    <div class="bracket-round-label">⚔️ ベスト16（7/5〜7/7）</div>
+    ${r16.length ? r16html : '<div class="empty">ベスト16未確定</div>'}
+    <div class="bracket-round-label">🔥 準々決勝（7/10〜7/11）</div>
+    ${qf.length ? qfhtml : '<div class="empty">準々決勝未確定</div>'}
+    <div class="bracket-round-label">⚡ 準決勝（7/15〜7/16）</div>
+    ${sf.length ? sfhtml : '<div class="empty">準決勝未確定</div>'}
+    <div class="bracket-round-label">🏆 決勝（7/19）</div>
+    ${finhtml}
+  `;
 }
 
 function switchStanding(g, el) {

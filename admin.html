@@ -387,7 +387,16 @@
   <!-- TAB: 決勝T -->
   <div class="tab-content" id="tab-knockout">
     <div class="section-title">🎯 決勝トーナメント</div>
-    <div id="knockoutEditor"></div>
+    <div style="display:flex;gap:0.4rem;margin-bottom:0.75rem;flex-wrap:wrap">
+      <button class="btn btn-secondary" style="font-size:0.78rem;padding:0.4rem 0.8rem" id="koTabBracket" onclick="switchKOAdminTab('bracket',this)">進出国・組合せ</button>
+      <button class="btn btn-primary" style="font-size:0.78rem;padding:0.4rem 0.8rem" id="koTabMatches" onclick="switchKOAdminTab('matches',this)">試合結果入力</button>
+    </div>
+    <div id="koAdminBracket">
+      <div id="knockoutEditor"></div>
+    </div>
+    <div id="koAdminMatches" style="display:none">
+      <div id="knockoutMatchesEditor"></div>
+    </div>
   </div>
 
   <!-- TAB: ボーナス -->
@@ -483,6 +492,25 @@ function importJSON(event) {
 
 function downloadJSON() {
   if (!data) { alert('データがありません'); return; }
+
+  // 💾保存時にベスト32のドロップダウン現在値を全部読み取る
+  const groups = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+  const r32 = [];
+  groups.forEach((g, gi) => {
+    const sel1 = document.getElementById(`r32-${g}-1`);
+    const sel2 = document.getElementById(`r32-${g}-2`);
+    r32.push(sel1 ? sel1.value : (data.knockoutResults.round_of_32[gi*2] || ''));
+    r32.push(sel2 ? sel2.value : (data.knockoutResults.round_of_32[gi*2+1] || ''));
+  });
+  // 3位の選択値も読み取る
+  const third = [];
+  for (let i = 0; i < 8; i++) {
+    const sel = document.getElementById(`r32-third-${i}`);
+    if (sel) third.push(sel.value);
+  }
+  data.knockoutResults.round_of_32 = [...r32, ...third.filter(Boolean)];
+  data.knockoutResults.round_of_32_third = third;
+
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -510,6 +538,148 @@ function initDefaultData() {
 }
 
 // ===== RENDER =====
+function switchKOAdminTab(tab, btn) {
+  document.getElementById('koAdminBracket').style.display = tab === 'bracket' ? 'block' : 'none';
+  document.getElementById('koAdminMatches').style.display = tab === 'matches' ? 'block' : 'none';
+  document.querySelectorAll('#tab-knockout .btn').forEach(b => {
+    b.className = b === btn ? 'btn btn-primary' : 'btn btn-secondary';
+    b.style.fontSize = '0.78rem';
+    b.style.padding = '0.4rem 0.8rem';
+  });
+  if (tab === 'matches') renderKnockoutMatches();
+}
+
+const KO_ROUND_LABELS = {
+  round_of_32: 'ベスト32',
+  round_of_16: 'ベスト16',
+  quarter_finals: '準々決勝（ベスト8）',
+  semi_finals: '準決勝（ベスト4）',
+  final: '決勝'
+};
+
+function renderKnockoutMatches() {
+  if (!data) return;
+  const el = document.getElementById('knockoutMatchesEditor');
+  if (!data.knockoutMatches || !data.knockoutMatches.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;text-align:center;padding:1rem">試合データがありません</div>';
+    return;
+  }
+
+  // ラウンド別にグループ化
+  const byRound = {};
+  const roundOrder = ['round_of_32','round_of_16','quarter_finals','semi_finals','final'];
+  roundOrder.forEach(r => byRound[r] = []);
+  data.knockoutMatches.forEach((m, i) => {
+    if (byRound[m.round]) byRound[m.round].push({...m, _i: i});
+  });
+
+  // 参加者の選択国セット
+  const owned = new Set((data.participants || []).flatMap(p => p.countries));
+
+  // 各ラウンドの候補チーム
+  const r32teams = (data.knockoutResults.round_of_32 || []).filter(Boolean);
+  const r16teams = (data.knockoutResults.round_of_16 || []).filter(Boolean);
+  const qfteams  = (data.knockoutResults.quarter_finals || []).filter(Boolean);
+  const sfteams  = (data.knockoutResults.semi_finals || []).filter(Boolean);
+  const roundCandidates = {
+    round_of_32:    r32teams.length ? r32teams : ALL_TEAMS_WC2026,
+    round_of_16:    r32teams.length ? r32teams : ALL_TEAMS_WC2026,
+    quarter_finals: r16teams.length ? r16teams : r32teams,
+    semi_finals:    qfteams.length  ? qfteams  : r32teams,
+    final:          sfteams.length  ? sfteams  : r32teams,
+  };
+
+  el.innerHTML = roundOrder.map(round => {
+    const matches = byRound[round];
+    if (!matches.length) return '';
+    const candidates = roundCandidates[round] || ALL_TEAMS_WC2026;
+
+    const matchCards = matches.map(m => {
+      const i = m._i;
+      const d = new Date(m.date + 'T00:00:00+09:00');
+      const wd = ['日','月','火','水','木','金','土'][d.getDay()];
+      const dateLabel = m.time
+        ? `${d.getMonth()+1}/${d.getDate()}(${wd}) ${m.time} JST`
+        : `${d.getMonth()+1}/${d.getDate()}(${wd})`;
+      const homeOwned = owned.has(m.home);
+      const awayOwned = owned.has(m.away);
+      const borderStyle = m.played ? 'border-left:3px solid var(--green)' : '';
+
+      // チーム選択用オpts
+      const teamOpts = (val) => ['', ...candidates]
+        .map(t => `<option value="${t}" ${t===val?'selected':''}>${t||'-- 未定 --'}</option>`).join('');
+
+      return `<div class="match-card ${m.played ? 'played-done' : ''}" style="${borderStyle}">
+        <div class="match-dt">
+          <span>${dateLabel}</span>
+          <span class="match-group-badge">${KO_ROUND_LABELS[round]}</span>
+        </div>
+        <div class="form-2col" style="margin-bottom:0.5rem">
+          <div>
+            <label style="color:${homeOwned?'var(--accent)':'var(--muted)'};font-size:0.7rem">ホーム</label>
+            <select onchange="data.knockoutMatches[${i}].home=this.value;renderKnockoutMatches()" style="font-size:0.85rem">${teamOpts(m.home)}</select>
+          </div>
+          <div>
+            <label style="color:${awayOwned?'var(--accent)':'var(--muted)'};font-size:0.7rem">アウェイ</label>
+            <select onchange="data.knockoutMatches[${i}].away=this.value;renderKnockoutMatches()" style="font-size:0.85rem">${teamOpts(m.away)}</select>
+          </div>
+        </div>
+        <div class="score-row">
+          <input type="number" min="0" inputmode="numeric" value="${m.homeScore??''}" placeholder="-"
+            onchange="data.knockoutMatches[${i}].homeScore=this.value===''?null:parseInt(this.value)">
+          <span class="score-sep">:</span>
+          <input type="number" min="0" inputmode="numeric" value="${m.awayScore??''}" placeholder="-"
+            onchange="data.knockoutMatches[${i}].awayScore=this.value===''?null:parseInt(this.value)">
+          <span class="score-spacer"></span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.4rem">
+          <label class="played-label">
+            <input type="checkbox" ${m.extraTime?'checked':''} onchange="data.knockoutMatches[${i}].extraTime=this.checked">
+            延長戦あり
+          </label>
+          <label class="played-label">
+            <input type="checkbox" ${m.penalties?'checked':''} onchange="togglePK(${i},this.checked)">
+            PK戦あり
+          </label>
+          ${m.penalties ? `
+          <div style="display:flex;align-items:center;gap:0.4rem;margin-left:1.5rem">
+            <span style="font-size:0.75rem;color:var(--muted)">PK</span>
+            <input type="number" min="0" inputmode="numeric" style="width:3rem;text-align:center"
+              value="${m.penalties.home??''}" placeholder="-"
+              onchange="data.knockoutMatches[${i}].penalties.home=parseInt(this.value)||0">
+            <span class="score-sep" style="font-size:0.9rem">:</span>
+            <input type="number" min="0" inputmode="numeric" style="width:3rem;text-align:center"
+              value="${m.penalties.away??''}" placeholder="-"
+              onchange="data.knockoutMatches[${i}].penalties.away=parseInt(this.value)||0">
+          </div>` : ''}
+        </div>
+        <div class="match-footer">
+          <label class="played-label">
+            <input type="checkbox" ${m.played?'checked':''} onchange="data.knockoutMatches[${i}].played=this.checked;renderKnockoutMatches()">
+            試合済
+          </label>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="card">
+      <div class="card-title">${KO_ROUND_LABELS[round]}</div>
+      ${matchCards}
+    </div>`;
+  }).join('');
+}
+
+function togglePK(i, checked) {
+  data.knockoutMatches[i].penalties = checked ? {home: null, away: null} : null;
+  renderKnockoutMatches();
+}
+
+function updateKnockoutMatchTeams() {
+  // ベスト32の確定チームを試合データに反映
+  if (!data.knockoutMatches) return;
+  // 管理者が手動入力するため自動反映はしない
+}
+
 function renderAll() {
   renderParticipants();
   renderMatches();
@@ -707,22 +877,30 @@ function renderKnockout() {
       const s = standings[g] || [];
       const idx1 = gi * 2;
       const idx2 = gi * 2 + 1;
-      const val1 = saved32[idx1] || (s[0] ? s[0].team : '');
-      const val2 = saved32[idx2] || (s[1] ? s[1].team : '');
+      // 保存済みデータを優先。未保存の場合は空（自動入力しない）
+      const val1 = (saved32[idx1] !== undefined && saved32[idx1] !== null) ? saved32[idx1] : '';
+      const val2 = (saved32[idx2] !== undefined && saved32[idx2] !== null) ? saved32[idx2] : '';
+      // 参考表示用（グループ戦暫定順位）
+      const ref1 = s[0] ? s[0].team : '';
+      const ref2 = s[1] ? s[1].team : '';
       const groupTeams = (data.groups.find(gr => gr.name === g) || {}).teams || [];
       const opts = (teamList) => ['', ...groupTeams, ...ALL_TEAMS_WC2026.filter(t => !groupTeams.includes(t))]
         .filter((t, i, arr) => arr.indexOf(t) === i)
         .map(t => `<option value="${t}" ${t===teamList?'selected':''}>${t||'-- 選択 --'}</option>`).join('');
+      const refHtml = (ref1 || ref2)
+        ? `<div style="font-size:0.65rem;color:var(--muted);margin-bottom:0.4rem">暫定: 1位 ${ref1||'?'} / 2位 ${ref2||'?'}</div>`
+        : '';
       return `<div style="background:var(--bg3);border-radius:8px;padding:0.6rem;margin-bottom:0.5rem">
-        <div style="font-size:0.72rem;font-weight:700;color:var(--gold);margin-bottom:0.4rem">グループ ${g}</div>
+        <div style="font-size:0.72rem;font-weight:700;color:var(--gold);margin-bottom:0.2rem">グループ ${g}</div>
+        ${refHtml}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem">
           <div>
             <label>1位</label>
-            <select onchange="updateR32(${idx1},this.value)">${opts(val1)}</select>
+            <select id="r32-${g}-1" onchange="updateR32(${idx1},this.value)">${opts(val1)}</select>
           </div>
           <div>
             <label>2位</label>
-            <select onchange="updateR32(${idx2},this.value)">${opts(val2)}</select>
+            <select id="r32-${g}-2" onchange="updateR32(${idx2},this.value)">${opts(val2)}</select>
           </div>
         </div>
       </div>`;
@@ -743,14 +921,14 @@ function renderKnockout() {
         ).join('');
         return `<div>
           <label>${i+1}チーム目</label>
-          <select onchange="update3rd(${i},this.value)">${opts}</select>
+          <select id="r32-third-${i}" onchange="update3rd(${i},this.value)">${opts}</select>
         </div>`;
       }).join('')}
     </div>
     <button class="btn btn-success btn-block" onclick="apply3rd()">✅ 3位をベスト32に追加</button>
   </div>`;
 
-  // 確定チーム
+  // 確定チーム（ベスト32に入っている国）
   const confirmed32 = (data.knockoutResults.round_of_32 || []).filter(Boolean);
   const confirmed32Html = confirmed32.length > 0 ? `<div class="card" style="border-color:rgba(0,212,255,0.3)">
     <div class="card-title">✅ ベスト32確定（${confirmed32.length}/32チーム）</div>
@@ -759,18 +937,37 @@ function renderKnockout() {
     </div>
   </div>` : '';
 
+  // 各ラウンドで表示する候補を前のラウンドから絞り込む
+  const r32teams  = confirmed32.length ? confirmed32 : ALL_TEAMS_WC2026;
+  const r16teams  = (data.knockoutResults.round_of_16  || []).filter(Boolean);
+  const qfteams   = (data.knockoutResults.quarter_finals || []).filter(Boolean);
+  const sfteams   = (data.knockoutResults.semi_finals  || []).filter(Boolean);
+  const finalTeams= (data.knockoutResults.final        || []).filter(Boolean);
+
+  const roundCandidates = {
+    round_of_16:    r32teams,
+    quarter_finals: r16teams.length  ? r16teams  : r32teams,
+    semi_finals:    qfteams.length   ? qfteams   : r32teams,
+    final:          sfteams.length   ? sfteams   : r32teams,
+  };
+
   // ベスト16以降
   const laterHtml = KO_ROUNDS.map(r => {
     const teams = data.knockoutResults[r.key] || [];
+    const candidates = roundCandidates[r.key] || ALL_TEAMS_WC2026;
     const rows = Array.from({length: r.count}, (_, i) => {
       const val = teams[i] || '';
-      const opts = ['', ...ALL_TEAMS_WC2026].map(t =>
+      const opts = ['', ...candidates].map(t =>
         `<option value="${t}" ${t===val?'selected':''}>${t||'-- 選択 --'}</option>`
       ).join('');
       return `<select onchange="updateKO('${r.key}',${i},this.value)">${opts}</select>`;
     }).join('');
+    const note = candidates.length < ALL_TEAMS_WC2026.length
+      ? `<p style="font-size:0.68rem;color:var(--muted);margin-bottom:0.5rem">前ラウンドの選択国のみ表示しています</p>`
+      : `<p style="font-size:0.68rem;color:var(--gold);margin-bottom:0.5rem">※前ラウンドを先に入力すると絞り込まれます</p>`;
     return `<div class="card">
       <div class="card-title">${r.label}</div>
+      ${note}
       <div class="ko-grid">${rows}</div>
     </div>`;
   }).join('');
