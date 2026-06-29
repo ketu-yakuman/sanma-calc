@@ -540,6 +540,8 @@ function showTab(tab, el) {
   document.getElementById('tab-' + tab).classList.add('active');
   if (el) el.classList.add('active');
   document.getElementById('scrollArea').scrollTop = 0;
+  // 決勝Tタブを開いた時に試合結果を描画
+  if (tab === 'knockout' && appData) renderKnockoutMatches();
 }
 
 function renderAll() {
@@ -548,8 +550,6 @@ function renderAll() {
   renderPicks();
   renderMatches();
   renderKnockout();
-  // 決勝Tはデフォルトで試合結果を表示
-  renderKnockoutMatches();
   document.getElementById('lastUpdated').textContent = new Date().toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
 }
 
