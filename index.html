@@ -898,11 +898,132 @@ function renderKnockoutMatches() {
   roundOrder.forEach(r => byRound[r] = []);
   matches.forEach(m => { if (byRound[m.round]) byRound[m.round].push(m); });
 
+  // 試合の勝者を判定
+  function getW(m) {
+    if (!m || !m.played || m.homeScore === null || m.awayScore === null) return '';
+    if (m.homeScore > m.awayScore) return m.home;
+    if (m.awayScore > m.homeScore) return m.away;
+    if (m.penalties) return m.penalties.home > m.penalties.away ? m.home : m.away;
+    return '';
+  }
+
+  // R32試合データを対戦カードで検索（公式ブラケット順を維持するため）
+  const r32m = byRound['round_of_32'];
+  function findR32(home, away) {
+    return r32m.find(m => (m.home === home && m.away === away) || (m.home === away && m.away === home)) || {};
+  }
+  const leftR32 = [
+    findR32('ドイツ','パラグアイ'), findR32('フランス','スウェーデン'),
+    findR32('南アフリカ','カナダ'), findR32('オランダ','モロッコ'),
+    findR32('ポルトガル','クロアチア'), findR32('スペイン','オーストリア'),
+    findR32('アメリカ','ボスニア・ヘルツェゴビナ'), findR32('ベルギー','セネガル'),
+  ];
+  const rightR32 = [
+    findR32('ブラジル','日本'), findR32('コートジボワール','ノルウェー'),
+    findR32('メキシコ','エクアドル'), findR32('イングランド','コンゴDR'),
+    findR32('アルゼンチン','カーボベルデ'), findR32('オーストラリア','エジプト'),
+    findR32('スイス','アルジェリア'), findR32('コロンビア','ガーナ'),
+  ];
+  const leftR32Winners  = leftR32.map(m => getW(m));
+  const rightR32Winners = rightR32.map(m => getW(m));
+  const allR32Winners = [...leftR32Winners, ...rightR32Winners];
+
+  // R16試合データから「home/awayがR32勝者ペアと一致する試合」を探す
+  const r16m = byRound['round_of_16'];
+  function findR16(teamA, teamB) {
+    if (!teamA && !teamB) return null;
+    return r16m.find(m =>
+      (m.home === teamA && m.away === teamB) ||
+      (m.home === teamB && m.away === teamA) ||
+      (teamA && (m.home === teamA || m.away === teamA)) ||
+      (teamB && (m.home === teamB || m.away === teamB))
+    ) || null;
+  }
+  // R32勝者ペア（0-1, 2-3, ...）に対応するR16試合を見つけて home/away を補完
+  const r16Pairs = [];
+  for (let i = 0; i < allR32Winners.length; i += 2) {
+    r16Pairs.push([allR32Winners[i], allR32Winners[i+1]]);
+  }
+  const r16Enriched = r16Pairs.map(([a, b]) => {
+    const match = findR16(a, b);
+    if (match) {
+      return { ...match, home: match.home || a || '', away: match.away || b || '' };
+    }
+    // 対応する試合データが見つからない場合は仮想的に日時なしで補完
+    return { round: 'round_of_16', date: '', time: '', played: false,
+      homeScore: null, awayScore: null, extraTime: false, penalties: null,
+      home: a || '', away: b || '' };
+  });
+  const r16Winners = r16Enriched.map(m => getW(m));
+
+  // QF試合データから「home/awayがR16勝者ペアと一致する試合」を探す
+  const qfm = byRound['quarter_finals'];
+  function findQF(teamA, teamB) {
+    if (!teamA && !teamB) return null;
+    return qfm.find(m =>
+      (m.home === teamA && m.away === teamB) ||
+      (m.home === teamB && m.away === teamA) ||
+      (teamA && (m.home === teamA || m.away === teamA)) ||
+      (teamB && (m.home === teamB || m.away === teamB))
+    ) || null;
+  }
+  const qfPairs = [];
+  for (let i = 0; i < r16Winners.length; i += 2) {
+    qfPairs.push([r16Winners[i], r16Winners[i+1]]);
+  }
+  const qfEnriched = qfPairs.map(([a, b]) => {
+    const match = findQF(a, b);
+    if (match) return { ...match, home: match.home || a || '', away: match.away || b || '' };
+    return { round: 'quarter_finals', date: '', time: '', played: false,
+      homeScore: null, awayScore: null, extraTime: false, penalties: null,
+      home: a || '', away: b || '' };
+  });
+  const qfWinners = qfEnriched.map(m => getW(m));
+
+  // SF試合データ
+  const sfm = byRound['semi_finals'];
+  function findSF(teamA, teamB) {
+    if (!teamA && !teamB) return null;
+    return sfm.find(m =>
+      (m.home === teamA && m.away === teamB) ||
+      (m.home === teamB && m.away === teamA) ||
+      (teamA && (m.home === teamA || m.away === teamA)) ||
+      (teamB && (m.home === teamB || m.away === teamB))
+    ) || null;
+  }
+  const sfPairs = [];
+  for (let i = 0; i < qfWinners.length; i += 2) {
+    sfPairs.push([qfWinners[i], qfWinners[i+1]]);
+  }
+  const sfEnriched = sfPairs.map(([a, b]) => {
+    const match = findSF(a, b);
+    if (match) return { ...match, home: match.home || a || '', away: match.away || b || '' };
+    return { round: 'semi_finals', date: '', time: '', played: false,
+      homeScore: null, awayScore: null, extraTime: false, penalties: null,
+      home: a || '', away: b || '' };
+  });
+  const sfWinners = sfEnriched.map(m => getW(m));
+
+  // 決勝
+  const finm = byRound['final'];
+  const finalMatch = finm[0] || { round: 'final', date: '', time: '', played: false,
+    homeScore: null, awayScore: null, extraTime: false, penalties: null, home: '', away: '' };
+  const finalEnriched = [{
+    ...finalMatch,
+    home: finalMatch.home || sfWinners[0] || '',
+    away: finalMatch.away || sfWinners[1] || '',
+  }];
+
+  const enrichedByRound = {
+    round_of_32: byRound['round_of_32'].filter(m => m.home),
+    round_of_16: r16Enriched,
+    quarter_finals: qfEnriched,
+    semi_finals: sfEnriched,
+    final: finalEnriched,
+  };
+
   el.innerHTML = roundOrder.map(round => {
-    // ベスト32はhomeが入っているものだけ、ベスト16以降は全試合表示（日時だけでも）
-    const ms = round === 'round_of_32'
-      ? byRound[round].filter(m => m.home)
-      : byRound[round];
+    const ms = enrichedByRound[round];
     if (!ms.length) return '';
 
     const rows = ms.map(m => {
@@ -911,7 +1032,7 @@ function renderKnockoutMatches() {
       const wd = ['日','月','火','水','木','金','土'][d.getDay()];
       const dateLabel = m.time
         ? `${d.getMonth()+1}/${d.getDate()}(${wd}) ${m.time} JST`
-        : `${d.getMonth()+1}/${d.getDate()}(${wd})`;
+        : m.date ? `${d.getMonth()+1}/${d.getDate()}(${wd})` : '';
       const homeOwned = owned.has(m.home);
       const awayOwned = owned.has(m.away);
       const border = m.played ? 'border-left:3px solid rgba(34,197,94,0.5)' : '';
