@@ -1001,11 +1001,31 @@ function renderBracketTable() {
     findMatch('コロンビア', 'ガーナ'),
   ];
 
-  // ベスト16の対戦（左サイド：上4試合、右サイド：下4試合）
-  const leftR16  = r16m.slice(0, 4);
-  const rightR16 = r16m.slice(4, 8);
-  const leftQF   = qfm.slice(0, 2);
-  const rightQF  = qfm.slice(2, 4);
+  // ベスト16の対戦：r16mの中から「home/awayがR32勝者ペアと一致する試合」を探して紐付ける
+  // （配列の並び順に依存せず、対戦カードの中身で正しく対応付ける）
+  function findR16Match(teamA, teamB) {
+    if (!teamA && !teamB) return null;
+    return r16m.find(m =>
+      (m.home === teamA && m.away === teamB) ||
+      (m.home === teamB && m.away === teamA) ||
+      // 片方しか確定していない場合のフォールバック（home/awayどちらかが一致）
+      (teamA && (m.home === teamA || m.away === teamA)) ||
+      (teamB && (m.home === teamB || m.away === teamB))
+    ) || null;
+  }
+
+  const leftR16 = [
+    findR16Match(leftR32Winners[0], leftR32Winners[1]),
+    findR16Match(leftR32Winners[2], leftR32Winners[3]),
+    findR16Match(leftR32Winners[4], leftR32Winners[5]),
+    findR16Match(leftR32Winners[6], leftR32Winners[7]),
+  ];
+  const rightR16 = [
+    findR16Match(rightR32Winners[0], rightR32Winners[1]),
+    findR16Match(rightR32Winners[2], rightR32Winners[3]),
+    findR16Match(rightR32Winners[4], rightR32Winners[5]),
+    findR16Match(rightR32Winners[6], rightR32Winners[7]),
+  ];
 
   // 左右のSF
   const leftSF  = sfm[0] || {};
@@ -1057,7 +1077,17 @@ function renderBracketTable() {
   const leftR16Winners  = leftR16Cards.map(m => m._winner);
   const rightR16Winners = rightR16Cards.map(m => m._winner);
 
-  // QFも同様
+  // QFも同様：home/awayの中身でR16勝者ペアと対応する試合を探す
+  function findQFMatch(teamA, teamB) {
+    if (!teamA && !teamB) return null;
+    return qfm.find(m =>
+      (m.home === teamA && m.away === teamB) ||
+      (m.home === teamB && m.away === teamA) ||
+      (teamA && (m.home === teamA || m.away === teamA)) ||
+      (teamB && (m.home === teamB || m.away === teamB))
+    ) || null;
+  }
+
   function makeQFCard(qfmatch, winnerA, winnerB) {
     const home = (qfmatch && qfmatch.home) || winnerA || '';
     const away = (qfmatch && qfmatch.away) || winnerB || '';
@@ -1068,29 +1098,42 @@ function renderBracketTable() {
   }
 
   const leftQFCards = [
-    makeQFCard(qfm[0], leftR16Winners[0], leftR16Winners[1]),
-    makeQFCard(qfm[1], leftR16Winners[2], leftR16Winners[3]),
+    makeQFCard(findQFMatch(leftR16Winners[0], leftR16Winners[1]), leftR16Winners[0], leftR16Winners[1]),
+    makeQFCard(findQFMatch(leftR16Winners[2], leftR16Winners[3]), leftR16Winners[2], leftR16Winners[3]),
   ];
   const rightQFCards = [
-    makeQFCard(qfm[2], rightR16Winners[0], rightR16Winners[1]),
-    makeQFCard(qfm[3], rightR16Winners[2], rightR16Winners[3]),
+    makeQFCard(findQFMatch(rightR16Winners[0], rightR16Winners[1]), rightR16Winners[0], rightR16Winners[1]),
+    makeQFCard(findQFMatch(rightR16Winners[2], rightR16Winners[3]), rightR16Winners[2], rightR16Winners[3]),
   ];
 
   const leftQFWinners  = leftQFCards.map(m => m._winner);
   const rightQFWinners = rightQFCards.map(m => m._winner);
 
-  // SF
+  // SF：home/awayの中身でQF勝者ペアと対応する試合を探す
+  function findSFMatch(teamA, teamB) {
+    if (!teamA && !teamB) return null;
+    return sfm.find(m =>
+      (m.home === teamA && m.away === teamB) ||
+      (m.home === teamB && m.away === teamA) ||
+      (teamA && (m.home === teamA || m.away === teamA)) ||
+      (teamB && (m.home === teamB || m.away === teamB))
+    ) || null;
+  }
+
+  const leftSFMatch  = findSFMatch(leftQFWinners[0], leftQFWinners[1]);
+  const rightSFMatch = findSFMatch(rightQFWinners[0], rightQFWinners[1]);
+
   const leftSFCard  = {
-    home: (sfm[0] && sfm[0].home) || leftQFWinners[0] || '',
-    away: (sfm[0] && sfm[0].away) || leftQFWinners[1] || '',
-    date: sfm[0]?.date || '', time: sfm[0]?.time || '',
-    _winner: getWinner(sfm[0] || {})
+    home: (leftSFMatch && leftSFMatch.home) || leftQFWinners[0] || '',
+    away: (leftSFMatch && leftSFMatch.away) || leftQFWinners[1] || '',
+    date: leftSFMatch?.date || '', time: leftSFMatch?.time || '',
+    _winner: getWinner(leftSFMatch || {})
   };
   const rightSFCard = {
-    home: (sfm[1] && sfm[1].home) || rightQFWinners[0] || '',
-    away: (sfm[1] && sfm[1].away) || rightQFWinners[1] || '',
-    date: sfm[1]?.date || '', time: sfm[1]?.time || '',
-    _winner: getWinner(sfm[1] || {})
+    home: (rightSFMatch && rightSFMatch.home) || rightQFWinners[0] || '',
+    away: (rightSFMatch && rightSFMatch.away) || rightQFWinners[1] || '',
+    date: rightSFMatch?.date || '', time: rightSFMatch?.time || '',
+    _winner: getWinner(rightSFMatch || {})
   };
 
   // 決勝
