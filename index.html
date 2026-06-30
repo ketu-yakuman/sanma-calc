@@ -770,7 +770,8 @@ function calcGroupStandings() {
 }
 
 function renderKnockout() {
-  const { knockoutResults, bonuses } = appData;
+  const knockoutResults = deriveKnockoutResults(appData);
+  const { bonuses } = appData;
   const standings = calcGroupStandings();
 
   // グループ順位表（タブ切り替え式）
