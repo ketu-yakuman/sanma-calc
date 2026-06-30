@@ -937,11 +937,14 @@
       "date": "2026-06-30",
       "home": "ドイツ",
       "away": "パラグアイ",
-      "homeScore": null,
-      "awayScore": null,
-      "extraTime": false,
-      "penalties": null,
-      "played": false,
+      "homeScore": 1,
+      "awayScore": 1,
+      "extraTime": true,
+      "penalties": {
+        "home": 3,
+        "away": 4
+      },
+      "played": true,
       "time": "05:30"
     },
     {
@@ -950,11 +953,14 @@
       "date": "2026-06-30",
       "home": "オランダ",
       "away": "モロッコ",
-      "homeScore": null,
-      "awayScore": null,
-      "extraTime": false,
-      "penalties": null,
-      "played": false,
+      "homeScore": 1,
+      "awayScore": 1,
+      "extraTime": true,
+      "penalties": {
+        "home": 2,
+        "away": 3
+      },
+      "played": true,
       "time": "10:00"
     },
     {
@@ -1117,7 +1123,7 @@
       "round": "round_of_16",
       "match": 89,
       "date": "2026-07-05",
-      "home": "",
+      "home": "カナダ",
       "away": "",
       "homeScore": null,
       "awayScore": null,
