@@ -42,8 +42,76 @@ function getMultiplier(country) {
   return 1;
 }
 
+// 試合の勝者を判定（90分→延長→PKの順）
+function getMatchWinner(m) {
+  if (!m || !m.played || m.homeScore === null || m.awayScore === null) return '';
+  if (m.homeScore > m.awayScore) return m.home;
+  if (m.awayScore > m.homeScore) return m.away;
+  if (m.penalties) return m.penalties.home > m.penalties.away ? m.home : m.away;
+  return '';
+}
+
+// knockoutMatches（試合結果）から各ラウンドの進出国を自動算出し、
+// knockoutResults（手動入力）とマージする。
+// 自動算出を優先し、手動入力は自動算出できない箇所の補完として使う。
+function deriveKnockoutResults(data) {
+  const km = data.knockoutMatches || [];
+  const manual = data.knockoutResults || {};
+  const byRound = {};
+  ['round_of_32','round_of_16','quarter_finals','semi_finals','final'].forEach(r => byRound[r] = []);
+  km.forEach(m => { if (byRound[m.round]) byRound[m.round].push(m); });
+
+  // ベスト32は手動入力（knockoutResults.round_of_32）をそのまま正とする
+  const r32 = (manual.round_of_32 || []).filter(Boolean);
+
+  // R32試合の勝者からR16進出国を自動算出
+  const r32Winners = byRound['round_of_32']
+    .map(m => getMatchWinner(m))
+    .filter(Boolean);
+
+  // R16進出国 = 自動算出された勝者 + 手動入力されている分（重複除去）
+  const manualR16 = (manual.round_of_16 || []).filter(Boolean);
+  const r16 = [...new Set([...r32Winners, ...manualR16])];
+
+  // R16試合の勝者からQF進出国を自動算出
+  const r16Winners = byRound['round_of_16']
+    .map(m => getMatchWinner(m))
+    .filter(Boolean);
+  const manualQF = (manual.quarter_finals || []).filter(Boolean);
+  const qf = [...new Set([...r16Winners, ...manualQF])];
+
+  // QF試合の勝者からSF進出国を自動算出
+  const qfWinners = byRound['quarter_finals']
+    .map(m => getMatchWinner(m))
+    .filter(Boolean);
+  const manualSF = (manual.semi_finals || []).filter(Boolean);
+  const sf = [...new Set([...qfWinners, ...manualSF])];
+
+  // SF試合の勝者から決勝進出国を自動算出
+  const sfWinners = byRound['semi_finals']
+    .map(m => getMatchWinner(m))
+    .filter(Boolean);
+  const manualFinal = (manual.final || []).filter(Boolean);
+  const final = [...new Set([...sfWinners, ...manualFinal])];
+
+  // 決勝の勝者 = 優勝国（手動入力があればそちらを優先）
+  const finalWinner = getMatchWinner(byRound['final'][0]);
+  const champion = manual.champion || finalWinner || '';
+
+  return {
+    round_of_32: r32,
+    round_of_16: r16,
+    quarter_finals: qf,
+    semi_finals: sf,
+    final: final,
+    champion: champion
+  };
+}
+
 function calcScores(data) {
-  const { participants, matches, knockoutResults, bonuses } = data;
+  const { participants, matches, bonuses } = data;
+  // knockoutMatchesの試合結果から自動算出した進出国情報を使う
+  const knockoutResults = deriveKnockoutResults(data);
 
   // 国ごとのグループリーグ得点を集計
   const countryGroupPoints = {};
