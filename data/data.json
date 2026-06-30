@@ -982,11 +982,11 @@
       "date": "2026-07-01",
       "home": "フランス",
       "away": "スウェーデン",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 3,
+      "awayScore": 0,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "06:00"
     },
     {
