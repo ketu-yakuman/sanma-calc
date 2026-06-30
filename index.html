@@ -865,7 +865,15 @@ function switchKOView(view, btn) {
   document.querySelectorAll('#tab-knockout .view-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   if (view === 'matches') renderKnockoutMatches();
-  if (view === 'bracket') renderBracketTable();
+  if (view === 'bracket') {
+    try {
+      renderBracketTable();
+    } catch(e) {
+      console.error('renderBracketTable error:', e);
+      document.getElementById('bracketContainer').innerHTML =
+        '<div class="empty">組合せ表エラー: ' + e.message + '</div>';
+    }
+  }
 }
 
 const KO_ROUND_LABELS_VIEW = {
