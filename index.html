@@ -1022,19 +1022,6 @@ function renderBracketTable() {
     ) || null;
   }
 
-  const leftR16 = [
-    findR16Match(leftR32Winners[0], leftR32Winners[1]),
-    findR16Match(leftR32Winners[2], leftR32Winners[3]),
-    findR16Match(leftR32Winners[4], leftR32Winners[5]),
-    findR16Match(leftR32Winners[6], leftR32Winners[7]),
-  ];
-  const rightR16 = [
-    findR16Match(rightR32Winners[0], rightR32Winners[1]),
-    findR16Match(rightR32Winners[2], rightR32Winners[3]),
-    findR16Match(rightR32Winners[4], rightR32Winners[5]),
-    findR16Match(rightR32Winners[6], rightR32Winners[7]),
-  ];
-
   // 左右のSF
   const leftSF  = sfm[0] || {};
   const rightSF = sfm[1] || {};
@@ -1055,6 +1042,21 @@ function renderBracketTable() {
   // 各ラウンドの勝者リスト（ブラケット順）
   const leftR32Winners  = leftR32.map(m => getWinner(m));
   const rightR32Winners = rightR32.map(m => getWinner(m));
+
+  // leftR32Winners確定後にR16試合を対応付け
+  const leftR16 = [
+    findR16Match(leftR32Winners[0], leftR32Winners[1]),
+    findR16Match(leftR32Winners[2], leftR32Winners[3]),
+    findR16Match(leftR32Winners[4], leftR32Winners[5]),
+    findR16Match(leftR32Winners[6], leftR32Winners[7]),
+  ];
+  const rightR16 = [
+    findR16Match(rightR32Winners[0], rightR32Winners[1]),
+    findR16Match(rightR32Winners[2], rightR32Winners[3]),
+    findR16Match(rightR32Winners[4], rightR32Winners[5]),
+    findR16Match(rightR32Winners[6], rightR32Winners[7]),
+  ];
+
 
   // R16のmatchCardに表示するチーム名：
   // R16試合にhome/awayが入力済みならそれを使い、未入力ならR32勝者を使う
