@@ -924,11 +924,11 @@
       "date": "2026-06-30",
       "home": "ブラジル",
       "away": "日本",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 2,
+      "awayScore": 1,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "02:00"
     },
     {
@@ -937,11 +937,14 @@
       "date": "2026-06-30",
       "home": "ドイツ",
       "away": "パラグアイ",
-      "homeScore": null,
-      "awayScore": null,
-      "extraTime": false,
-      "penalties": null,
-      "played": false,
+      "homeScore": 1,
+      "awayScore": 1,
+      "extraTime": true,
+      "penalties": {
+        "home": 3,
+        "away": 4
+      },
+      "played": true,
       "time": "05:30"
     },
     {
@@ -950,11 +953,14 @@
       "date": "2026-06-30",
       "home": "オランダ",
       "away": "モロッコ",
-      "homeScore": null,
-      "awayScore": null,
-      "extraTime": false,
-      "penalties": null,
-      "played": false,
+      "homeScore": 1,
+      "awayScore": 1,
+      "extraTime": true,
+      "penalties": {
+        "home": 2,
+        "away": 3
+      },
+      "played": true,
       "time": "10:00"
     },
     {
@@ -1117,7 +1123,7 @@
       "round": "round_of_16",
       "match": 89,
       "date": "2026-07-05",
-      "home": "",
+      "home": "カナダ",
       "away": "",
       "homeScore": null,
       "awayScore": null,
@@ -1150,11 +1156,11 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "05:00"
+      "time": "02:00"
     },
     {
       "round": "round_of_16",
-      "match": 95,
+      "match": 92,
       "date": "2026-07-06",
       "home": "",
       "away": "",
@@ -1163,7 +1169,7 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "09:00"
+      "time": "06:00"
     },
     {
       "round": "round_of_16",
@@ -1176,11 +1182,11 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "04:00"
+      "time": "02:00"
     },
     {
       "round": "round_of_16",
-      "match": 96,
+      "match": 94,
       "date": "2026-07-07",
       "home": "",
       "away": "",
@@ -1189,11 +1195,11 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "09:00"
+      "time": "06:00"
     },
     {
       "round": "round_of_16",
-      "match": 94,
+      "match": 95,
       "date": "2026-07-08",
       "home": "",
       "away": "",
@@ -1202,11 +1208,11 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "01:00"
+      "time": "02:00"
     },
     {
       "round": "round_of_16",
-      "match": 92,
+      "match": 96,
       "date": "2026-07-08",
       "home": "",
       "away": "",
@@ -1215,7 +1221,7 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "05:00"
+      "time": "06:00"
     },
     {
       "round": "quarter_finals",
@@ -1228,12 +1234,12 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "05:00"
+      "time": "02:00"
     },
     {
       "round": "quarter_finals",
       "match": 98,
-      "date": "2026-07-11",
+      "date": "2026-07-10",
       "home": "",
       "away": "",
       "homeScore": null,
@@ -1241,7 +1247,7 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "04:00"
+      "time": "06:00"
     },
     {
       "round": "quarter_finals",
@@ -1254,12 +1260,12 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "06:00"
+      "time": "02:00"
     },
     {
       "round": "quarter_finals",
       "match": 100,
-      "date": "2026-07-12",
+      "date": "2026-07-11",
       "home": "",
       "away": "",
       "homeScore": null,
@@ -1267,7 +1273,7 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "10:00"
+      "time": "06:00"
     },
     {
       "round": "semi_finals",
@@ -1280,7 +1286,7 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "04:00"
+      "time": "08:00"
     },
     {
       "round": "semi_finals",
@@ -1293,7 +1299,7 @@
       "extraTime": false,
       "penalties": null,
       "played": false,
-      "time": "04:00"
+      "time": "08:00"
     },
     {
       "round": "final",
