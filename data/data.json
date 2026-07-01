@@ -995,11 +995,11 @@
       "date": "2026-07-01",
       "home": "メキシコ",
       "away": "エクアドル",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 2,
+      "awayScore": 0,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "10:00"
     },
     {
@@ -1008,11 +1008,11 @@
       "date": "2026-07-02",
       "home": "イングランド",
       "away": "コンゴDR",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 2,
+      "awayScore": 1,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "01:00"
     },
     {
