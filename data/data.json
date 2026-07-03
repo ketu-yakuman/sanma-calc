@@ -1035,7 +1035,7 @@
       "home": "アメリカ",
       "away": "ボスニア・ヘルツェゴビナ",
       "homeScore": 2,
-      "awayScore": null,
+      "awayScore": 0,
       "extraTime": false,
       "penalties": null,
       "played": true,
@@ -1060,11 +1060,11 @@
       "date": "2026-07-03",
       "home": "ポルトガル",
       "away": "クロアチア",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 2,
+      "awayScore": 1,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "08:00"
     },
     {
