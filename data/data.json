@@ -1073,11 +1073,11 @@
       "date": "2026-07-03",
       "home": "スイス",
       "away": "アルジェリア",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 2,
+      "awayScore": 0,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "12:00"
     },
     {
@@ -1086,11 +1086,14 @@
       "date": "2026-07-04",
       "home": "オーストラリア",
       "away": "エジプト",
-      "homeScore": null,
-      "awayScore": null,
-      "extraTime": false,
-      "penalties": null,
-      "played": false,
+      "homeScore": 1,
+      "awayScore": 1,
+      "extraTime": true,
+      "penalties": {
+        "home": 2,
+        "away": 4
+      },
+      "played": true,
       "time": "03:00"
     },
     {
@@ -1099,11 +1102,11 @@
       "date": "2026-07-04",
       "home": "アルゼンチン",
       "away": "カーボベルデ",
-      "homeScore": null,
-      "awayScore": null,
-      "extraTime": false,
+      "homeScore": 3,
+      "awayScore": 2,
+      "extraTime": true,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "07:00"
     },
     {
@@ -1112,11 +1115,11 @@
       "date": "2026-07-04",
       "home": "コロンビア",
       "away": "ガーナ",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 1,
+      "awayScore": 0,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "10:30"
     },
     {
