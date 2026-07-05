@@ -12,6 +12,7 @@ const POINTS = {
   semi_finals: 12,
   final: 15,
   champion: 25,
+  third_place: 10,
   // ボーナス
   topScorer: 10,
   mvp: 10,
@@ -98,13 +99,19 @@ function deriveKnockoutResults(data) {
   const finalWinner = getMatchWinner(byRound['final'][0]);
   const champion = manual.champion || finalWinner || '';
 
+  // 3位決定戦の勝者
+  const thirdMatch = (data.knockoutMatches || []).find(m => m.round === 'third_place');
+  const thirdWinner = thirdMatch ? getMatchWinner(thirdMatch) : '';
+  const third_place = manual.third_place || thirdWinner || '';
+
   return {
     round_of_32: r32,
     round_of_16: r16,
     quarter_finals: qf,
     semi_finals: sf,
     final: final,
-    champion: champion
+    champion: champion,
+    third_place: third_place
   };
 }
 
@@ -160,7 +167,8 @@ function calcScores(data) {
       const bonus =
         (bonuses.topScorer === country ? POINTS.topScorer : 0) +
         (bonuses.mvp === country ? POINTS.mvp : 0) +
-        (knockoutResults.champion === country ? POINTS.championOwner : 0);
+        (knockoutResults.champion === country ? POINTS.championOwner : 0) +
+        (knockoutResults.third_place === country ? POINTS.third_place : 0);
 
       const penalty =
         (bonuses.mostRed === country ? 10 : 0) +
