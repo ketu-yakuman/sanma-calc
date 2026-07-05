@@ -896,7 +896,8 @@
     "quarter_finals": [],
     "semi_finals": [],
     "final": [],
-    "champion": ""
+    "champion": "",
+    "third_place": ""
   },
   "bonuses": {
     "topScorer": "",
@@ -1316,6 +1317,19 @@
       "penalties": null,
       "played": false,
       "time": "04:00"
+    },
+    {
+      "round": "third_place",
+      "match": 103,
+      "date": "2026-07-19",
+      "time": "04:00",
+      "home": "",
+      "away": "",
+      "homeScore": null,
+      "awayScore": null,
+      "extraTime": false,
+      "penalties": null,
+      "played": false
     }
   ]
 }
