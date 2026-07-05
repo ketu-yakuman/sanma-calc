@@ -412,6 +412,10 @@
         <label>🌟 大会MVPの所属国 <span style="color:var(--gold)">＋10点</span></label>
         <select id="bonusMvp" onchange="data.bonuses.mvp=this.value"></select>
       </div>
+      <div class="form-field">
+        <label>🥉 3位決定戦の勝者 <span style="color:var(--gold)">＋10点</span></label>
+        <select id="bonusThirdPlace" onchange="data.knockoutResults.third_place=this.value"></select>
+      </div>
       <div style="height:1px;background:var(--border);margin:1rem 0"></div>
       <p style="font-size:0.78rem;color:var(--red);font-weight:700;margin-bottom:0.75rem">⚠️ 逆ボーナス（ペナルティ）</p>
       <div class="form-field">
@@ -1026,10 +1030,11 @@ function renderBonus() {
     `<option value="${t}">${t || '-- 未定 --'}</option>`
   ).join('');
   const fields = [
-    { id: 'bonusTopScorer', key: 'topScorer' },
-    { id: 'bonusMvp',       key: 'mvp' },
-    { id: 'bonusMostRed',      key: 'mostRed' },
-    { id: 'bonusMostConceded', key: 'mostConceded' },
+    { id: 'bonusTopScorer',   key: 'topScorer' },
+    { id: 'bonusMvp',         key: 'mvp' },
+    { id: 'bonusThirdPlace',  key: 'third_place' },
+    { id: 'bonusMostRed',     key: 'mostRed' },
+    { id: 'bonusMostConceded',key: 'mostConceded' },
   ];
   fields.forEach(({ id, key }) => {
     const el = document.getElementById(id);
