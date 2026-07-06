@@ -870,26 +870,9 @@
       "コロンビア",
       "ポルトガル",
       "イングランド",
-      "クロアチア",
-      "ボスニア・ヘルツェゴビナ",
-      "エクアドル",
-      "スウェーデン",
-      "パラグアイ",
-      "セネガル",
-      "ガーナ",
-      "コンゴDR",
-      "アルジェリア"
+      "クロアチア"
     ],
-    "round_of_32_third": [
-      "ボスニア・ヘルツェゴビナ",
-      "エクアドル",
-      "スウェーデン",
-      "パラグアイ",
-      "セネガル",
-      "ガーナ",
-      "コンゴDR",
-      "アルジェリア"
-    ],
+    "round_of_32_third": [],
     "round_of_16": [
       "カナダ"
     ],
@@ -1155,11 +1138,11 @@
       "date": "2026-07-06",
       "home": "ブラジル",
       "away": "ノルウェー",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 1,
+      "awayScore": 2,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "05:00"
     },
     {
@@ -1168,11 +1151,11 @@
       "date": "2026-07-06",
       "home": "メキシコ",
       "away": "イングランド",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 2,
+      "awayScore": 3,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "09:00"
     },
     {
