@@ -1164,11 +1164,11 @@
       "date": "2026-07-07",
       "home": "ポルトガル",
       "away": "スペイン",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 0,
+      "awayScore": 1,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "04:00"
     },
     {
@@ -1177,11 +1177,11 @@
       "date": "2026-07-07",
       "home": "アメリカ",
       "away": "ベルギー",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 1,
+      "awayScore": 4,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "09:00"
     },
     {
