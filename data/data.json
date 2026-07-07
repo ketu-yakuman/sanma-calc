@@ -1190,11 +1190,11 @@
       "date": "2026-07-08",
       "home": "アルゼンチン",
       "away": "エジプト",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 3,
+      "awayScore": 2,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "01:00"
     },
     {
@@ -1203,11 +1203,14 @@
       "date": "2026-07-08",
       "home": "スイス",
       "away": "コロンビア",
-      "homeScore": null,
-      "awayScore": null,
-      "extraTime": false,
-      "penalties": null,
-      "played": false,
+      "homeScore": 0,
+      "awayScore": 0,
+      "extraTime": true,
+      "penalties": {
+        "home": 4,
+        "away": 3
+      },
+      "played": true,
       "time": "05:00"
     },
     {
