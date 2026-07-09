@@ -1329,6 +1329,21 @@ function renderBracketTable() {
   };
   const finalWinner = champ || getWinner(finm[0] || {});
 
+  // 3位決定戦（準決勝の敗者同士）
+  const leftSFLoser  = leftSFCard._winner
+    ? (leftSFCard.home === leftSFCard._winner ? leftSFCard.away : leftSFCard.home)
+    : '';
+  const rightSFLoser = rightSFCard._winner
+    ? (rightSFCard.home === rightSFCard._winner ? rightSFCard.away : rightSFCard.home)
+    : '';
+  const tpm = km.filter(m => m.round === 'third_place');
+  const thirdPlaceCard = {
+    home: (tpm[0] && tpm[0].home) || leftSFLoser || '',
+    away: (tpm[0] && tpm[0].away) || rightSFLoser || '',
+    date: tpm[0]?.date || '', time: tpm[0]?.time || '',
+  };
+  const thirdPlaceWinner = appData.knockoutResults.third_place || getWinner(tpm[0] || {});
+
   function fmtDt(date, time) {
     if (!date) return '';
     const d = new Date(date + 'T00:00:00+09:00');
@@ -1443,6 +1458,11 @@ function renderBracketTable() {
     <div class="br-col fin">
       ${matchCard(finalCard, finalWinner)}
       ${finalWinner ? `<div class="br-champ">👑 ${finalWinner}</div>` : ''}
+      <div style="margin-top:0.75rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.62rem;color:var(--muted);text-align:center;margin-bottom:0.3rem;letter-spacing:0.05em">3位決定戦</div>
+        ${matchCard(thirdPlaceCard, thirdPlaceWinner)}
+        ${thirdPlaceWinner ? `<div class="br-champ" style="background:rgba(205,127,50,0.12);border-color:rgba(205,127,50,0.4);color:#cd7f32">🥉 ${thirdPlaceWinner}</div>` : ''}
+      </div>
     </div>
     <div class="br-col conn"></div>
     <div class="br-col sf">${matchCard(rightSFCard, rightSFCard._winner)}</div>
