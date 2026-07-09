@@ -115,6 +115,68 @@ function deriveKnockoutResults(data) {
   };
 }
 
+// 指定した国の得点内訳を計算する（グループリーグの勝敗・決勝T進出・ボーナス等）
+function getCountryBreakdown(data, country) {
+  const { matches, bonuses } = data;
+  const knockoutResults = deriveKnockoutResults(data);
+  const multiplier = getMultiplier(country);
+
+  const items = []; // { label, points, multiplied } の配列
+
+  // グループリーグの各試合結果
+  let groupWinCount = 0, groupDrawCount = 0, groupLossCount = 0;
+  matches.forEach(match => {
+    if (!match.played || match.homeScore === null || match.awayScore === null) return;
+    const { home, away, homeScore, awayScore } = match;
+    if (home !== country && away !== country) return;
+
+    if (homeScore === awayScore) {
+      groupDrawCount++;
+    } else if ((home === country && homeScore > awayScore) || (away === country && awayScore > homeScore)) {
+      groupWinCount++;
+    } else {
+      groupLossCount++;
+    }
+  });
+  if (groupWinCount > 0) items.push({ label: `勝ち点 ×${groupWinCount}`, points: POINTS.group_win * groupWinCount, multiplied: true });
+  if (groupDrawCount > 0) items.push({ label: `引き分け ×${groupDrawCount}`, points: POINTS.group_draw * groupDrawCount, multiplied: true });
+  if (groupLossCount > 0) items.push({ label: `敗戦 ×${groupLossCount}`, points: 0, multiplied: true });
+
+  // 決勝トーナメント各ラウンド進出
+  const roundLabels = {
+    round_of_32: 'ベスト32進出',
+    round_of_16: 'ベスト16進出',
+    quarter_finals: 'ベスト8進出',
+    semi_finals: 'ベスト4進出',
+    final: '決勝進出',
+  };
+  ['round_of_32', 'round_of_16', 'quarter_finals', 'semi_finals', 'final'].forEach(round => {
+    if ((knockoutResults[round] || []).includes(country)) {
+      items.push({ label: roundLabels[round], points: POINTS[round], multiplied: true });
+    }
+  });
+  if (knockoutResults.champion === country) {
+    items.push({ label: '優勝', points: POINTS.champion, multiplied: true });
+  }
+
+  // ボーナス（2倍補正なし）
+  if (bonuses.topScorer === country) items.push({ label: '得点王ボーナス', points: POINTS.topScorer, multiplied: false });
+  if (bonuses.mvp === country) items.push({ label: 'MVPボーナス', points: POINTS.mvp, multiplied: false });
+  if (knockoutResults.champion === country) items.push({ label: '優勝国ボーナス', points: POINTS.championOwner, multiplied: false });
+  if (knockoutResults.third_place === country) items.push({ label: '3位決定戦勝利ボーナス', points: POINTS.third_place, multiplied: false });
+
+  // ペナルティ（2倍補正なし）
+  if (bonuses.mostRed === country) items.push({ label: '最多レッドカード国ペナルティ', points: -10, multiplied: false });
+  if (bonuses.mostConceded === country) items.push({ label: '最多失点国ペナルティ', points: -10, multiplied: false });
+
+  // 合計計算（multiplied=trueの項目のみ2倍対象）
+  const baseSum = items.filter(i => i.multiplied).reduce((s, i) => s + i.points, 0);
+  const bonusSum = items.filter(i => !i.multiplied).reduce((s, i) => s + i.points, 0);
+  const total = baseSum * multiplier + bonusSum;
+
+  return { items, multiplier, baseSum, bonusSum, total };
+}
+
 function calcScores(data) {
   const { participants, matches, bonuses } = data;
   // knockoutMatchesの試合結果から自動算出した進出国情報を使う
