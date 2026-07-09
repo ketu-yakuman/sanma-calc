@@ -1260,11 +1260,11 @@
       "date": "2026-07-10",
       "home": "フランス",
       "away": "モロッコ",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 2,
+      "awayScore": 0,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "05:00"
     },
     {
@@ -1310,7 +1310,7 @@
       "round": "semi_finals",
       "match": 101,
       "date": "2026-07-15",
-      "home": "",
+      "home": "フランス",
       "away": "",
       "homeScore": null,
       "awayScore": null,
