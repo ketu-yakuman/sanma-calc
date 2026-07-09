@@ -541,7 +541,10 @@ function showTab(tab, el) {
   if (el) el.classList.add('active');
   document.getElementById('scrollArea').scrollTop = 0;
   // 決勝Tタブを開いた時に試合結果を描画
-  if (tab === 'knockout' && appData) renderKnockoutMatches();
+  if (tab === 'knockout' && appData) {
+    renderKnockoutMatches();
+    setTimeout(scrollToNextKOMatch, 50);
+  }
 }
 
 function renderAll() {
@@ -870,7 +873,10 @@ function switchKOView(view, btn) {
   });
   document.querySelectorAll('#tab-knockout .view-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  if (view === 'matches') renderKnockoutMatches();
+  if (view === 'matches') {
+    renderKnockoutMatches();
+    setTimeout(scrollToNextKOMatch, 50);
+  }
   if (view === 'bracket') {
     try {
       renderBracketTable();
@@ -882,11 +888,32 @@ function switchKOView(view, btn) {
   }
 }
 
+function scrollToNextKOMatch() {
+  const container = document.getElementById('knockoutMatchesList');
+  if (!container) return;
+  const rows = Array.from(container.querySelectorAll('.match-row'));
+  if (!rows.length) return;
+
+  const todayKey = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' });
+
+  // 未試合かつ日付が今日以降で一番近いものを探す
+  let target = rows.find(r =>
+    r.dataset.koPlayed === '0' && r.dataset.koDate && r.dataset.koDate >= todayKey
+  );
+  // 見つからなければ最初の未試合
+  if (!target) target = rows.find(r => r.dataset.koPlayed === '0');
+  // それも無ければ末尾（全部消化済み）
+  if (!target) target = rows[rows.length - 1];
+
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 const KO_ROUND_LABELS_VIEW = {
   round_of_32: 'ベスト32',
   round_of_16: 'ベスト16',
   quarter_finals: '準々決勝（ベスト8）',
   semi_finals: '準決勝（ベスト4）',
+  third_place: '3位決定戦',
   final: '決勝'
 };
 
@@ -899,7 +926,7 @@ function renderKnockoutMatches() {
   }
 
   const owned = new Set(appData.participants.flatMap(p => p.countries));
-  const roundOrder = ['round_of_32','round_of_16','quarter_finals','semi_finals','final'];
+  const roundOrder = ['round_of_32','round_of_16','quarter_finals','semi_finals','third_place','final'];
   const byRound = {};
   roundOrder.forEach(r => byRound[r] = []);
   matches.forEach(m => { if (byRound[m.round]) byRound[m.round].push(m); });
@@ -1001,13 +1028,17 @@ function renderKnockoutMatches() {
   for (let i = 0; i < qfWinners.length; i += 2) {
     sfPairs.push([qfWinners[i], qfWinners[i+1]]);
   }
-  const sfEnriched = sfPairs.map(([a, b]) => {
+  let sfEnriched = sfPairs.map(([a, b]) => {
     const match = findSF(a, b);
     if (match) return { ...match, home: match.home || a || '', away: match.away || b || '' };
     return { round: 'semi_finals', date: '', time: '', played: false,
       homeScore: null, awayScore: null, extraTime: false, penalties: null,
       home: a || '', away: b || '' };
   });
+  // QF未確定でも日程だけは表示する（sfmに元データがあればそれを使う）
+  if (sfEnriched.length === 0 && sfm.length > 0) {
+    sfEnriched = sfm.map(m => ({ ...m, home: m.home || '', away: m.away || '' }));
+  }
   const sfWinners = sfEnriched.map(m => getW(m));
 
   // 決勝
@@ -1020,11 +1051,27 @@ function renderKnockoutMatches() {
     away: finalMatch.away || sfWinners[1] || '',
   }];
 
+  // 3位決定戦（準決勝の敗者同士）
+  const sfLosers = sfEnriched.map(m => {
+    const w = getW(m);
+    if (!w) return '';
+    return m.home === w ? m.away : m.home;
+  }).filter(Boolean);
+  const tpm = byRound['third_place'];
+  const thirdPlaceMatch = tpm[0] || { round: 'third_place', date: '', time: '', played: false,
+    homeScore: null, awayScore: null, extraTime: false, penalties: null, home: '', away: '' };
+  const thirdPlaceEnriched = [{
+    ...thirdPlaceMatch,
+    home: thirdPlaceMatch.home || sfLosers[0] || '',
+    away: thirdPlaceMatch.away || sfLosers[1] || '',
+  }];
+
   const enrichedByRound = {
     round_of_32: byRound['round_of_32'].filter(m => m.home),
     round_of_16: r16Enriched,
     quarter_finals: qfEnriched,
     semi_finals: sfEnriched,
+    third_place: thirdPlaceEnriched,
     final: finalEnriched,
   };
 
@@ -1058,7 +1105,8 @@ function renderKnockoutMatches() {
       const homeStyle = homeOwned ? 'color:var(--accent)' : m.home ? '' : 'color:var(--muted);font-style:italic';
       const awayStyle = awayOwned ? 'color:var(--accent)' : m.away ? '' : 'color:var(--muted);font-style:italic';
 
-      return `<div class="match-row" style="${border}">
+      const isNext = !m.played && m.date && new Date(m.date + 'T00:00:00+09:00') >= new Date(new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Tokyo'}) + 'T00:00:00+09:00');
+      return `<div class="match-row" data-ko-date="${m.date||''}" data-ko-played="${m.played?1:0}" style="${border}">
         <div style="display:flex;flex-direction:column;flex:1;min-width:0">
           <span style="font-size:0.68rem;color:var(--gold);margin-bottom:0.15rem">${dateLabel}</span>
           <span class="match-team" style="${homeStyle};cursor:${m.home?'pointer':'default'}" ${m.home?`onclick="showCountryPopup('${m.home}')"`:''}>${m.home?getFlag(m.home):''}${homeName}${m.home?getRankLabel(m.home):''}</span>
