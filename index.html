@@ -1035,8 +1035,9 @@ function renderKnockoutMatches() {
       homeScore: null, awayScore: null, extraTime: false, penalties: null,
       home: a || '', away: b || '' };
   });
-  // QF未確定でも日程だけは表示する（sfmに元データがあればそれを使う）
-  if (sfEnriched.length === 0 && sfm.length > 0) {
+  // QF未確定でも日程だけは表示する（sfEnrichedの中身が全部空＝日付なしダミーの場合、sfmの元データに差し替える）
+  const sfHasAnyDate = sfEnriched.some(m => m.date);
+  if (!sfHasAnyDate && sfm.length > 0) {
     sfEnriched = sfm.map(m => ({ ...m, home: m.home || '', away: m.away || '' }));
   }
   const sfWinners = sfEnriched.map(m => getW(m));
@@ -1305,8 +1306,8 @@ function renderBracketTable() {
     ) || null;
   }
 
-  const leftSFMatch  = findSFMatch(leftQFWinners[0], leftQFWinners[1]);
-  const rightSFMatch = findSFMatch(rightQFWinners[0], rightQFWinners[1]);
+  const leftSFMatch  = findSFMatch(leftQFWinners[0], leftQFWinners[1]) || sfm[0] || null;
+  const rightSFMatch = findSFMatch(rightQFWinners[0], rightQFWinners[1]) || sfm[1] || null;
 
   const leftSFCard  = {
     home: (leftSFMatch && leftSFMatch.home) || leftQFWinners[0] || '',
