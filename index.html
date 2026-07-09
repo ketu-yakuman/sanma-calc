@@ -368,6 +368,13 @@
   .popup-owner-chip { padding: 0.35rem 0.9rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 700; background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.3); color: var(--accent); }
   .popup-none { font-size: 0.85rem; color: var(--muted); padding: 0.5rem 0; }
   .popup-close { width: 100%; margin-top: 1rem; padding: 0.75rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg3); color: var(--muted); font-family: 'Noto Sans JP', sans-serif; font-size: 0.9rem; cursor: pointer; }
+  .popup-bd-title { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem; font-weight: 700; }
+  .popup-bd-list { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.5rem; }
+  .popup-bd-row { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.6rem; background: var(--bg3); border-radius: 6px; font-size: 0.82rem; }
+  .popup-bd-label { color: var(--text); }
+  .popup-bd-pts { font-weight: 700; font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; }
+  .popup-bd-sub { background: transparent; border: 1px dashed var(--border); color: var(--muted); font-size: 0.75rem; }
+  .popup-bd-total { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0.75rem; margin-top: 0.4rem; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--accent); font-weight: 700; }
 
   /* ===== BRACKET ===== */
   .bracket-round-label {
@@ -609,7 +616,7 @@ function renderPicks() {
           if (hasPts) ptLabel += `<span class="picks-country-pts">+${pts}pt</span>`;
           if (isPenaltyRed) ptLabel += `<span class="picks-country-penalty">🟥-10</span>`;
           if (isPenaltyConceded) ptLabel += `<span class="picks-country-penalty">🥅-10</span>`;
-          return `<div class="picks-country-item${hasPts?' has-pts':''}">
+          return `<div class="picks-country-item${hasPts?' has-pts':''}" onclick="showBreakdownPopup('${c}')" style="cursor:pointer">
             <span class="picks-country-name">${c}${rankLabel}</span>
             ${ptLabel}
           </div>`;
@@ -722,6 +729,7 @@ function showCountryPopup(country) {
 
   document.getElementById('popupCountry').textContent = country;
   document.getElementById('popupRank').textContent = rank ? `FIFA ${rank}位` : '';
+  document.getElementById('popupBreakdown').innerHTML = '';
 
   const ownersEl = document.getElementById('popupOwners');
   if (owners.length) {
@@ -730,6 +738,48 @@ function showCountryPopup(country) {
     ).join('');
   } else {
     ownersEl.innerHTML = '<span class="popup-none">この国を選んでいる参加者はいません</span>';
+  }
+
+  document.getElementById('popupOverlay').classList.add('show');
+}
+
+function showBreakdownPopup(country) {
+  if (!appData) return;
+  const rank = FIFA_RANKINGS[country];
+  const bd = getCountryBreakdown(appData, country);
+
+  document.getElementById('popupCountry').textContent = country;
+  document.getElementById('popupRank').textContent = rank ? `FIFA ${rank}位${bd.multiplier > 1 ? '（得点2倍）' : ''}` : '';
+  document.getElementById('popupOwners').innerHTML = '';
+
+  const bdEl = document.getElementById('popupBreakdown');
+  if (!bd.items.length) {
+    bdEl.innerHTML = '<div class="popup-none">まだ得点が発生していません</div>';
+  } else {
+    const rows = bd.items.map(it => {
+      const sign = it.points > 0 ? '+' : '';
+      const color = it.points > 0 ? 'var(--accent)' : it.points < 0 ? 'var(--red)' : 'var(--muted)';
+      return `<div class="popup-bd-row">
+        <span class="popup-bd-label">${it.label}</span>
+        <span class="popup-bd-pts" style="color:${color}">${sign}${it.points}pt</span>
+      </div>`;
+    }).join('');
+
+    const multLine = bd.multiplier > 1
+      ? `<div class="popup-bd-row popup-bd-sub">
+          <span class="popup-bd-label">小計 × 2倍</span>
+          <span class="popup-bd-pts">${bd.baseSum}pt → ${bd.baseSum * bd.multiplier}pt</span>
+        </div>`
+      : '';
+
+    bdEl.innerHTML = `
+      <div class="popup-bd-title">得点内訳</div>
+      <div class="popup-bd-list">${rows}</div>
+      ${multLine}
+      <div class="popup-bd-total">
+        <span>合計</span>
+        <span>${bd.total >= 0 ? '+' : ''}${bd.total}pt</span>
+      </div>`;
   }
 
   document.getElementById('popupOverlay').classList.add('show');
@@ -1518,6 +1568,7 @@ loadData();
     <div class="popup-title" id="popupCountry"></div>
     <div class="popup-rank" id="popupRank"></div>
     <div class="popup-owners" id="popupOwners"></div>
+    <div id="popupBreakdown"></div>
     <button class="popup-close" onclick="hidePopup()">閉じる</button>
   </div>
 </div>
