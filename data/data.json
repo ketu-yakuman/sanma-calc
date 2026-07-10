@@ -1273,11 +1273,11 @@
       "date": "2026-07-11",
       "home": "スペイン",
       "away": "ベルギー",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 2,
+      "awayScore": 1,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "04:00"
     },
     {
@@ -1311,7 +1311,7 @@
       "match": 101,
       "date": "2026-07-15",
       "home": "フランス",
-      "away": "",
+      "away": "スペイン",
       "homeScore": null,
       "awayScore": null,
       "extraTime": false,
