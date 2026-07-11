@@ -1286,11 +1286,11 @@
       "date": "2026-07-12",
       "home": "ノルウェー",
       "away": "イングランド",
-      "homeScore": null,
-      "awayScore": null,
-      "extraTime": false,
+      "homeScore": 1,
+      "awayScore": 2,
+      "extraTime": true,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "06:00"
     },
     {
