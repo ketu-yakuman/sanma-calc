@@ -918,8 +918,15 @@
       "アルゼンチン",
       "スイス"
     ],
-    "semi_finals": [],
-    "final": [],
+    "semi_finals": [
+      "フランス",
+      "スペイン",
+      "イングランド",
+      "アルゼンチン"
+    ],
+    "final": [
+      "スペイン"
+    ],
     "champion": "",
     "third_place": ""
   },
@@ -1325,11 +1332,11 @@
       "date": "2026-07-16",
       "home": "イングランド",
       "away": "アルゼンチン",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 1,
+      "awayScore": 2,
       "extraTime": false,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "04:00"
     },
     {
@@ -1337,7 +1344,7 @@
       "match": 103,
       "date": "2026-07-20",
       "home": "スペイン",
-      "away": "",
+      "away": "アルゼンチン",
       "homeScore": null,
       "awayScore": null,
       "extraTime": false,
@@ -1351,7 +1358,7 @@
       "date": "2026-07-19",
       "time": "04:00",
       "home": "フランス",
-      "away": "",
+      "away": "イングランド",
       "homeScore": null,
       "awayScore": null,
       "extraTime": false,
