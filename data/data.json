@@ -1359,11 +1359,11 @@
       "time": "04:00",
       "home": "フランス",
       "away": "イングランド",
-      "homeScore": null,
-      "awayScore": null,
+      "homeScore": 4,
+      "awayScore": 6,
       "extraTime": false,
       "penalties": null,
-      "played": false
+      "played": true
     }
   ]
 }
