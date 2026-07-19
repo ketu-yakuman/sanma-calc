@@ -931,7 +931,7 @@
     "third_place": ""
   },
   "bonuses": {
-    "topScorer": "",
+    "topScorer": "フランス",
     "mvp": "",
     "mostRed": "",
     "mostConceded": ""
@@ -1345,11 +1345,11 @@
       "date": "2026-07-20",
       "home": "スペイン",
       "away": "アルゼンチン",
-      "homeScore": null,
-      "awayScore": null,
-      "extraTime": false,
+      "homeScore": 1,
+      "awayScore": 0,
+      "extraTime": true,
       "penalties": null,
-      "played": false,
+      "played": true,
       "time": "04:00"
     },
     {
